@@ -9,23 +9,40 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindowInteractor.h>
 
+vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName);
+
 int main()
 {
     std::string inputFileName = "./data/FiberBundle_1_Output Volume-label.vtk";
+    std::cout << "Application started." << std::endl;
     
-    // Get all data from the file
-    vtkSmartPointer<vtkGenericDataObjectReader> reader =
-            vtkSmartPointer<vtkGenericDataObjectReader>::New();
-    reader->SetFileName(inputFileName.c_str());
-    reader->Update();
+    vtkSmartPointer<vtkPolyData> output;
     
-    // All of the standard data types can be checked and obtained like this:
-    if(reader->IsFilePolyData())
-    {
-        std::cout << "output is a polydata" << std::endl;
-        vtkPolyData* output = reader->GetPolyDataOutput();
+    try {
+        output = readPolyData(inputFileName);
         std::cout << "output has " << output->GetNumberOfLines() << " lines." << std::endl;
+    }
+    catch( const std::invalid_argument& e ) {
+        std::cout << e.what() << std::endl;
+        return EXIT_FAILURE;
     }
     
     return EXIT_SUCCESS;
+}
+
+vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName)
+{
+    vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
+    reader->SetFileName(inputFileName.c_str());
+    reader->Update();
+    
+    if(!reader->IsFilePolyData())
+    {
+        throw new std::invalid_argument("The file input is not polygon data");
+    }
+    
+    vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+    polyData->CopyStructure(reader->GetPolyDataOutput());
+    
+    return polyData;
 }
