@@ -7,7 +7,7 @@ set(VTK_DIR /home/rutger/Desktop/Studie/graduation/slicer/Slicer-SuperBuild-Debu
 FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
-add_executable(progressive_fiber_uncertainty_viz main.cpp)
+add_executable(progressive_fiber_uncertainty_viz main.cpp KeyPressInteractorStyle.h)
 
 target_link_libraries(progressive_fiber_uncertainty_viz ${VTK_LIBRARIES})
 

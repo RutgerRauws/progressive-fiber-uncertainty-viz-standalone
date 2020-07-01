@@ -12,9 +12,14 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkLine.h>
-#include <vtkInteractorStyleTrackballCamera.h>
+#include <X11/Xlib.h>
+
+#include "KeyPressInteractorStyle.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
+const int PROGRESSIVE_INTERVAL_MS = 500;
+
+bool KeepAddingFibers = true;
 
 vtkSmartPointer<vtkPolyData> fiberPolyData;
 vtkSmartPointer<vtkCellArray> polyLines;
@@ -22,12 +27,12 @@ vtkSmartPointer<vtkRenderWindow> renderWindow;
 
 vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName);
 
-void add_fibers_thread()
+void addFibers_t()
 {
     fiberPolyData->GetLines()->InitTraversal();
     vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
 
-    while(fiberPolyData->GetLines()->GetNextCell(idList))
+    while(fiberPolyData->GetLines()->GetNextCell(idList) && KeepAddingFibers)
     {
         //std::cout << "Line has " << idList->GetNumberOfIds() << " points." << std::endl;
 
@@ -36,12 +41,14 @@ void add_fibers_thread()
         renderWindow->Render();
 
         std::cout << "Rendered line!" << std::endl;
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::milliseconds(PROGRESSIVE_INTERVAL_MS));
     }
 }
 
 int main()
 {
+    XInitThreads();
+    
     std::cout << "Application started." << std::endl;
     
     try {
@@ -77,17 +84,21 @@ int main()
             vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
     
-    vtkSmartPointer<vtkInteractorStyleTrackballCamera> style =
-            vtkSmartPointer<vtkInteractorStyleTrackballCamera>::New();
+    vtkSmartPointer<KeyPressInteractorStyle> style =
+            vtkSmartPointer<KeyPressInteractorStyle>::New();
     renderWindowInteractor->SetInteractorStyle(style);
     
     renderer->ResetCamera();
     renderWindow->Render();
     renderWindowInteractor->Initialize();
     
-    std::thread addFibers_t(add_fibers_thread);
+    std::thread updateThread(addFibers_t);
     renderWindowInteractor->Start();
-    addFibers_t.join();
+    
+    //When we reach this point, the renderWindowInteractor has been terminated by the KeyPressInteractorStyle
+    KeepAddingFibers = false;
+    renderWindow->Finalize();
+    updateThread.join();
     
     return EXIT_SUCCESS;
 }
