@@ -11,6 +11,4 @@ add_executable(progressive_fiber_uncertainty_viz main.cpp KeyPressInteractorStyl
 
 target_link_libraries(progressive_fiber_uncertainty_viz ${VTK_LIBRARIES})
 
-add_custom_command(TARGET progressive_fiber_uncertainty_viz POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_directory
-        ${CMAKE_SOURCE_DIR}/data/ $<TARGET_FILE_DIR:progressive_fiber_uncertainty_viz>/data/)
+file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION data/)

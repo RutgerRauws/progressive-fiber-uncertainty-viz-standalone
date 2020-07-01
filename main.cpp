@@ -13,6 +13,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkLine.h>
 #include <X11/Xlib.h>
+#include <vtkConeSource.h>
 
 #include "KeyPressInteractorStyle.h"
 
@@ -49,7 +50,7 @@ int main()
 {
     XInitThreads();
     
-    std::cout << "Application started." << std::endl;
+    std::cout << "Application s2tarted." << std::endl;
     
     try {
         fiberPolyData = readPolyData(INPUT_FILE_NAME);
@@ -59,21 +60,25 @@ int main()
         std::cout << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    vtkSmartPointer<vtkPolyData> progressivePolyData  = vtkSmartPointer<vtkPolyData>::New();
+    vtkSmartPointer<vtkPolyData> progressiveFiberPolyData  = vtkSmartPointer<vtkPolyData>::New();
     polyLines = vtkSmartPointer<vtkCellArray>::New();
-    progressivePolyData->SetLines(polyLines);
-    progressivePolyData->SetPoints(fiberPolyData->GetPoints());
+    progressiveFiberPolyData->SetLines(polyLines);
+    progressiveFiberPolyData->SetPoints(fiberPolyData->GetPoints());
     
-//    vtkSmartPointer<vtkConeSource> cone = vtkSmartPointer<vtkConeSource>::New();
-    vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-//    mapper->SetInputConnection(cone->GetOutputPort());
-    mapper->SetInputData(progressivePolyData);
+    vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
+    vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    coneMapper->SetInputConnection(coneSource->GetOutputPort());
+    vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
+    coneActor->SetMapper(coneMapper);
     
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
-    actor->SetMapper(mapper);
+    vtkSmartPointer<vtkPolyDataMapper> fiberMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
+    fiberMapper->SetInputData(progressiveFiberPolyData);
+    vtkSmartPointer<vtkActor> fiberActor = vtkSmartPointer<vtkActor>::New();
+    fiberActor->SetMapper(fiberMapper);
     
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-    renderer->AddActor(actor);
+    renderer->AddActor(coneActor);
+    renderer->AddActor(fiberActor);
     renderer->SetBackground(0, 0, 0);
     
     renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
@@ -84,8 +89,7 @@ int main()
             vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
     
-    vtkSmartPointer<KeyPressInteractorStyle> style =
-            vtkSmartPointer<KeyPressInteractorStyle>::New();
+    vtkSmartPointer<KeyPressInteractorStyle> style = vtkSmartPointer<KeyPressInteractorStyle>::New();
     renderWindowInteractor->SetInteractorStyle(style);
     
     renderer->ResetCamera();
