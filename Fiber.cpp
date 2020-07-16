@@ -23,11 +23,6 @@ vtkSmartPointer<vtkPoints> Fiber::GetPoints() const
     return points;
 }
 
-vtkSmartPointer<vtkIdList> Fiber::GetIds() const
-{
-    return ids;
-}
-
 vtkSmartPointer<vtkPolyLine> Fiber::CreatePolyLine() const
 {
     vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();

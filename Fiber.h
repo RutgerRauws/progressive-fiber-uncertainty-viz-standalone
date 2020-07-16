@@ -21,7 +21,6 @@ class Fiber
         
         void AddPoint(double x, double y, double z);
         vtkSmartPointer<vtkPoints> GetPoints() const;
-        vtkSmartPointer<vtkIdList> GetIds() const;
     
         vtkSmartPointer<vtkPolyLine> CreatePolyLine() const;
 };
