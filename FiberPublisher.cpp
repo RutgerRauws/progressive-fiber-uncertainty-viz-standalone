@@ -28,7 +28,7 @@ void FiberPublisher::publishFibers_t()
             double* point = fiberPolyData->GetPoint(idList->GetId(id));
             fiber.AddPoint(*point, *(point + 1), *(point + 2));
         }
-        
+
         for(FiberObserver& o : observers)
         {
             o.NewFiber(fiber);

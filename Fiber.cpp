@@ -2,36 +2,17 @@
 // Created by rutger on 7/2/20.
 //
 
-#include <vtkPolyData.h>
-#include <vtkPolyLine.h>
 #include "Fiber.h"
 
-Fiber::Fiber()
-    : points(vtkSmartPointer<vtkPoints>::New()),
-      ids(vtkSmartPointer<vtkIdList>::New()),
-      vertices(vtkSmartPointer<vtkCellArray>::New())
-{}
+Fiber::Fiber() : points() {}
 
 void Fiber::AddPoint(double x, double y, double z)
 {
-    vtkIdType id = points->InsertNextPoint(x, y, z);
-    ids->InsertNextId(id);
+    //points.emplace_back(x, y, z);
+    points.push_back(Point(x, y, z));
 }
 
-vtkSmartPointer<vtkPoints> Fiber::GetPoints() const
+const std::list<Point>& Fiber::GetPoints() const
 {
     return points;
-}
-
-vtkSmartPointer<vtkPolyLine> Fiber::CreatePolyLine() const
-{
-    vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
-    polyLine->GetPointIds()->SetNumberOfIds(points->GetNumberOfPoints());
-    
-    for(unsigned int i = 0; i < points->GetNumberOfPoints(); i++)
-    {
-        polyLine->GetPointIds()->SetId(i, i);
-    }
-    
-    return polyLine;
 }

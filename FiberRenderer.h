@@ -17,6 +17,7 @@
 class FiberRenderer : public FiberObserver
 {
     private:
+        vtkIdType currentId;
         vtkSmartPointer<vtkPoints> points;
         vtkSmartPointer<vtkIdList> ids;
         vtkSmartPointer<vtkCellArray> polyLines;

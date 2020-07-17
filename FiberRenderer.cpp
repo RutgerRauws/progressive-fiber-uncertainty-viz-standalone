@@ -6,7 +6,8 @@
 #include "FiberRenderer.h"
 
 FiberRenderer::FiberRenderer(vtkSmartPointer<vtkRenderer> renderer, vtkSmartPointer<vtkRenderWindow> renderWindow)
-    : points(vtkSmartPointer<vtkPoints>::New()),
+    : currentId(0),
+      points(vtkSmartPointer<vtkPoints>::New()),
       ids(vtkSmartPointer<vtkIdList>::New()),
       polyLines(vtkSmartPointer<vtkCellArray>::New()),
       polyData(vtkSmartPointer<vtkPolyData>::New()),
@@ -32,17 +33,27 @@ void FiberRenderer::initialize()
 void FiberRenderer::NewFiber(const Fiber& fiber)
 {
     //std::cout << "Line has " << idList->GetNumberOfIds() << " points." << std::endl;
-    
-    vtkSmartPointer<vtkPolyLine> polyLine = fiber.CreatePolyLine();
-    vtkSmartPointer<vtkPoints> fiberPoints = fiber.GetPoints();
+    const std::list<Point>& fiberPoints = fiber.GetPoints();
 
-    points->InsertPoints(points->GetNumberOfPoints(), fiberPoints->GetNumberOfPoints(), 0, fiberPoints);
-    
+    vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
+    polyLine->GetPointIds()->SetNumberOfIds(fiberPoints.size());
+
+    for(const Point& point : fiberPoints)
+    {
+        points->InsertNextPoint(point.X, point.Y, point.Z);
+        currentId++;
+        polyLine->GetPointIds()->InsertNextId(currentId);
+    }
+
+    //polyData->GetPoints()->GetData()->Modified(); //this gives SIGSEGV
+    //polyData->GetPoints()->Modified(); //this gives SIGSEGV
+
     // Create a cell array to store the lines in and add the lines to it
     polyLines->InsertNextCell(polyLine);
-    
-    points->Modified();
-    polyLines->Modified();
+//    polyData->GetLines()->GetData()->Modified();
+
+    std::cout << polyData->GetPoints()->GetNumberOfPoints() << " | " << currentId << std::endl;
+    polyData->Modified();
     renderWindow->Render();
 //    polyLines->InsertNextCell(idList);
 //    polyLines->Modified();

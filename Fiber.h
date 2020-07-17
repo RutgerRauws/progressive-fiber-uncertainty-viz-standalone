@@ -5,24 +5,20 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_FIBER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_FIBER_H
 
-#include <vtkSmartPointer.h>
-#include <vtkPoints.h>
-#include <vtkCellArray.h>
+#include <list>
+#include "vtkSmartPointer.h"
+#include "Point.h"
 
 class Fiber
 {
     private:
-        vtkSmartPointer<vtkPoints> points;
-        vtkSmartPointer<vtkIdList> ids;
-        vtkSmartPointer<vtkCellArray> vertices;
+        std::list<Point> points;
         
     public:
         Fiber();
-        
+
         void AddPoint(double x, double y, double z);
-        vtkSmartPointer<vtkPoints> GetPoints() const;
-    
-        vtkSmartPointer<vtkPolyLine> CreatePolyLine() const;
+        const std::list<Point>& GetPoints() const;
 };
 
 
