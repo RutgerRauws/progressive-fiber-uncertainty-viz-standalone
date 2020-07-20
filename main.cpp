@@ -9,6 +9,7 @@
 #include <vtkActor.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
+#include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkPolyDataMapper.h>
 #include <vtkLine.h>
@@ -49,12 +50,18 @@ int main()
     vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
     coneActor->SetMapper(coneMapper);
 
+    vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
+    camera->SetPosition(0, 0, 325);
+    camera->SetViewUp(1, 0, 0);
+    camera->SetFocalPoint(0, 0, 0);
+
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->AddActor(coneActor);
     renderer->SetBackground(0, 0, 0);
-    
+    renderer->SetActiveCamera(camera);
+
     renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
-    renderWindow->SetSize(800, 600);
+    renderWindow->SetSize(1920, 1080);
     renderWindow->AddRenderer(renderer);
     
     vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
@@ -63,8 +70,7 @@ int main()
     
     vtkSmartPointer<KeyPressInteractorStyle> style = vtkSmartPointer<KeyPressInteractorStyle>::New();
     renderWindowInteractor->SetInteractorStyle(style);
-    
-    renderer->ResetCamera();
+
     renderWindow->Render();
     renderWindowInteractor->Initialize();
     

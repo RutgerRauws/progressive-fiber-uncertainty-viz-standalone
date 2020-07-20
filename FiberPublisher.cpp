@@ -20,8 +20,8 @@ void FiberPublisher::publishFibers_t()
     fiberPolyData->GetLines()->InitTraversal();
     vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
 
-    while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers) {
-
+    while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers)
+    {
         Fiber fiber;
         
         for(vtkIdType id = 0; id < idList->GetNumberOfIds(); id++)
@@ -36,10 +36,11 @@ void FiberPublisher::publishFibers_t()
         {
             o.NewFiber(fiber);
         }
-        
-        std::cout << "Published line!" << std::endl;
+
         std::this_thread::sleep_for(std::chrono::milliseconds(PROGRESSIVE_INTERVAL_MS));
     }
+
+    std::cout << "Finished fiber publisher thread!";
 }
 
 void FiberPublisher::Start()
