@@ -42,23 +42,13 @@ int main()
         std::cout << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    
-//    vtkSmartPointer<vtkPolyData> progressiveFiberPolyData  = vtkSmartPointer<vtkPolyData>::New();
-//    polyLines = vtkSmartPointer<vtkCellArray>::New();
-//    progressiveFiberPolyData->SetLines(polyLines);
-//    progressiveFiberPolyData->SetPoints(fiberPolyData->GetPoints());
-    
+
     vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
     vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     coneMapper->SetInputConnection(coneSource->GetOutputPort());
     vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
     coneActor->SetMapper(coneMapper);
-    
-//    vtkSmartPointer<vtkPolyDataMapper> fiberMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-//    fiberMapper->SetInputData(progressiveFiberPolyData);
-//    vtkSmartPointer<vtkActor> fiberActor = vtkSmartPointer<vtkActor>::New();
-//    fiberActor->SetMapper(fiberMapper);
-    
+
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->AddActor(coneActor);
     renderer->SetBackground(0, 0, 0);

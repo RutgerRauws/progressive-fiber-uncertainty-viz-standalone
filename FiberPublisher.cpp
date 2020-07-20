@@ -4,10 +4,11 @@
 
 #include <functional>
 #include <thread>
+#include <utility>
 #include "FiberPublisher.h"
 
 FiberPublisher::FiberPublisher(vtkSmartPointer<vtkPolyData> fiberPolyData)
-    : keepAddingFibers(true), fiberPolyData(fiberPolyData)
+    : keepAddingFibers(true), fiberPolyData(std::move(fiberPolyData))
 {}
 
 FiberPublisher::~FiberPublisher() { Stop(); }

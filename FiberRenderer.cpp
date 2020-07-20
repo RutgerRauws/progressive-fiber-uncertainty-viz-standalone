@@ -3,6 +3,8 @@
 //
 
 #include <vtkPolyLine.h>
+
+#include <utility>
 #include "FiberRenderer.h"
 
 FiberRenderer::FiberRenderer(vtkSmartPointer<vtkRenderer> renderer, vtkSmartPointer<vtkRenderWindow> renderWindow)
@@ -13,8 +15,8 @@ FiberRenderer::FiberRenderer(vtkSmartPointer<vtkRenderer> renderer, vtkSmartPoin
       polyData(vtkSmartPointer<vtkPolyData>::New()),
       mapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
       actor(vtkSmartPointer<vtkActor>::New()),
-      renderer(renderer),
-      renderWindow(renderWindow)
+      renderer(std::move(renderer)),
+      renderWindow(std::move(renderWindow))
 {
     initialize();
 }
@@ -32,36 +34,26 @@ void FiberRenderer::initialize()
 
 void FiberRenderer::NewFiber(const Fiber& fiber)
 {
-    //std::cout << "Line has " << idList->GetNumberOfIds() << " points." << std::endl;
-    const std::list<Point>& fiberPoints = fiber.GetPoints();
+    const std::vector<Point>& fiberPoints = fiber.GetPoints();
 
     vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
     polyLine->GetPointIds()->SetNumberOfIds(fiberPoints.size());
 
-    for(const Point& point : fiberPoints)
+    for(unsigned int i = 0; i < fiberPoints.size(); i++)
     {
-        auto id = points->InsertNextPoint(point.X, point.Y, point.Z);
-        polyLine->GetPointIds()->InsertNextId(id);
+        const Point& point = fiberPoints[i];
+
+        points->InsertPoint(currentId, point.X, point.Y, point.Z);
+        polyLine->GetPointIds()->SetId(i, currentId);
         currentId++;
     }
 
-    //polyData->GetPoints()->GetData()->Modified(); //this gives SIGSEGV
-    //polyData->GetPoints()->Modified(); //this gives SIGSEGV
-
     // Create a cell array to store the lines in and add the lines to it
     polyLines->InsertNextCell(polyLine);
-//    polyData->GetLines()->GetData()->Modified();
-    std::cout << points->GetNumberOfPoints() << " | " << polyData->GetPoints()->GetNumberOfPoints() << " | " << currentId << std::endl;
+
+    points->Modified();
     polyData->Modified();
     renderWindow->Render();
-//    polyLines->InsertNextCell(idList);
-//    polyLines->Modified();
-//    renderWindow->Render();
-//
-//
-//    vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
-//    polyData->SetPoints(points);
-//    polyData->SetVerts(vertices);
-    
+
     std::cout << "Rendered line!" << std::endl;
 }
