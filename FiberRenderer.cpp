@@ -40,9 +40,9 @@ void FiberRenderer::NewFiber(const Fiber& fiber)
 
     for(const Point& point : fiberPoints)
     {
-        points->InsertNextPoint(point.X, point.Y, point.Z);
+        auto id = points->InsertNextPoint(point.X, point.Y, point.Z);
+        polyLine->GetPointIds()->InsertNextId(id);
         currentId++;
-        polyLine->GetPointIds()->InsertNextId(currentId);
     }
 
     //polyData->GetPoints()->GetData()->Modified(); //this gives SIGSEGV
@@ -51,8 +51,7 @@ void FiberRenderer::NewFiber(const Fiber& fiber)
     // Create a cell array to store the lines in and add the lines to it
     polyLines->InsertNextCell(polyLine);
 //    polyData->GetLines()->GetData()->Modified();
-
-    std::cout << polyData->GetPoints()->GetNumberOfPoints() << " | " << currentId << std::endl;
+    std::cout << points->GetNumberOfPoints() << " | " << polyData->GetPoints()->GetNumberOfPoints() << " | " << currentId << std::endl;
     polyData->Modified();
     renderWindow->Render();
 //    polyLines->InsertNextCell(idList);

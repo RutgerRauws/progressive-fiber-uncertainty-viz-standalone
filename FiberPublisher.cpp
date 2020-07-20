@@ -18,15 +18,17 @@ void FiberPublisher::publishFibers_t()
     
     fiberPolyData->GetLines()->InitTraversal();
     vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
-    
+
     while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers) {
-        
+
         Fiber fiber;
         
         for(vtkIdType id = 0; id < idList->GetNumberOfIds(); id++)
         {
-            double* point = fiberPolyData->GetPoint(idList->GetId(id));
-            fiber.AddPoint(*point, *(point + 1), *(point + 2));
+            double point[3];
+            fiberPolyData->GetPoint(idList->GetId(id), point);
+
+            fiber.AddPoint(point[0], point[1], point[2]);
         }
 
         for(FiberObserver& o : observers)
