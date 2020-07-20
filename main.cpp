@@ -16,41 +16,23 @@
 #include <vtkConeSource.h>
 
 #include "KeyPressInteractorStyle.h"
+#include "FiberPublisher.h"
+#include "FiberRenderer.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
-const int PROGRESSIVE_INTERVAL_MS = 500;
 
 bool KeepAddingFibers = true;
 
 vtkSmartPointer<vtkPolyData> fiberPolyData;
-vtkSmartPointer<vtkCellArray> polyLines;
 vtkSmartPointer<vtkRenderWindow> renderWindow;
 
 vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName);
-
-void addFibers_t()
-{
-    fiberPolyData->GetLines()->InitTraversal();
-    vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
-
-    while(fiberPolyData->GetLines()->GetNextCell(idList) && KeepAddingFibers)
-    {
-        //std::cout << "Line has " << idList->GetNumberOfIds() << " points." << std::endl;
-
-        polyLines->InsertNextCell(idList);
-        polyLines->Modified();
-        renderWindow->Render();
-
-        std::cout << "Rendered line!" << std::endl;
-        std::this_thread::sleep_for(std::chrono::milliseconds(PROGRESSIVE_INTERVAL_MS));
-    }
-}
 
 int main()
 {
     XInitThreads();
     
-    std::cout << "Application s2tarted." << std::endl;
+    std::cout << "Application started." << std::endl;
     
     try {
         fiberPolyData = readPolyData(INPUT_FILE_NAME);
@@ -60,25 +42,15 @@ int main()
         std::cout << e.what() << std::endl;
         return EXIT_FAILURE;
     }
-    vtkSmartPointer<vtkPolyData> progressiveFiberPolyData  = vtkSmartPointer<vtkPolyData>::New();
-    polyLines = vtkSmartPointer<vtkCellArray>::New();
-    progressiveFiberPolyData->SetLines(polyLines);
-    progressiveFiberPolyData->SetPoints(fiberPolyData->GetPoints());
-    
+
     vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
     vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     coneMapper->SetInputConnection(coneSource->GetOutputPort());
     vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
     coneActor->SetMapper(coneMapper);
-    
-    vtkSmartPointer<vtkPolyDataMapper> fiberMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    fiberMapper->SetInputData(progressiveFiberPolyData);
-    vtkSmartPointer<vtkActor> fiberActor = vtkSmartPointer<vtkActor>::New();
-    fiberActor->SetMapper(fiberMapper);
-    
+
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
     renderer->AddActor(coneActor);
-    renderer->AddActor(fiberActor);
     renderer->SetBackground(0, 0, 0);
     
     renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
@@ -96,13 +68,17 @@ int main()
     renderWindow->Render();
     renderWindowInteractor->Initialize();
     
-    std::thread updateThread(addFibers_t);
+    FiberRenderer fiberRenderer(renderer, renderWindow);
+    
+    FiberPublisher fiberPublisher(fiberPolyData);
+    fiberPublisher.RegisterObserver(fiberRenderer);
+    
+    fiberPublisher.Start();
+    
     renderWindowInteractor->Start();
     
     //When we reach this point, the renderWindowInteractor has been terminated by the KeyPressInteractorStyle
-    KeepAddingFibers = false;
     renderWindow->Finalize();
-    updateThread.join();
     
     return EXIT_SUCCESS;
 }
