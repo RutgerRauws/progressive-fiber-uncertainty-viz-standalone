@@ -15,7 +15,7 @@ FiberPublisher::~FiberPublisher() { Stop(); }
 
 void FiberPublisher::publishFibers_t()
 {
-    std::cout << "Started fiber publisher thread!";
+    std::cout << "Started fiber publisher thread!" << std::endl;
     
     fiberPolyData->GetLines()->InitTraversal();
     vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
@@ -40,7 +40,7 @@ void FiberPublisher::publishFibers_t()
         std::this_thread::sleep_for(std::chrono::milliseconds(PROGRESSIVE_INTERVAL_MS));
     }
 
-    std::cout << "Finished fiber publisher thread!";
+    std::cout << "Finished fiber publisher thread!" << std::endl;
 }
 
 void FiberPublisher::Start()

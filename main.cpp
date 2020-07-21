@@ -1,5 +1,4 @@
 #include <iostream>
-#include <chrono>
 #include <thread>
 
 #include <vtkSmartPointer.h>
@@ -19,22 +18,23 @@
 #include "KeyPressInteractorStyle.h"
 #include "FiberPublisher.h"
 #include "FiberRenderer.h"
+#include "VisitationMap.h"
+#include "VisitationMapRenderer.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
 
 bool KeepAddingFibers = true;
-
-vtkSmartPointer<vtkPolyData> fiberPolyData;
-vtkSmartPointer<vtkRenderWindow> renderWindow;
 
 vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName);
 
 int main()
 {
     XInitThreads();
-    
+
     std::cout << "Application started." << std::endl;
-    
+
+    vtkSmartPointer<vtkPolyData> fiberPolyData;
+
     try {
         fiberPolyData = readPolyData(INPUT_FILE_NAME);
         std::cout << "Input has " << fiberPolyData->GetNumberOfLines() << " fibers." << std::endl;
@@ -60,32 +60,35 @@ int main()
     renderer->SetBackground(0, 0, 0);
     renderer->SetActiveCamera(camera);
 
-    renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
+    vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->SetSize(1920, 1080);
     renderWindow->AddRenderer(renderer);
-    
+
     vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
             vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
-    
+
     vtkSmartPointer<KeyPressInteractorStyle> style = vtkSmartPointer<KeyPressInteractorStyle>::New();
     renderWindowInteractor->SetInteractorStyle(style);
 
     renderWindow->Render();
     renderWindowInteractor->Initialize();
-    
-    FiberRenderer fiberRenderer(renderer, renderWindow);
-    
+
     FiberPublisher fiberPublisher(fiberPolyData);
+
+    FiberRenderer fiberRenderer(renderer, renderWindow);
+    VisitationMap visitationMap(fiberPolyData->GetBounds());
+    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer, renderWindow);
+
     fiberPublisher.RegisterObserver(fiberRenderer);
-    
+    fiberPublisher.RegisterObserver(visitationMapRenderer);
     fiberPublisher.Start();
-    
+
     renderWindowInteractor->Start();
-    
+
     //When we reach this point, the renderWindowInteractor has been terminated by the KeyPressInteractorStyle
-    renderWindow->Finalize();
-    
+    fiberPublisher.Stop();
+
     return EXIT_SUCCESS;
 }
 

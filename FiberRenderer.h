@@ -32,7 +32,6 @@ class FiberRenderer : public FiberObserver
         
     public:
         FiberRenderer(vtkSmartPointer<vtkRenderer> renderer, vtkSmartPointer<vtkRenderWindow> renderWindow);
-        
         void NewFiber(const Fiber& fiber) override;
 };
 

@@ -24,7 +24,8 @@ public:
         if(key == "q")
         {
             std::cout << "The exit key was pressed." << std::endl;
-            
+
+            rwi->GetRenderWindow()->Finalize();
             rwi->TerminateApp();
         }
         
