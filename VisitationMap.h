@@ -18,7 +18,7 @@ class VisitationMap {
         int height;
         int depth;
 
-        double voxelSize = 10;
+        double voxelSize = 5;
 
         Voxel** data;
 

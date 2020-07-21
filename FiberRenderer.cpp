@@ -53,7 +53,4 @@ void FiberRenderer::NewFiber(const Fiber& fiber)
 
     points->Modified();
     polyData->Modified();
-    renderWindow->Render();
-
-    std::cout << "Rendered line!" << std::endl;
 }

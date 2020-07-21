@@ -3,7 +3,6 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkGenericDataObjectReader.h>
-#include <vtkPolyDataCollection.h>
 
 #include <vtkActor.h>
 #include <vtkRenderWindow.h>
@@ -11,9 +10,9 @@
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
 #include <vtkPolyDataMapper.h>
-#include <vtkLine.h>
 #include <X11/Xlib.h>
 #include <vtkConeSource.h>
+#include <vtkCallbackCommand.h>
 
 #include "KeyPressInteractorStyle.h"
 #include "FiberPublisher.h"
@@ -22,10 +21,12 @@
 #include "VisitationMapRenderer.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
+const unsigned int RENDER_INTERVAL_MS = 33; //30fps
 
 bool KeepAddingFibers = true;
 
 vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName);
+void render_callback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
 
 int main()
 {
@@ -62,17 +63,30 @@ int main()
 
     vtkSmartPointer<vtkRenderWindow> renderWindow = vtkSmartPointer<vtkRenderWindow>::New();
     renderWindow->SetSize(1920, 1080);
+    renderWindow->SetWindowName("Progressive Fiber Uncertainty Visualization");
     renderWindow->AddRenderer(renderer);
 
     vtkSmartPointer<vtkRenderWindowInteractor> renderWindowInteractor =
             vtkSmartPointer<vtkRenderWindowInteractor>::New();
     renderWindowInteractor->SetRenderWindow(renderWindow);
+    renderWindowInteractor->Initialize();
+
+    /*
+     * Adding callbacks
+     */
+    vtkSmartPointer<vtkCallbackCommand> renderCallback = vtkSmartPointer<vtkCallbackCommand>::New();
+    renderCallback->SetCallback(render_callback);
+    renderWindowInteractor->AddObserver (vtkCommand::TimerEvent, renderCallback);
+    renderWindowInteractor->CreateRepeatingTimer(RENDER_INTERVAL_MS);
 
     vtkSmartPointer<KeyPressInteractorStyle> style = vtkSmartPointer<KeyPressInteractorStyle>::New();
     renderWindowInteractor->SetInteractorStyle(style);
+    //renderWindowInteractor->AddObserver (vtkCommand::KeyPressEvent, renderCallback);
 
+    /*
+     * Starting main functionality
+     */
     renderWindow->Render();
-    renderWindowInteractor->Initialize();
 
     FiberPublisher fiberPublisher(fiberPolyData);
 
@@ -84,6 +98,7 @@ int main()
     fiberPublisher.RegisterObserver(visitationMapRenderer);
     fiberPublisher.Start();
 
+    //renderWindowInteractor->Initialize();
     renderWindowInteractor->Start();
 
     //When we reach this point, the renderWindowInteractor has been terminated by the KeyPressInteractorStyle
@@ -107,4 +122,10 @@ vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName)
     polyData->CopyStructure(reader->GetPolyDataOutput());
     
     return polyData;
+}
+
+void render_callback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData)
+{
+    auto *renderWindowInteractor = static_cast<vtkRenderWindowInteractor*>(caller);
+    renderWindowInteractor->Render();
 }
