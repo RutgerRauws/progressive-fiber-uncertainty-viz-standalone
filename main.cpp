@@ -45,19 +45,12 @@ int main()
         return EXIT_FAILURE;
     }
 
-    vtkSmartPointer<vtkConeSource> coneSource = vtkSmartPointer<vtkConeSource>::New();
-    vtkSmartPointer<vtkPolyDataMapper> coneMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    coneMapper->SetInputConnection(coneSource->GetOutputPort());
-    vtkSmartPointer<vtkActor> coneActor = vtkSmartPointer<vtkActor>::New();
-    coneActor->SetMapper(coneMapper);
-
     vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
     camera->SetPosition(0, 0, 325);
     camera->SetViewUp(1, 0, 0);
     camera->SetFocalPoint(0, 0, 0);
 
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
-    renderer->AddActor(coneActor);
     renderer->SetBackground(0, 0, 0);
     renderer->SetActiveCamera(camera);
 

@@ -28,6 +28,8 @@ class Voxel {
         Point GetPosition() const;
         void GetBounds(double* bounds) const;
 
+        bool Contains(const Point& point) const;
+
         vtkSmartPointer<vtkCubeSource> GetVTKObject() const;
 };
 

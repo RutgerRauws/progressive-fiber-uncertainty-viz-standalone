@@ -45,10 +45,17 @@ void VisitationMapRenderer::initialize()
 
 void VisitationMapRenderer::NewFiber(const Fiber &fiber)
 {
-//    for(const Point& point : fiber.GetPoints())
-//    {
-//        visitationMap.grid->GetPoints()->InsertNextPoint(point.X, point.Y, point.Z);
-//    }
+    //TODO: This should be based on edges
+    for(const Point& point : fiber.GetPoints())
+    {
+        Voxel* voxel = visitationMap.FindCell(point);
+
+        if(voxel == nullptr) {
+            continue;
+        }
+
+        voxel->SetValue(voxel->GetValue() + 1);
+    }
 
 //    std::cout << visitationMap.grid->GetDimensions()[0] << ", " << visitationMap.grid->GetDimensions()[1] << ", " << visitationMap.grid->GetDimensions()[2] << std::endl;
 

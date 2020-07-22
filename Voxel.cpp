@@ -35,7 +35,7 @@ void Voxel::SetValue(int val)
     }
 
     value = val;
-    updateVTKObject();
+    //updateVTKObject();
 }
 
 Point Voxel::GetPosition() const
@@ -55,9 +55,25 @@ void Voxel::GetBounds(double* bounds) const
     bounds[5] = position.Z + halfSize; //zMax
 }
 
+bool Voxel::Contains(const Point& point) const
+{
+    double halfSize = size / 2.0f;
+    double xmin = position.X - halfSize;
+    double xmax = position.X + halfSize;
+    double ymin = position.Y - halfSize;
+    double ymax = position.Y + halfSize;
+    double zmin = position.Z - halfSize;
+    double zmax = position.Z + halfSize;
+
+    return (xmin <= point.X) && (point.X <= xmax)
+        && (ymin <= point.Y) && (point.Y <= ymax)
+        && (zmin <= point.Z) && (point.Z <= zmax);
+}
+
 void Voxel::updateVTKObject()
 {
     double halfSize = size / 2.0f;
+
     cubeSource->SetBounds(
         position.X - halfSize,
         position.X + halfSize,

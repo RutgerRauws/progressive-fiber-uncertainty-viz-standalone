@@ -18,7 +18,7 @@ class VisitationMap {
         int height;
         int depth;
 
-        double voxelSize = 10;
+        double voxelSize = 5;
 
         Voxel** data;
 
@@ -30,9 +30,11 @@ class VisitationMap {
 
         ~VisitationMap();
 
-        Voxel* GetCell(int x, int y, int z) const;
-        Voxel* GetCell(const Point& point) const;
+        Voxel* GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
         Voxel* GetCell(unsigned int index) const;
+
+        Voxel* FindCell(const Point& point) const;
+        Voxel* FindCell(double x, double y, double z) const;
 
         void SetCell(int x, int y, int z, int value);
         void SetCell(const Point& point, int value);

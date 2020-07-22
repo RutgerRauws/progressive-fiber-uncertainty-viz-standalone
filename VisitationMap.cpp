@@ -67,20 +67,46 @@ void VisitationMap::initialize()
     std::cout << "Complete." << std::endl;
 }
 
-Voxel* VisitationMap::GetCell(int x, int y, int z) const
+Voxel* VisitationMap::GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const
 {
     //Simplification of x + y * width + z * width * height
-    return data[x + width * (y + z * height)];
-}
-
-Voxel* VisitationMap::GetCell(const Point& point) const
-{
-    return GetCell(point.X, point.Y, point.Z);
+    return data[x_index + width * (y_index + z_index * height)];
 }
 
 Voxel* VisitationMap::GetCell(unsigned int index) const
 {
     return data[index];
+}
+
+Voxel* VisitationMap::FindCell(const Point& point) const
+{
+    if(point.X < xmin || point.X > xmax || point.Y < ymin || point.Y > ymax || point.Z < zmin || point.Z > zmax) {
+        return nullptr;
+    }
+
+    //TODO: Make use of acceleration data structures such as octrees.
+    for(unsigned int x_index = 0; x_index < width; x_index++)
+    {
+        for (unsigned int y_index = 0; y_index < height; y_index++)
+        {
+            for (unsigned int z_index = 0; z_index < depth; z_index++)
+            {
+                Voxel* voxel = GetCell(x_index, y_index, z_index);
+
+                if(voxel->Contains(point))
+                {
+                    return voxel;
+                }
+            }
+        }
+    }
+
+    return nullptr;
+}
+
+Voxel* VisitationMap::FindCell(double x, double y, double z) const
+{
+    return FindCell(Point(x, y, z));
 }
 
 void VisitationMap::SetCell(int x, int y, int z, int value)
