@@ -16,13 +16,14 @@ class VisitationMapRenderer : public FiberObserver
 {
     private:
         VisitationMap& visitationMap;
+        vtkSmartPointer<vtkRenderer> renderer;
+        vtkSmartPointer<vtkActor> actor;
 
-        vtkSmartPointer<vtkRenderWindow> renderWindow;
+        void initialize();
 
 public:
         VisitationMapRenderer(VisitationMap& visitationMap,
-                              vtkSmartPointer<vtkRenderer> renderer,
-                              vtkSmartPointer<vtkRenderWindow>);
+                              vtkSmartPointer<vtkRenderer> renderer);
 
         void NewFiber(const Fiber& fiber) override;
 };

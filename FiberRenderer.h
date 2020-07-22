@@ -19,19 +19,17 @@ class FiberRenderer : public FiberObserver
     private:
         vtkIdType currentId;
         vtkSmartPointer<vtkPoints> points;
-        vtkSmartPointer<vtkIdList> ids;
         vtkSmartPointer<vtkCellArray> polyLines;
         vtkSmartPointer<vtkPolyData> polyData;
         vtkSmartPointer<vtkPolyDataMapper> mapper;
         vtkSmartPointer<vtkActor> actor;
     
         vtkSmartPointer<vtkRenderer> renderer;
-        vtkSmartPointer<vtkRenderWindow> renderWindow;
     
         void initialize();
         
     public:
-        FiberRenderer(vtkSmartPointer<vtkRenderer> renderer, vtkSmartPointer<vtkRenderWindow> renderWindow);
+        explicit FiberRenderer(vtkSmartPointer<vtkRenderer> renderer);
         void NewFiber(const Fiber& fiber) override;
 };
 

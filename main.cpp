@@ -90,9 +90,9 @@ int main()
 
     FiberPublisher fiberPublisher(fiberPolyData);
 
-    FiberRenderer fiberRenderer(renderer, renderWindow);
+    FiberRenderer fiberRenderer(renderer);
     VisitationMap visitationMap(fiberPolyData->GetBounds());
-    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer, renderWindow);
+    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
 
     fiberPublisher.RegisterObserver(fiberRenderer);
     fiberPublisher.RegisterObserver(visitationMapRenderer);

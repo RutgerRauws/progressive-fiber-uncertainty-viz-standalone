@@ -3,20 +3,17 @@
 //
 
 #include <vtkPolyLine.h>
-
-#include <utility>
+#include <vtkProperty.h>
 #include "FiberRenderer.h"
 
-FiberRenderer::FiberRenderer(vtkSmartPointer<vtkRenderer> renderer, vtkSmartPointer<vtkRenderWindow> renderWindow)
+FiberRenderer::FiberRenderer(vtkSmartPointer<vtkRenderer> renderer)
     : currentId(0),
       points(vtkSmartPointer<vtkPoints>::New()),
-      ids(vtkSmartPointer<vtkIdList>::New()),
       polyLines(vtkSmartPointer<vtkCellArray>::New()),
       polyData(vtkSmartPointer<vtkPolyData>::New()),
       mapper(vtkSmartPointer<vtkPolyDataMapper>::New()),
       actor(vtkSmartPointer<vtkActor>::New()),
-      renderer(std::move(renderer)),
-      renderWindow(std::move(renderWindow))
+      renderer(std::move(renderer))
 {
     initialize();
 }
@@ -28,6 +25,7 @@ void FiberRenderer::initialize()
     mapper->SetInputData(polyData);
     
     actor->SetMapper(mapper);
+    actor->GetProperty()->SetLineWidth(2);
     
     renderer->AddActor(actor);
 }

@@ -7,10 +7,15 @@
 #include <vtkAppendPolyData.h>
 
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
-                                             vtkSmartPointer<vtkRenderer> renderer,
-                                             vtkSmartPointer<vtkRenderWindow> renderWindow)
+                                             vtkSmartPointer<vtkRenderer> renderer)
     : visitationMap(visitationMap),
-      renderWindow(std::move(renderWindow))
+      renderer(renderer),
+      actor(vtkSmartPointer<vtkActor>::New())
+{
+    initialize();
+}
+
+void VisitationMapRenderer::initialize()
 {
     std::cout << "Initializing visitation map renderer... " << std::flush;
 
@@ -19,7 +24,6 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
     for(unsigned int i = 0; i < visitationMap.GetNumberOfCells(); i++)
     {
         Voxel* voxel = visitationMap.GetCell(i);
-        //mapper->AddInputConnection(voxel->GetVTKObject()->GetOutputPort());
 
         vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
         voxel->GetVTKObject()->Update();
@@ -27,18 +31,17 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
         appendFilter->AddInputData(input);
     }
 
-    vtkSmartPointer<vtkPolyDataMapper> mapper =
-            vtkSmartPointer<vtkPolyDataMapper>::New();
+    vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(appendFilter->GetOutputPort());
 
-    vtkSmartPointer<vtkActor> actor = vtkSmartPointer<vtkActor>::New();
     actor->SetMapper(mapper);
+    actor->GetProperty()->SetInterpolationToFlat();
     actor->GetProperty()->SetRepresentationToWireframe();
 
     renderer->AddActor(actor);
-
     std::cout << "Complete." << std::endl;
 }
+
 
 void VisitationMapRenderer::NewFiber(const Fiber &fiber)
 {
