@@ -4,21 +4,18 @@
 #include <vtkSmartPointer.h>
 #include <vtkGenericDataObjectReader.h>
 
-#include <vtkActor.h>
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
-#include <vtkPolyDataMapper.h>
 #include <X11/Xlib.h>
-#include <vtkConeSource.h>
 #include <vtkCallbackCommand.h>
-
 #include "KeyPressInteractorStyle.h"
 #include "FiberPublisher.h"
 #include "FiberRenderer.h"
 #include "VisitationMap.h"
-#include "VisitationMapRenderer.h"
+#include "VisitationMapUpdater.h"
+#include "VisitationMapDebugRenderer.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps
@@ -81,14 +78,16 @@ int main()
      */
     renderWindow->Render();
 
+    VisitationMap visitationMap(fiberPolyData->GetBounds());
+
     FiberPublisher fiberPublisher(fiberPolyData);
 
     FiberRenderer fiberRenderer(renderer);
-    VisitationMap visitationMap(fiberPolyData->GetBounds());
-    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
+    VisitationMapUpdater visitationMapUpdater(visitationMap);
+    VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
 
     fiberPublisher.RegisterObserver(fiberRenderer);
-    fiberPublisher.RegisterObserver(visitationMapRenderer);
+    fiberPublisher.RegisterObserver(visitationMapUpdater);
     fiberPublisher.Start();
 
     //renderWindowInteractor->Initialize();

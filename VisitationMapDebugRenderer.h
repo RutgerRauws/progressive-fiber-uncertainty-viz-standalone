@@ -12,7 +12,7 @@
 #include "VisitationMap.h"
 #include "FiberObserver.h"
 
-class VisitationMapRenderer : public FiberObserver
+class VisitationMapDebugRenderer
 {
     private:
         VisitationMap& visitationMap;
@@ -22,10 +22,8 @@ class VisitationMapRenderer : public FiberObserver
         void initialize();
 
 public:
-        VisitationMapRenderer(VisitationMap& visitationMap,
-                              vtkSmartPointer<vtkRenderer> renderer);
-
-        void NewFiber(const Fiber& fiber) override;
+        VisitationMapDebugRenderer(VisitationMap& visitationMap,
+                                   vtkSmartPointer<vtkRenderer> renderer);
 };
 
 
