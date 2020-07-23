@@ -16,6 +16,7 @@
 #include "VisitationMap.h"
 #include "VisitationMapUpdater.h"
 #include "VisitationMapDebugRenderer.h"
+#include "VisitationMapRenderer.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps
@@ -84,7 +85,8 @@ int main()
 
     FiberRenderer fiberRenderer(renderer);
     VisitationMapUpdater visitationMapUpdater(visitationMap);
-    VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
+    //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
+    VisitationMapRenderer visitationMapDebugRenderer(visitationMap, renderer);
 
     fiberPublisher.RegisterObserver(fiberRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);

@@ -7,6 +7,7 @@
 
 #include <vtkSmartPointer.h>
 #include <vtkStructuredGrid.h>
+#include <vtkImageData.h>
 #include "Point.h"
 #include "Voxel.h"
 
@@ -40,6 +41,8 @@ class VisitationMap {
         void SetCell(const Point& point, int value);
 
         unsigned int GetNumberOfCells() const;
+
+        vtkSmartPointer<vtkImageData> GenerateImageData() const;
 };
 
 

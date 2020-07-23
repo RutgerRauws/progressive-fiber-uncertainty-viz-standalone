@@ -3,13 +3,14 @@
 //
 
 #include "VisitationMapDebugRenderer.h"
+#include <utility>
 #include <vtkProperty.h>
 #include <vtkAppendPolyData.h>
 
 VisitationMapDebugRenderer::VisitationMapDebugRenderer(VisitationMap& visitationMap,
                                                        vtkSmartPointer<vtkRenderer> renderer)
     : visitationMap(visitationMap),
-      renderer(renderer),
+      renderer(std::move(renderer)),
       actor(vtkSmartPointer<vtkActor>::New())
 {
     initialize();

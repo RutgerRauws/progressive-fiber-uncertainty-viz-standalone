@@ -123,3 +123,32 @@ void VisitationMap::SetCell(const Point& point, int value)
 unsigned int VisitationMap::GetNumberOfCells() const {
     return width * height * depth;
 }
+
+vtkSmartPointer<vtkImageData> VisitationMap::GenerateImageData() const
+{
+    vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
+    imageData->SetDimensions(width, height, depth);
+//    imageData->SetScalarType();
+//    imageData->SetNumberOfScalarComponents(1);
+//    imageData->SetSpacing();
+//    imageData->SetOrigin();
+    imageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
+
+
+    // Fill every entry of the image data with a color
+    int* dims = imageData->GetDimensions();
+    auto *ptr = static_cast<unsigned int*>(imageData->GetScalarPointer(0, 0, 0));
+
+    for (int z=0; z<dims[2]; z++)
+    {
+        for (int y = 0; y < dims[1]; y++)
+        {
+            for (int x = 0; x < dims[0]; x++)
+            {
+                *ptr++ = GetCell(x, y, z)->GetValue();
+            }
+        }
+    }
+
+    return imageData;
+}
