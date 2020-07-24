@@ -87,7 +87,7 @@ int main()
     FiberRenderer fiberRenderer(renderer);
     VisitationMapUpdater visitationMapUpdater(visitationMap);
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
-    VisitationMapRenderer visitationMapDebugRenderer(visitationMap, renderer);
+    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
 
     fiberPublisher.RegisterObserver(fiberRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);

@@ -7,12 +7,13 @@
 #include "Voxel.h"
 
 VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
-    : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax)
+    : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax),
+      imageData(vtkSmartPointer<vtkImageData>::New())
 {
     //TODO: Look into fixing double to int conversion.
-    width =  std::abs((xmin - xmax) / voxelSize);
-    height = std::abs((ymin - ymax) / voxelSize);
-    depth =  std::abs((zmin - zmax) / voxelSize);
+    width =  std::ceil( std::abs(xmin - xmax) / voxelSize);
+    height = std::ceil(std::abs(ymin - ymax) / voxelSize);
+    depth =  std::ceil(std::abs(zmin - zmax) / voxelSize);
 
     initialize();
 }
@@ -38,11 +39,17 @@ VisitationMap::~VisitationMap()
 void VisitationMap::initialize()
 {
     std::cout << "Initializing visitation map... " << std::flush;
+    imageData->SetDimensions(width + 1, height + 1, depth + 1);
+    imageData->SetSpacing(voxelSize, voxelSize, voxelSize);
+    imageData->SetOrigin(xmin, ymin, zmin);
+    imageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
     data = new Voxel*[GetNumberOfCells()];
 
     double halfSize = voxelSize / 2.0f;
 
-    int i = 0;
+    // Fill every entry of the image data with a color
+    int* dims = imageData->GetDimensions();
+    auto *ptr = static_cast<unsigned int*>(imageData->GetScalarPointer(0, 0, 0));
 
     for(unsigned int x = 0; x < width; x++)
     {
@@ -55,11 +62,15 @@ void VisitationMap::initialize()
                 double pos_y = ymin + halfSize + y * voxelSize;
                 double pos_z = zmin + halfSize + z * voxelSize;
 
+                *ptr = 0;
+
                 data[x + width * (y + z * height)] = new Voxel(
                     Point(pos_x, pos_y, pos_z),
                     voxelSize,
-                    0
+                    ptr
                 );
+
+                *ptr++;
             }
         }
     }
@@ -83,6 +94,8 @@ Voxel* VisitationMap::FindCell(const Point& point) const
     if(point.X < xmin || point.X > xmax || point.Y < ymin || point.Y > ymax || point.Z < zmin || point.Z > zmax) {
         return nullptr;
     }
+
+    imageData->Modified(); //TODO: Move to correct position
 
     //TODO: Make use of acceleration data structures such as octrees.
     for(unsigned int x_index = 0; x_index < width; x_index++)
@@ -124,31 +137,7 @@ unsigned int VisitationMap::GetNumberOfCells() const {
     return width * height * depth;
 }
 
-vtkSmartPointer<vtkImageData> VisitationMap::GenerateImageData() const
+vtkSmartPointer<vtkImageData> VisitationMap::GetImageData() const
 {
-    vtkSmartPointer<vtkImageData> imageData = vtkSmartPointer<vtkImageData>::New();
-    imageData->SetDimensions(width, height, depth);
-//    imageData->SetScalarType();
-//    imageData->SetNumberOfScalarComponents(1);
-//    imageData->SetSpacing();
-//    imageData->SetOrigin();
-    imageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
-
-
-    // Fill every entry of the image data with a color
-    int* dims = imageData->GetDimensions();
-    auto *ptr = static_cast<unsigned int*>(imageData->GetScalarPointer(0, 0, 0));
-
-    for (int z=0; z<dims[2]; z++)
-    {
-        for (int y = 0; y < dims[1]; y++)
-        {
-            for (int x = 0; x < dims[0]; x++)
-            {
-                *ptr++ = GetCell(x, y, z)->GetValue();
-            }
-        }
-    }
-
     return imageData;
 }

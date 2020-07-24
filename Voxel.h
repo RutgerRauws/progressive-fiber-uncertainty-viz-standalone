@@ -10,7 +10,7 @@
 
 class Voxel {
     private:
-    int value;
+        unsigned int* value_ptr;
         Point position;
         double size;
 
@@ -19,11 +19,11 @@ class Voxel {
         void updateVTKObject();
 
     public:
-        Voxel();
-        Voxel(Point position, double size, int value);
+        Voxel() = delete;
+        Voxel(Point position, double size, unsigned int* value_ptr);
 
-        int GetValue() const;
-        void SetValue(int value);
+        unsigned int GetValue() const;
+        void SetValue(unsigned int value);
 
         Point GetPosition() const;
         void GetBounds(double* bounds) const;

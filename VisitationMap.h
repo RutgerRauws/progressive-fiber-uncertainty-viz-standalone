@@ -22,6 +22,7 @@ class VisitationMap {
         double voxelSize = 5;
 
         Voxel** data;
+        vtkSmartPointer<vtkImageData> imageData;
 
         void initialize();
 
@@ -42,7 +43,7 @@ class VisitationMap {
 
         unsigned int GetNumberOfCells() const;
 
-        vtkSmartPointer<vtkImageData> GenerateImageData() const;
+        vtkSmartPointer<vtkImageData> GetImageData() const;
 };
 
 

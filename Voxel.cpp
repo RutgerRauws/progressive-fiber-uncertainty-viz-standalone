@@ -3,18 +3,18 @@
 //
 
 #include "Voxel.h"
+#include <vtkCellData.h>
 
-Voxel::Voxel()
-    : Voxel(Point(0, 0, 0), -1, -1)
-{}
-
-Voxel::Voxel(Point position, double size, int value)
-        : position(position),
+Voxel::Voxel(Point position, double size, unsigned int* value_ptr)
+        : value_ptr(value_ptr),
+          position(position),
           size(size),
           cubeSource(vtkSmartPointer<vtkCubeSource>::New())
 {
-    SetValue(value);
-    updateVTKObject();
+    if(value_ptr != nullptr)
+    {
+        updateVTKObject();
+    }
 }
 
 vtkSmartPointer<vtkCubeSource> Voxel::GetVTKObject() const
@@ -22,19 +22,29 @@ vtkSmartPointer<vtkCubeSource> Voxel::GetVTKObject() const
     return cubeSource;
 }
 
-int Voxel::GetValue() const
+unsigned int Voxel::GetValue() const
 {
-    return value;
-}
-
-void Voxel::SetValue(int val)
-{
-    if(val < 0)
+    if(value_ptr == nullptr)
     {
-        throw std::logic_error("Cannot set negative fiber frequency!");
+        return 0;
     }
 
-    value = val;
+    return *value_ptr;
+}
+
+void Voxel::SetValue(unsigned int val)
+{
+//    if(val < 0)
+//    {
+//        throw std::logic_error("Cannot set negative fiber frequency!");
+//    }
+
+    if(value_ptr == nullptr)
+    {
+        throw std::invalid_argument("Cannot set value to incorrectly initialized Voxel!");
+    }
+
+    *value_ptr = val;
     //updateVTKObject();
 }
 
