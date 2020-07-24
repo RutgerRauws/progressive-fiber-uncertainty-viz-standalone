@@ -10,6 +10,8 @@
 #include <vtkRenderWindowInteractor.h>
 #include <X11/Xlib.h>
 #include <vtkCallbackCommand.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
 #include "KeyPressInteractorStyle.h"
 #include "FiberPublisher.h"
 #include "FiberRenderer.h"
@@ -45,7 +47,6 @@ int main()
 
     vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
     camera->SetPosition(0, 0, 325);
-    camera->SetViewUp(1, 0, 0);
     camera->SetFocalPoint(0, 0, 0);
 
     vtkSmartPointer<vtkRenderer> renderer = vtkSmartPointer<vtkRenderer>::New();
@@ -103,6 +104,8 @@ int main()
 
 vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName)
 {
+    std::cout << "Loading polygon file... " << std::flush;
+
     vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
     reader->SetFileName(inputFileName.c_str());
     reader->Update();
@@ -114,7 +117,17 @@ vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName)
     
     vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
     polyData->CopyStructure(reader->GetPolyDataOutput());
-    
+
+    vtkSmartPointer<vtkTransform> rotation = vtkSmartPointer<vtkTransform>::New();
+    rotation->RotateZ(-90);
+
+    vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+    transformFilter->SetInputData(polyData);
+    transformFilter->SetTransform(rotation);
+    transformFilter->Update();
+
+    polyData->CopyStructure(transformFilter->GetOutput());
+    std::cout << "Complete." << std::endl;
     return polyData;
 }
 

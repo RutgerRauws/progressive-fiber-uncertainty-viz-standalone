@@ -18,7 +18,9 @@ void VisitationMapUpdater::NewFiber(const Fiber &fiber)
     {
         Voxel* voxel = visitationMap.FindCell(point);
 
-        if(voxel == nullptr) {
+        if(voxel == nullptr)
+        {
+            std::cerr << "No corresponding voxel found." << std::endl;
             continue;
         }
 
