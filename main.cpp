@@ -17,7 +17,7 @@
 #include "FiberRenderer.h"
 #include "VisitationMap.h"
 #include "VisitationMapUpdater.h"
-#include "VisitationMapDebugRenderer.h"
+//#include "VisitationMapDebugRenderer.h"
 #include "VisitationMapRenderer.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
