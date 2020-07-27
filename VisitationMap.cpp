@@ -164,3 +164,7 @@ bool VisitationMap::containedInCell(unsigned int x_index, unsigned int y_index, 
            && (voxel_zmin <= point.Z) && (point.Z <= voxel_zmax);
 }
 
+double VisitationMap::GetVoxelSize() const
+{
+    return voxelSize;
+}

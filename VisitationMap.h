@@ -49,6 +49,7 @@ class VisitationMap {
         unsigned int GetNumberOfCells() const;
 
         vtkSmartPointer<vtkImageData> GetImageData() const;
+        double GetVoxelSize() const;
 };
 
 
