@@ -42,7 +42,10 @@ void VisitationMap::initialize()
     imageData->SetDimensions(width + 1, height + 1, depth + 1);
     imageData->SetSpacing(voxelSize, voxelSize, voxelSize);
     imageData->SetOrigin(xmin, ymin, zmin);
+
+    //Apparently the vtkVolumeRayCastMapper class only works with unsigned char and unsigned short data
     imageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
+
     data = new Voxel*[GetNumberOfCells()];
 
     double halfSize = voxelSize / 2.0f;
@@ -51,13 +54,12 @@ void VisitationMap::initialize()
     int* dims = imageData->GetDimensions();
     auto *ptr = static_cast<unsigned int*>(imageData->GetScalarPointer(0, 0, 0));
 
-    for(unsigned int x = 0; x < width; x++)
+    for(unsigned int z = 0; z < depth + 1; z++)
     {
-        for(unsigned int y = 0; y < height; y++)
+        for(unsigned int y = 0; y < height + 1; y++)
         {
-            for(unsigned int z = 0; z < depth; z++)
+            for(unsigned int x = 0; x < width + 1; x++)
             {
-                //int x = std::floor(xmin + halfSize); x < std::ceil(xmax - halfSize); x = std::floor(x + voxelSize)
                 double pos_x = xmin + halfSize + x * voxelSize;
                 double pos_y = ymin + halfSize + y * voxelSize;
                 double pos_z = zmin + halfSize + z * voxelSize;
