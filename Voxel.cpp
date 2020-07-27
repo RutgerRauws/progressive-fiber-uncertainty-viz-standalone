@@ -11,7 +11,11 @@ Voxel::Voxel(Point position, double size, unsigned int* value_ptr)
           size(size),
           cubeSource(vtkSmartPointer<vtkCubeSource>::New())
 {
-    if(value_ptr != nullptr)
+    if(value_ptr == nullptr)
+    {
+        std::cerr << "Assigned value pointer is nullptr" << std::endl;
+    }
+    else
     {
         updateVTKObject();
     }
