@@ -21,25 +21,30 @@ class VisitationMap {
 
         double voxelSize = 5;
 
-        Voxel** data;
         vtkSmartPointer<vtkImageData> imageData;
+        unsigned int* start_ptr = nullptr;
 
         void initialize();
+
+        unsigned int* getCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
+        unsigned int* getCell(unsigned int index) const;
+
+        unsigned int* findCell(const Point& point) const;
+
+        bool containedInCell(unsigned int x_index, unsigned int y_index, unsigned int z_index, const Point& point) const;
 
     public:
         VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
         explicit VisitationMap(double* bounds);
 
-        ~VisitationMap();
+        unsigned int GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
+        unsigned int GetCell(unsigned int index) const;
 
-        Voxel* GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
-        Voxel* GetCell(unsigned int index) const;
+        unsigned int FindCell(const Point& point) const;
+        unsigned int FindCell(double x, double y, double z) const;
 
-        Voxel* FindCell(const Point& point) const;
-        Voxel* FindCell(double x, double y, double z) const;
-
-        void SetCell(int x, int y, int z, int value);
-        void SetCell(const Point& point, int value);
+        void SetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index, unsigned int value);
+        void SetCell(const Point& point, unsigned int value);
 
         unsigned int GetNumberOfCells() const;
 

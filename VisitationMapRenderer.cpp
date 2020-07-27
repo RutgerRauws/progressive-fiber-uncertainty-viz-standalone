@@ -25,7 +25,7 @@ void VisitationMapRenderer::initialize()
 
     vtkSmartPointer<vtkPiecewiseFunction> opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
     opacity->AddPoint(0, 0);
-    opacity->AddPoint(1, 1);
+    opacity->AddPoint(1, 0.6);
 
     vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
     color->AddRGBPoint(0, 0, 0, 1);
@@ -36,7 +36,7 @@ void VisitationMapRenderer::initialize()
     property->SetColor(color);
     property->ShadeOn();
     property->SetDiffuse(0.6);
-    property->SetSpecular(0.5);
+    //property->SetSpecular(0.5);
     property->SetAmbient(0.5);
 
     vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();

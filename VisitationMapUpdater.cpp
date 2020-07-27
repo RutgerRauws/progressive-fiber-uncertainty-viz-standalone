@@ -16,14 +16,14 @@ void VisitationMapUpdater::NewFiber(const Fiber &fiber)
     //TODO: This should be based on edges
     for(const Point& point : fiber.GetPoints())
     {
-        Voxel* voxel = visitationMap.FindCell(point);
+        unsigned int value = visitationMap.FindCell(point);
 
-        if(voxel == nullptr)
-        {
-            std::cerr << "No corresponding voxel found." << std::endl;
-            continue;
-        }
+//        if(value == nullptr)
+//        {
+//            std::cerr << "No corresponding voxel found." << std::endl;
+//            continue;
+//        }
 
-        voxel->SetValue(voxel->GetValue() + 1);
+        visitationMap.SetCell(point, value + 1);
     }
 }
