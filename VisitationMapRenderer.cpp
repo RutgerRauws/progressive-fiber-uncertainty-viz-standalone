@@ -24,13 +24,11 @@ void VisitationMapRenderer::initialize()
     vtkSmartPointer<vtkGPUVolumeRayCastMapper> mapper = vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
     mapper->SetInputData(visitationMap.GetImageData());
 
-    vtkSmartPointer<vtkPiecewiseFunction> opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-    opacity->AddPoint(0, 0);
-    opacity->AddPoint(1, 1);
+    opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
+    NewIsovalue(1);
 
     vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
     color->AddRGBPoint(0, 0, 0, 1);
-    //color->AddRGBPoint(5, 1, 0, 0);
 
     vtkSmartPointer<vtkVolumeProperty> property = vtkSmartPointer<vtkVolumeProperty>::New();
     property->SetScalarOpacity(opacity);
@@ -50,6 +48,10 @@ void VisitationMapRenderer::initialize()
 void VisitationMapRenderer::NewIsovalue(unsigned int value)
 {
     std::cout << "isovalue set to " << value << std::endl;
-    color->RemoveAllPoints();
-    color->AddRGBPoint(0, 1, 0, 0);
+
+    opacity->RemoveAllPoints();
+
+    opacity->AddPoint(0, 0);
+    opacity->AddPoint(value - 1, 0);
+    opacity->AddPoint(value, SURFACE_TRANSPARENCY);
 }

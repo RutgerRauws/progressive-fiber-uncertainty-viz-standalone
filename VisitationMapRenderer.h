@@ -9,16 +9,18 @@
 #include "VisitationMap.h"
 #include "IsovalueObserver.h"
 #include <vtkRenderer.h>
-#include <vtkColorTransferFunction.h>
+#include <vtkPiecewiseFunction.h>
 
 class VisitationMapRenderer : public IsovalueObserver
 {
     private:
+        static constexpr double SURFACE_TRANSPARENCY = 0.6f;
+
         VisitationMap& visitationMap;
         vtkSmartPointer<vtkRenderer> renderer;
         vtkSmartPointer<vtkActor> actor;
 
-        vtkSmartPointer<vtkColorTransferFunction> color;
+        vtkSmartPointer<vtkPiecewiseFunction> opacity;
 
         void initialize();
 

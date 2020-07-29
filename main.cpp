@@ -71,8 +71,8 @@ int main()
     renderWindowInteractor->AddObserver (vtkCommand::TimerEvent, renderCallback);
     renderWindowInteractor->CreateRepeatingTimer(RENDER_INTERVAL_MS);
 
-    vtkSmartPointer<KeyPressInteractorStyle> style = vtkSmartPointer<KeyPressInteractorStyle>::New();
-    renderWindowInteractor->SetInteractorStyle(style);
+    vtkSmartPointer<KeyPressInteractorStyle> keypressHandler = vtkSmartPointer<KeyPressInteractorStyle>::New();
+    renderWindowInteractor->SetInteractorStyle(keypressHandler);
     //renderWindowInteractor->AddObserver (vtkCommand::KeyPressEvent, renderCallback);
 
     /*
@@ -88,6 +88,7 @@ int main()
     VisitationMapUpdater visitationMapUpdater(visitationMap);
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
     VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
+    keypressHandler->AddObserver(visitationMapRenderer);
 
     fiberPublisher.RegisterObserver(fiberRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);

@@ -7,9 +7,22 @@
 
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkObjectFactory.h>
+#include "IsovalueObserver.h"
 
 class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
 {
+private:
+    int isovalue = 1;
+    std::vector<std::reference_wrapper<IsovalueObserver>> isovalueObservers;
+
+    void notifyObservers(int value)
+    {
+        for(IsovalueObserver& observer : isovalueObservers)
+        {
+            observer.NewIsovalue(value);
+        }
+    }
+
 public:
     static KeyPressInteractorStyle* New();
     vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
@@ -28,9 +41,24 @@ public:
             rwi->GetRenderWindow()->Finalize();
             rwi->TerminateApp();
         }
+
+        if(key == "u")
+        {
+            notifyObservers(++isovalue);
+        }
+
+        if(key == "j")
+        {
+            notifyObservers(--isovalue);
+        }
         
         // Forward events
         vtkInteractorStyleTrackballCamera::OnKeyPress();
+    }
+
+    void AddObserver(IsovalueObserver& observer)
+    {
+        isovalueObservers.emplace_back(observer);
     }
     
 };
