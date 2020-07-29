@@ -7,19 +7,24 @@
 
 
 #include "VisitationMap.h"
+#include "IsovalueObserver.h"
 #include <vtkRenderer.h>
+#include <vtkColorTransferFunction.h>
 
-class VisitationMapRenderer
+class VisitationMapRenderer : public IsovalueObserver
 {
     private:
         VisitationMap& visitationMap;
         vtkSmartPointer<vtkRenderer> renderer;
         vtkSmartPointer<vtkActor> actor;
 
+        vtkSmartPointer<vtkColorTransferFunction> color;
+
         void initialize();
 
     public:
         VisitationMapRenderer(VisitationMap& visitationMap, vtkSmartPointer<vtkRenderer> renderer);
+        void NewIsovalue(unsigned int value) override;
 };
 
 

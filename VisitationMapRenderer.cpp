@@ -3,6 +3,7 @@
 //
 
 #include "VisitationMapRenderer.h"
+
 #include <utility>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkVolumeProperty.h>
@@ -25,7 +26,7 @@ void VisitationMapRenderer::initialize()
 
     vtkSmartPointer<vtkPiecewiseFunction> opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
     opacity->AddPoint(0, 0);
-    opacity->AddPoint(1, 0.6);
+    opacity->AddPoint(1, 1);
 
     vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
     color->AddRGBPoint(0, 0, 0, 1);
@@ -36,7 +37,7 @@ void VisitationMapRenderer::initialize()
     property->SetColor(color);
     property->ShadeOn();
     property->SetDiffuse(0.6);
-    //property->SetSpecular(0.5);
+    property->SetSpecular(0.5);
     property->SetAmbient(0.5);
 
     vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
@@ -44,4 +45,11 @@ void VisitationMapRenderer::initialize()
     volume->SetProperty(property);
 
     renderer->AddActor(volume);
+}
+
+void VisitationMapRenderer::NewIsovalue(unsigned int value)
+{
+    std::cout << "isovalue set to " << value << std::endl;
+    color->RemoveAllPoints();
+    color->AddRGBPoint(0, 1, 0, 0);
 }
