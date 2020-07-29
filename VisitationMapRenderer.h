@@ -10,6 +10,7 @@
 #include "IsovalueObserver.h"
 #include <vtkRenderer.h>
 #include <vtkPiecewiseFunction.h>
+#include <vtkContourValues.h>
 
 class VisitationMapRenderer : public IsovalueObserver
 {
@@ -21,6 +22,7 @@ class VisitationMapRenderer : public IsovalueObserver
         vtkSmartPointer<vtkActor> actor;
 
         vtkSmartPointer<vtkPiecewiseFunction> opacity;
+        vtkSmartPointer<vtkContourValues> isoValues;
 
         void initialize();
 

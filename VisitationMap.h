@@ -19,7 +19,7 @@ class VisitationMap {
         int height;
         int depth;
 
-        double voxelSize = 5;
+        double voxelSize = 3;
 
         vtkSmartPointer<vtkImageData> imageData;
         unsigned int* start_ptr = nullptr;

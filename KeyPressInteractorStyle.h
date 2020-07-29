@@ -7,6 +7,7 @@
 
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkObjectFactory.h>
+#include <limits.h>
 #include "IsovalueObserver.h"
 
 class KeyPressInteractorStyle : public vtkInteractorStyleTrackballCamera
@@ -44,12 +45,18 @@ public:
 
         if(key == "u")
         {
-            notifyObservers(++isovalue);
+            if(isovalue != UINT_MAX)
+            {
+                notifyObservers(++isovalue);
+            }
         }
 
         if(key == "j")
         {
-            notifyObservers(--isovalue);
+            if(isovalue != 0)
+            {
+                notifyObservers(--isovalue);
+            }
         }
         
         // Forward events
