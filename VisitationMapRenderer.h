@@ -14,7 +14,7 @@
 class VisitationMapRenderer : public IsovalueObserver
 {
     private:
-        static constexpr double SURFACE_TRANSPARENCY = 0.6f;
+        static constexpr double SURFACE_TRANSPARENCY = 0.3f;
 
         VisitationMap& visitationMap;
         vtkSmartPointer<vtkRenderer> renderer;

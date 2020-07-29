@@ -8,19 +8,25 @@
 #include <vtkCubeSource.h>
 #include "Point.h"
 
+class VisitationMap;
+
 class Voxel {
     private:
+        unsigned int id;
+
         unsigned int* value_ptr;
         Point position;
         double size;
 
         vtkSmartPointer<vtkCubeSource> cubeSource;
 
+        VisitationMap* visitationMap;
+
         void updateVTKObject();
 
     public:
         Voxel() = delete;
-        Voxel(Point position, double size, unsigned int* value_ptr);
+        Voxel(VisitationMap* visitationMap, Point position, double size, unsigned int* value_ptr);
 
         unsigned int GetValue() const;
         void SetValue(unsigned int value);
@@ -31,6 +37,7 @@ class Voxel {
         bool Contains(const Point& point) const;
 
         vtkSmartPointer<vtkCubeSource> GetVTKObject() const;
+        unsigned int GetID() const;
 };
 
 

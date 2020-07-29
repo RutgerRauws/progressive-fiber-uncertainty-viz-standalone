@@ -3,10 +3,16 @@
 //
 
 #include "Voxel.h"
-#include <vtkCellData.h>
 
-Voxel::Voxel(Point position, double size, unsigned int* value_ptr)
-        : value_ptr(value_ptr),
+#include <vtkCellData.h>
+#include "VisitationMap.h"
+
+static unsigned int GLOBAL_ID = 0;
+
+Voxel::Voxel(VisitationMap* visitationMap, Point position, double size, unsigned int* value_ptr)
+        : id(GLOBAL_ID++),
+          visitationMap(visitationMap),
+          value_ptr(value_ptr),
           position(position),
           size(size),
           cubeSource(vtkSmartPointer<vtkCubeSource>::New())
@@ -38,17 +44,8 @@ unsigned int Voxel::GetValue() const
 
 void Voxel::SetValue(unsigned int val)
 {
-//    if(val < 0)
-//    {
-//        throw std::logic_error("Cannot set negative fiber frequency!");
-//    }
-
-    if(value_ptr == nullptr)
-    {
-        throw std::invalid_argument("Cannot set value to incorrectly initialized Voxel!");
-    }
-
     *value_ptr = val;
+    visitationMap->Modified();
     //updateVTKObject();
 }
 
@@ -99,3 +96,8 @@ void Voxel::updateVTKObject()
 
     cubeSource->Update();
 }
+
+unsigned int Voxel::GetID() const {
+    return id;
+}
+

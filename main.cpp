@@ -19,6 +19,7 @@
 #include "VisitationMapUpdater.h"
 //#include "VisitationMapDebugRenderer.h"
 #include "VisitationMapRenderer.h"
+#include "VisitationMapDebugRenderer.h"
 
 const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps

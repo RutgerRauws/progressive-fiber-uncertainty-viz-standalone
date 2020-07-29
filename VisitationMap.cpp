@@ -26,9 +26,20 @@ VisitationMap::VisitationMap(double* bounds)
     : VisitationMap(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 {}
 
+VisitationMap::~VisitationMap()
+{
+    for(int i = 0; i < GetNumberOfCells(); i++)
+    {
+        delete data[i];
+    }
+
+    delete[] data;
+}
+
 void VisitationMap::initialize()
 {
     std::cout << "Initializing visitation map... " << std::flush;
+    data = new Voxel*[GetNumberOfCells()];
     imageData->SetDimensions(width, height, depth);
     imageData->SetSpacing(voxelSize, voxelSize, voxelSize);
     imageData->SetOrigin(xmin, ymin, zmin);
@@ -40,29 +51,49 @@ void VisitationMap::initialize()
     start_ptr = static_cast<unsigned int*>(imageData->GetScalarPointer(0, 0, 0));
     auto* ptr = start_ptr;
 
-    for(unsigned int i = 0; i < GetNumberOfCells(); i++)
+    double halfSize = voxelSize / 2.0f;
+    for (unsigned int z = 0; z < depth; z++)
     {
-        *ptr++ = 0;
+        for (unsigned int y = 0; y < height; y++)
+        {
+            for(unsigned int x = 0; x < width; x++)
+            {
+                double pos_x = xmin + halfSize + x * voxelSize;
+                double pos_y = ymin + halfSize + y * voxelSize;
+                double pos_z = zmin + halfSize + z * voxelSize;
+
+                data[x + width * (y + z * height)] = new Voxel(
+                        this,
+                        Point(pos_x, pos_y, pos_z),
+                        voxelSize,
+                        ptr
+                );
+
+                *ptr++ = 0;
+            }
+        }
     }
 
     std::cout << "Complete." << std::endl;
 }
 
-unsigned int* VisitationMap::getCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const
+Voxel* VisitationMap::GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const
 {
     //Simplification of x + y * width + z * width * height
-    return start_ptr + x_index + width * (y_index + z_index * height);
+    //return start_ptr + x_index + width * (y_index + z_index * height);
+    return data[x_index + width * (y_index + z_index * height)];
 }
 
-unsigned int *VisitationMap::getCell(unsigned int index) const
+Voxel* VisitationMap::GetCell(unsigned int index) const
 {
-    return start_ptr + index;
+    return data[index];
 }
 
-unsigned int* VisitationMap::findCell(const Point& point) const
+Voxel* VisitationMap::FindCell(const Point& point) const
 {
     if(point.X < xmin || point.X > xmax || point.Y < ymin || point.Y > ymax || point.Z < zmin || point.Z > zmax)
     {
+        std::cerr << "Requested point (" << point.X << ", " << point.Y << ", " << point.Z << " is outside visitation map bounds." << std::endl;
         return nullptr;
     }
 
@@ -73,63 +104,48 @@ unsigned int* VisitationMap::findCell(const Point& point) const
         {
             for(unsigned int x_index = 0; x_index < width + 1; x_index++)
             {
-                if(containedInCell(x_index, y_index, z_index, point))
+                Voxel* voxel = GetCell(x_index, y_index, z_index);
+
+                if(voxel->Contains(point))
                 {
-                    return getCell(x_index, y_index, z_index);
+                    return voxel;
                 }
             }
         }
     }
 
+    std::cerr << "Requested point (" << point.X << ", " << point.Y << ", " << point.Z << " is not found in voxels of visitation maps." << std::endl;
     return nullptr;
 }
 
-unsigned int VisitationMap::GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const
-{
-    return *getCell(x_index, y_index, z_index);
-}
-
-unsigned int VisitationMap::GetCell(unsigned int index) const
-{
-    return *getCell(index);
-}
-
-unsigned int VisitationMap::FindCell(const Point& point) const
-{
-    unsigned int* cell = findCell(point);
-
-    if(cell == nullptr)
-    {
-        std::cerr << "Requested point (" << point.X << ", " << point.Y << ", " << point.Z << " is not found in voxels of visitation maps." << std::endl;
-        return 0;
-    }
-
-    return *cell;
-}
-
-unsigned int VisitationMap::FindCell(double x, double y, double z) const
+Voxel* VisitationMap::FindCell(double x, double y, double z) const
 {
     return FindCell(Point(x, y, z));
 }
 
 void VisitationMap::SetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index, unsigned int value)
 {
-    *getCell(x_index, y_index, z_index) = value;
+//    *getCell(x_index, y_index, z_index) = value;
+
+    //Simplification of x + y * WIDTH + z * WIDTH * DEPTH
+    //data[x_index + width * (y_index + z_index * height)]->SetValue(value);
+
+    GetCell(x_index, y_index, z_index)->SetValue(value);
     imageData->Modified();
 }
 
 void VisitationMap::SetCell(const Point& point, unsigned int value)
 {
-    unsigned int* cell = findCell(point);
-
-    if(cell == nullptr)
-    {
-        std::cerr << "No voxel found at (" << point.X << ", " << point.Y << ", " << point.Z << ") to set value!" << std::endl;
-        return;
-    }
-
-    *cell = value;
-    imageData->Modified();
+//    unsigned int* cell = findCell(point);
+//
+//    if(cell == nullptr)
+//    {
+//        std::cerr << "No voxel found at (" << point.X << ", " << point.Y << ", " << point.Z << ") to set value!" << std::endl;
+//        return;
+//    }
+//
+//    *cell = value;
+    SetCell(point.X, point.Y, point.Z, value);
 }
 
 unsigned int VisitationMap::GetNumberOfCells() const
@@ -142,29 +158,12 @@ vtkSmartPointer<vtkImageData> VisitationMap::GetImageData() const
     return imageData;
 }
 
-bool VisitationMap::containedInCell(unsigned int x_index, unsigned int y_index, unsigned int z_index,
-                                    const Point &point) const
-{
-    double halfSize = voxelSize / 2.0f;
-
-    //Cell center
-    double pos_x = xmin + halfSize + x_index * voxelSize;
-    double pos_y = ymin + halfSize + y_index * voxelSize;
-    double pos_z = zmin + halfSize + z_index * voxelSize;
-
-    double voxel_xmin = pos_x - halfSize;
-    double voxel_xmax = pos_x + halfSize;
-    double voxel_ymin = pos_y - halfSize;
-    double voxel_ymax = pos_y + halfSize;
-    double voxel_zmin = pos_z - halfSize;
-    double voxel_zmax = pos_z + halfSize;
-
-    return (voxel_xmin <= point.X) && (point.X <= voxel_xmax)
-           && (voxel_ymin <= point.Y) && (point.Y <= voxel_ymax)
-           && (voxel_zmin <= point.Z) && (point.Z <= voxel_zmax);
-}
-
 double VisitationMap::GetVoxelSize() const
 {
     return voxelSize;
+}
+
+void VisitationMap::Modified()
+{
+    imageData->Modified();
 }
