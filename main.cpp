@@ -20,7 +20,11 @@
 //#include "VisitationMapDebugRenderer.h"
 #include "VisitationMapRenderer.h"
 
-const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
+//temporary hardcoded input file
+//const std::string INPUT_FILE_NAME = "./data/corpus-callosum.vtk";
+//const std::string INPUT_FILE_NAME = "./data/fiber-samples-without-outliers.vtk";
+const std::string INPUT_FILE_NAME = "./data/fiber-samples-with-outliers.vtk";
+
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps
 
 bool KeepAddingFibers = true;
