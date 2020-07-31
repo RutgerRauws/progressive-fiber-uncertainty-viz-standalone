@@ -50,7 +50,8 @@ void FiberRenderer::initialize()
     glyphMapper->SetInputConnection(vertexGlyphFilter->GetOutputPort());
 
     pointsActor->SetMapper(glyphMapper);
-    pointsActor->GetProperty()->SetPointSize(10);
+    pointsActor->GetProperty()->SetColor(1, 0, 0);
+    pointsActor->GetProperty()->SetPointSize(5);
 
     if(pointsShown)
     {
@@ -80,38 +81,32 @@ void FiberRenderer::NewFiber(const Fiber& fiber)
     points->Modified();
 }
 
-void FiberRenderer::ShowFibers()
+void FiberRenderer::KeyPressed(const std::basic_string<char>& key)
 {
-    if(!fibersShown)
+    if(key == "p")
     {
-        renderer->AddActor(fiberActor);
-        fibersShown = true;
-    }
-}
+        if(pointsShown)
+        {
+            renderer->RemoveActor(pointsActor);
+        }
+        else
+        {
+            renderer->AddActor(pointsActor);
+        }
 
-void FiberRenderer::HideFibers()
-{
-    if(fibersShown)
-    {
-        renderer->RemoveActor(fiberActor);
-        fibersShown = false;
+        pointsShown = !pointsShown;
     }
-}
-
-void FiberRenderer::ShowPoints()
-{
-    if(!pointsShown)
+    else if(key == "f")
     {
-        renderer->AddActor(pointsActor);
-        pointsShown = true;
-    }
-}
+        if(fibersShown)
+        {
+            renderer->RemoveActor(fiberActor);
+        }
+        else
+        {
+            renderer->AddActor(fiberActor);
+        }
 
-void FiberRenderer::HidePoints()
-{
-    if(pointsShown)
-    {
-        renderer->RemoveActor(pointsActor);
-        pointsShown = false;
+        fibersShown = !fibersShown;
     }
 }

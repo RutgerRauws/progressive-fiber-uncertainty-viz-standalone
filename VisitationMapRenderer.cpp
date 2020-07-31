@@ -15,7 +15,8 @@
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap, vtkSmartPointer<vtkRenderer> renderer)
     : visitationMap(visitationMap),
       renderer(std::move(renderer)),
-      actor(vtkSmartPointer<vtkActor>::New())
+      actor(vtkSmartPointer<vtkActor>::New()),
+      isovalue(0)
 {
     initialize();
 }
@@ -39,13 +40,12 @@ void VisitationMapRenderer::initialize()
     property->SetScalarOpacity(opacity);
     property->SetColor(color);
     property->ShadeOn();
-    property->SetInterpolationTypeToLinear();
+    //property->SetInterpolationTypeToLinear();
     property->SetDiffuse(0.6);
     property->SetSpecular(0.5);
     property->SetAmbient(0.5);
 
     isoValues = property->GetIsoSurfaceValues();
-    NewIsovalue(1);
 
     vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
     volume->SetMapper(mapper);
@@ -54,11 +54,26 @@ void VisitationMapRenderer::initialize()
     renderer->AddActor(volume);
 }
 
-void VisitationMapRenderer::NewIsovalue(unsigned int value)
+void VisitationMapRenderer::KeyPressed(const std::basic_string<char>& key)
 {
-    std::cout << "isovalue set to " << value << std::endl;
-    opacity->RemoveAllPoints();
-    opacity->AddPoint(value, SURFACE_TRANSPARENCY);
+        if(key == "u")
+        {
+            if(isovalue != UINT_MAX)
+            {
+                isovalue++;
+            }
+        }
+        else if(key == "j")
+        {
+            if(isovalue != 0)
+            {
+                isovalue--;
+            }
+        }
 
-    isoValues->SetValue(0, value);
+    std::cout << "isovalue set to " << isovalue << std::endl;
+    opacity->RemoveAllPoints();
+    opacity->AddPoint(isovalue, SURFACE_TRANSPARENCY);
+
+    isoValues->SetValue(0, isovalue);
 }

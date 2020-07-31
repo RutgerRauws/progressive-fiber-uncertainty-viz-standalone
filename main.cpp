@@ -85,14 +85,18 @@ int main()
     renderWindow->Render();
 
     VisitationMap visitationMap(fiberPolyData->GetBounds());
+    VisitationMapUpdater visitationMapUpdater(visitationMap);
 
     FiberPublisher fiberPublisher(fiberPolyData);
 
     FiberRenderer fiberRenderer(renderer);
-    VisitationMapUpdater visitationMapUpdater(visitationMap);
+
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
     VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
-    keypressHandler->AddObserver(visitationMapRenderer);
+    keypressHandler->AddObserver("u", &visitationMapRenderer); //Increasing isovalue
+    keypressHandler->AddObserver("j", &visitationMapRenderer); //Decreasing isovalue
+    keypressHandler->AddObserver("f", &fiberRenderer); //Toggle rendering of fibers.
+    keypressHandler->AddObserver("p", &fiberRenderer); //Toggle rendering of points of fibers.
 
     fiberPublisher.RegisterObserver(fiberRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);

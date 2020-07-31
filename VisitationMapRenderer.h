@@ -7,12 +7,12 @@
 
 
 #include "VisitationMap.h"
-#include "IsovalueObserver.h"
+#include "KeyPressObserver.h"
 #include <vtkRenderer.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkContourValues.h>
 
-class VisitationMapRenderer : public IsovalueObserver
+class VisitationMapRenderer : public KeyPressObserver
 {
     private:
         static constexpr double SURFACE_TRANSPARENCY = 0.6f;
@@ -24,11 +24,13 @@ class VisitationMapRenderer : public IsovalueObserver
         vtkSmartPointer<vtkPiecewiseFunction> opacity;
         vtkSmartPointer<vtkContourValues> isoValues;
 
+        int isovalue;
+
         void initialize();
 
     public:
         VisitationMapRenderer(VisitationMap& visitationMap, vtkSmartPointer<vtkRenderer> renderer);
-        void NewIsovalue(unsigned int value) override;
+        void KeyPressed(const std::basic_string<char>& key) override;
 };
 
 

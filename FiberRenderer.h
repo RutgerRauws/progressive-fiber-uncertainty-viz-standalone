@@ -14,8 +14,9 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkVertexGlyphFilter.h>
 #include "FiberObserver.h"
+#include "KeyPressObserver.h"
 
-class FiberRenderer : public FiberObserver
+class FiberRenderer : public FiberObserver, public KeyPressObserver
 {
     private:
         vtkSmartPointer<vtkRenderer> renderer;
@@ -37,11 +38,7 @@ class FiberRenderer : public FiberObserver
         explicit FiberRenderer(vtkSmartPointer<vtkRenderer> renderer);
         void NewFiber(const Fiber& fiber) override;
 
-        void ShowFibers();
-        void HideFibers();
-
-        void ShowPoints();
-        void HidePoints();
+        void KeyPressed(const std::basic_string<char>& key) override;
 };
 
 
