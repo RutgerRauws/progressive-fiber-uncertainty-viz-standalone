@@ -12,25 +12,36 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include <vtkPolyDataMapper.h>
+#include <vtkVertexGlyphFilter.h>
 #include "FiberObserver.h"
 
 class FiberRenderer : public FiberObserver
 {
     private:
+        vtkSmartPointer<vtkRenderer> renderer;
+
         vtkIdType currentId;
         vtkSmartPointer<vtkPoints> points;
         vtkSmartPointer<vtkCellArray> polyLines;
-        vtkSmartPointer<vtkPolyData> polyData;
-        vtkSmartPointer<vtkPolyDataMapper> mapper;
-        vtkSmartPointer<vtkActor> actor;
-    
-        vtkSmartPointer<vtkRenderer> renderer;
-    
+
+        vtkSmartPointer<vtkActor> fiberActor;
+        vtkSmartPointer<vtkActor> pointsActor;
+
+        vtkSmartPointer<vtkVertexGlyphFilter> vertexGlyphFilter;
+
+        bool fibersShown, pointsShown;
+
         void initialize();
         
     public:
         explicit FiberRenderer(vtkSmartPointer<vtkRenderer> renderer);
         void NewFiber(const Fiber& fiber) override;
+
+        void ShowFibers();
+        void HideFibers();
+
+        void ShowPoints();
+        void HidePoints();
 };
 
 
