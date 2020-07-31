@@ -29,9 +29,9 @@ VisitationMap::VisitationMap(double* bounds)
 void VisitationMap::initialize()
 {
     std::cout << "Initializing visitation map... " << std::flush;
-    imageData->SetDimensions(width, height, depth);
+    imageData->SetExtent(0, width - 1, 0, height - 1, 0, depth - 1);
     imageData->SetSpacing(voxelSize, voxelSize, voxelSize);
-    imageData->SetOrigin(xmin, ymin, zmin);
+    imageData->SetOrigin(xmin + voxelSize / 2.0f, ymin + voxelSize / 2.0f, zmin + voxelSize / 2.0f);
 
     //Apparently the vtkVolumeRayCastMapper class only works with unsigned char and unsigned short data
     imageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
