@@ -19,6 +19,8 @@
 #include "VisitationMapUpdater.h"
 //#include "VisitationMapDebugRenderer.h"
 #include "VisitationMapRenderer.h"
+#include "CenterlineGenerator.h"
+#include "CenterlineRenderer.h"
 
 //temporary hardcoded input file
 //const std::string INPUT_FILE_NAME = "./data/corpus-callosum.vtk";
@@ -89,6 +91,8 @@ int main()
 
     FiberPublisher fiberPublisher(fiberPolyData);
 
+    CenterlineRenderer centerlineRenderer(renderer);
+    CenterlineGenerator centerlineGenerator(centerlineRenderer);
     FiberRenderer fiberRenderer(renderer);
 
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
@@ -97,7 +101,9 @@ int main()
     keypressHandler->AddObserver("j", &visitationMapRenderer); //Decreasing isovalue
     keypressHandler->AddObserver("f", &fiberRenderer); //Toggle rendering of fibers.
     keypressHandler->AddObserver("p", &fiberRenderer); //Toggle rendering of points of fibers.
+    keypressHandler->AddObserver("c", &centerlineRenderer); //Toggle rendering of centerline.
 
+    fiberPublisher.RegisterObserver(centerlineGenerator);
     fiberPublisher.RegisterObserver(fiberRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);
     fiberPublisher.Start();

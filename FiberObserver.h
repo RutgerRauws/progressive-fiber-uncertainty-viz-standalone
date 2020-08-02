@@ -10,7 +10,7 @@
 class FiberObserver
 {
     public:
-        virtual void NewFiber(const Fiber& fiber) = 0;
+        virtual void NewFiber(Fiber* fiber) = 0;
 };
 
 #endif //PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_FIBER_OBSERVER_H

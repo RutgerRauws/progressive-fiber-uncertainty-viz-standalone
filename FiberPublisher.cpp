@@ -11,7 +11,15 @@ FiberPublisher::FiberPublisher(vtkSmartPointer<vtkPolyData> fiberPolyData)
     : keepAddingFibers(true), fiberPolyData(std::move(fiberPolyData))
 {}
 
-FiberPublisher::~FiberPublisher() { Stop(); }
+FiberPublisher::~FiberPublisher()
+{
+    Stop();
+
+    for(Fiber* fiber : fibers)
+    {
+        delete fiber;
+    }
+}
 
 void FiberPublisher::publishFibers_t()
 {
@@ -22,14 +30,15 @@ void FiberPublisher::publishFibers_t()
 
     while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers)
     {
-        Fiber fiber;
+        auto* fiber = new Fiber();
+        fibers.emplace_back(fiber);
         
         for(vtkIdType id = 0; id < idList->GetNumberOfIds(); id++)
         {
             double point[3];
             fiberPolyData->GetPoint(idList->GetId(id), point);
 
-            fiber.AddPoint(point[0], point[1], point[2]);
+            fiber->AddPoint(point[0], point[1], point[2]);
         }
 
         for(FiberObserver& o : observers)

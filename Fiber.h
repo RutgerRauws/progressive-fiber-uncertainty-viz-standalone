@@ -11,14 +11,23 @@
 
 class Fiber
 {
+    protected:
+        static unsigned int GLOBAL_FIBER_ID;
+
     private:
+        const unsigned int id;
         std::vector<Point> points;
+
+        Fiber(const Fiber&) = delete;
+        Fiber& operator=(const Fiber&) = delete;
         
     public:
         Fiber();
 
         void AddPoint(double x, double y, double z);
         const std::vector<Point>& GetPoints() const;
+
+        unsigned int GetId() const;
 };
 
 

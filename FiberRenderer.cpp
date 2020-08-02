@@ -59,9 +59,9 @@ void FiberRenderer::initialize()
     }
 }
 
-void FiberRenderer::NewFiber(const Fiber& fiber)
+void FiberRenderer::NewFiber(Fiber* fiber)
 {
-    const std::vector<Point>& fiberPoints = fiber.GetPoints();
+    const std::vector<Point>& fiberPoints = fiber->GetPoints();
 
     vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
     polyLine->GetPointIds()->SetNumberOfIds(fiberPoints.size());

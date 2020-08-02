@@ -36,7 +36,7 @@ class FiberRenderer : public FiberObserver, public KeyPressObserver
         
     public:
         explicit FiberRenderer(vtkSmartPointer<vtkRenderer> renderer);
-        void NewFiber(const Fiber& fiber) override;
+        void NewFiber(Fiber* fiber) override;
 
         void KeyPressed(const std::basic_string<char>& key) override;
 };

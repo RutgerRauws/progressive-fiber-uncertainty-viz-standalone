@@ -16,6 +16,9 @@ private:
     bool keepAddingFibers;
     vtkSmartPointer<vtkPolyData> fiberPolyData;
     std::vector<std::reference_wrapper<FiberObserver>> observers;
+
+    std::vector<Fiber*> fibers;
+
     std::thread publishThread;
     
     void publishFibers_t();

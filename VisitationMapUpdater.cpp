@@ -11,10 +11,10 @@ VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
         : visitationMap(visitationMap)
 {}
 
-void VisitationMapUpdater::NewFiber(const Fiber &fiber)
+void VisitationMapUpdater::NewFiber(Fiber* fiber)
 {
     //TODO: This should be based on edges
-    for(const Point& point : fiber.GetPoints())
+    for(const Point& point : fiber->GetPoints())
     {
         unsigned int value = visitationMap.FindCell(point);
 

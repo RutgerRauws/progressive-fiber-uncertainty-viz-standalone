@@ -4,7 +4,9 @@
 
 #include "Fiber.h"
 
-Fiber::Fiber() : points() {}
+unsigned int Fiber::GLOBAL_FIBER_ID = 0;
+
+Fiber::Fiber() : id(++GLOBAL_FIBER_ID) {}
 
 void Fiber::AddPoint(double x, double y, double z)
 {
@@ -14,4 +16,9 @@ void Fiber::AddPoint(double x, double y, double z)
 const std::vector<Point>& Fiber::GetPoints() const
 {
     return points;
+}
+
+unsigned int Fiber::GetId() const
+{
+    return id;
 }
