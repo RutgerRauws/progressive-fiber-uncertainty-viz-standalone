@@ -20,9 +20,9 @@ void CenterlineGenerator::NewFiber(Fiber* newFiber)
 
     for(int i = 0; i < distanceTable.size(); i++)
     {
-        const Fiber& otherFiber = *distanceTable[i].second;
+        const Fiber* const otherFiber = distanceTable[i].second;
 
-        double newDistance = calculateMinimumDistanceScore(*newFiber, otherFiber);
+        double newDistance = calculateMinimumDistanceScore(newFiber, otherFiber);
 
 //        if(newDistance < DISTANCE_THRESHOLD)
 //        {
@@ -38,7 +38,6 @@ void CenterlineGenerator::NewFiber(Fiber* newFiber)
     }
 
     distanceTable.emplace_back(newFiberDistance, newFiber);
-
     std::sort(distanceTable.begin(), distanceTable.end(), compareFunc);
 
     if(centerfiber_ptr == nullptr || centerfiber_ptr != GetCenterline())
@@ -49,7 +48,7 @@ void CenterlineGenerator::NewFiber(Fiber* newFiber)
 }
 
 //Mean of Closest-Point Distances
-double CenterlineGenerator::calculateMinimumDistanceScore(const Fiber& fiber1, const Fiber& fiber2)
+double CenterlineGenerator::calculateMinimumDistanceScore(const Fiber* const fiber1, const Fiber* const fiber2)
 {
     return
         (calculateMinimumDistanceScore_dm(fiber1, fiber2) + calculateMinimumDistanceScore_dm(fiber2, fiber1))
@@ -58,14 +57,14 @@ double CenterlineGenerator::calculateMinimumDistanceScore(const Fiber& fiber1, c
 }
 
 //Mean of Closest-Point Distances, for internal use only!
-double CenterlineGenerator::calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fiber& Fj)
+double CenterlineGenerator::calculateMinimumDistanceScore_dm(const Fiber* const Fi, const Fiber* const Fj)
 {
     double sum = 0;
 
-    for(const Point& p_r : Fi.GetPoints())
+    for(const Point& p_r : Fi->GetPoints())
     {
         double min_distance = VTK_DOUBLE_MAX;
-        for(const Point& p_s : Fj.GetPoints())
+        for(const Point& p_s : Fj->GetPoints())
         {
             double distance = p_r.distance(p_s);
             if(distance < min_distance)
@@ -77,7 +76,7 @@ double CenterlineGenerator::calculateMinimumDistanceScore_dm(const Fiber& Fi, co
         sum += min_distance;
     }
 
-    return sum / ((double)Fi.GetPoints().size());
+    return sum / ((double)Fi->GetPoints().size());
 }
 
 const Fiber* CenterlineGenerator::GetCenterline() const

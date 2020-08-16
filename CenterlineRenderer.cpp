@@ -20,6 +20,12 @@ CenterlineRenderer::CenterlineRenderer(vtkSmartPointer<vtkRenderer> renderer)
 
 void CenterlineRenderer::Update(const Fiber* newCenterline)
 {
+    if(newCenterline == nullptr)
+    {
+        std::cerr << "CenterlineRenderer was passed a nullptr as new centerline!" << std::endl;
+        return;
+    }
+
     vtkNew<vtkPoints> points;
     vtkNew<vtkCellArray> lines;
 

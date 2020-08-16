@@ -24,8 +24,8 @@ private:
     std::vector<std::pair<double, Fiber*>> distanceTable;
     const Fiber* centerfiber_ptr;
 
-    static double calculateMinimumDistanceScore(const Fiber& fiber1, const Fiber& fiber2);
-    static double calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fiber& Fj);
+    static double calculateMinimumDistanceScore(const Fiber* const fiber1, const Fiber* const fiber2);
+    static double calculateMinimumDistanceScore_dm(const Fiber* const Fi, const Fiber* const Fj);
 
 public:
     explicit CenterlineGenerator(CenterlineRenderer& centerlineRenderer);
