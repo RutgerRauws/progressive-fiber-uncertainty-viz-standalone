@@ -21,7 +21,7 @@ class CenterlineRenderer : public KeyPressObserver, public FiberObserver
         bool centerlineShown;
 
         DistanceTable distanceTable;
-        const Fiber* centerfiber_ptr;
+        unsigned int centerFiberId;
 
         void render();
 

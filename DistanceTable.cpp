@@ -22,7 +22,7 @@ double DistanceTable::calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fi
 
     for(const Point& p_r : Fi.GetPoints())
     {
-        double min_distance = VTK_DOUBLE_MAX;
+        auto min_distance = VTK_DOUBLE_MAX;
         for(const Point& p_s : Fj.GetPoints())
         {
             double distance = p_r.distance(p_s);
@@ -42,6 +42,18 @@ bool compareFunc(const DistanceEntry& entry1, const DistanceEntry& entry2)
 {
     return entry1.distance < entry2.distance;
 }
+
+void DistanceTable::printTable() const
+{
+    std::cout << "Distance | ID" << std::endl;
+    std::cout << "--------------" << std::endl;
+    for(const DistanceEntry& entry : entries)
+    {
+        std::cout << entry.distance << " - " << entry.fiber.get().GetId() << std::endl;
+    }
+    std::cout << "--------------" << std::endl;
+}
+
 
 void DistanceTable::InsertNewFiber(const Fiber& newFiber)
 {

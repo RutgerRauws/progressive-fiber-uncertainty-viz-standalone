@@ -16,16 +16,16 @@ CenterlineRenderer::CenterlineRenderer(vtkSmartPointer<vtkRenderer> renderer)
     : renderer(std::move(renderer)),
       actor(vtkSmartPointer<vtkActor>::New()),
       centerlineShown(false),
-      centerfiber_ptr(nullptr)
+      centerFiberId(std::numeric_limits<unsigned int>::max())
 {}
 
 void CenterlineRenderer::NewFiber(Fiber* newCenterline)
 {
     distanceTable.InsertNewFiber(*newCenterline);
 
-    if(&distanceTable.GetCenterline() != centerfiber_ptr)
+    if(distanceTable.GetCenterline().GetId() != centerFiberId)
     {
-        centerfiber_ptr = &distanceTable.GetCenterline();
+        centerFiberId = distanceTable.GetCenterline().GetId();
         render();
     }
 }
@@ -57,7 +57,7 @@ void CenterlineRenderer::render()
     vtkNew<vtkPoints> points;
     vtkNew<vtkCellArray> lines;
 
-    const std::vector<Point>& newPoints = centerfiber_ptr->GetPoints();
+    const std::vector<Point>& newPoints = distanceTable.GetCenterline().GetPoints();
     points->SetNumberOfPoints(newPoints.size());
 
     vtkNew<vtkPolyLine> polyLine;

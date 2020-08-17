@@ -26,6 +26,8 @@ class DistanceTable
         static double calculateMinimumDistanceScore(const Fiber& fiber1, const Fiber& fiber2);
         static double calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fiber& Fj);
 
+        void printTable() const;
+
     public:
         void InsertNewFiber(const Fiber& fiber);
         const Fiber& GetCenterline() const;

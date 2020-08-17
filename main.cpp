@@ -19,7 +19,6 @@
 #include "VisitationMapUpdater.h"
 //#include "VisitationMapDebugRenderer.h"
 #include "VisitationMapRenderer.h"
-#include "CenterlineGenerator.h"
 #include "CenterlineRenderer.h"
 
 //temporary hardcoded input file
