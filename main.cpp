@@ -92,7 +92,6 @@ int main()
     FiberPublisher fiberPublisher(fiberPolyData);
 
     CenterlineRenderer centerlineRenderer(renderer);
-    CenterlineGenerator centerlineGenerator(centerlineRenderer);
     FiberRenderer fiberRenderer(renderer);
 
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
@@ -103,8 +102,8 @@ int main()
     keypressHandler->AddObserver("p", &fiberRenderer); //Toggle rendering of points of fibers.
     keypressHandler->AddObserver("c", &centerlineRenderer); //Toggle rendering of centerline.
 
-    fiberPublisher.RegisterObserver(centerlineGenerator);
     fiberPublisher.RegisterObserver(fiberRenderer);
+    fiberPublisher.RegisterObserver(centerlineRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);
     fiberPublisher.Start();
 

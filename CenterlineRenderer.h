@@ -9,8 +9,10 @@
 #include <functional>
 #include "KeyPressObserver.h"
 #include "Fiber.h"
+#include "DistanceTable.h"
+#include "FiberObserver.h"
 
-class CenterlineRenderer : public KeyPressObserver
+class CenterlineRenderer : public KeyPressObserver, public FiberObserver
 {
     private:
         vtkSmartPointer<vtkRenderer> renderer;
@@ -18,10 +20,15 @@ class CenterlineRenderer : public KeyPressObserver
 
         bool centerlineShown;
 
-    public:
-        CenterlineRenderer(vtkSmartPointer<vtkRenderer> renderer);
+        DistanceTable distanceTable;
+        const Fiber* centerfiber_ptr;
 
-        void Update(const Fiber* newCenterline);
+        void render();
+
+    public:
+        explicit CenterlineRenderer(vtkSmartPointer<vtkRenderer> renderer);
+
+        void NewFiber(Fiber* fiber) override;
 
         void KeyPressed(const std::basic_string<char>& value) override;
 };

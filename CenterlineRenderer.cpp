@@ -15,21 +15,49 @@
 CenterlineRenderer::CenterlineRenderer(vtkSmartPointer<vtkRenderer> renderer)
     : renderer(std::move(renderer)),
       actor(vtkSmartPointer<vtkActor>::New()),
-      centerlineShown(false)
+      centerlineShown(false),
+      centerfiber_ptr(nullptr)
 {}
 
-void CenterlineRenderer::Update(const Fiber* newCenterline)
+void CenterlineRenderer::NewFiber(Fiber* newCenterline)
 {
-    if(newCenterline == nullptr)
-    {
-        std::cerr << "CenterlineRenderer was passed a nullptr as new centerline!" << std::endl;
-        return;
-    }
+    distanceTable.InsertNewFiber(*newCenterline);
 
+    if(&distanceTable.GetCenterline() != centerfiber_ptr)
+    {
+        centerfiber_ptr = &distanceTable.GetCenterline();
+        render();
+    }
+}
+
+void CenterlineRenderer::KeyPressed(const std::basic_string<char>& key)
+{
+    if(key == "c")
+    {
+        if(actor != nullptr)
+        {
+            if (centerlineShown)
+            {
+                renderer->RemoveActor(actor);
+                std::cout << "Centerline hidden" << std::endl;
+            }
+            else
+            {
+                renderer->AddActor(actor);
+                std::cout << "Centerline shown" << std::endl;
+            }
+        }
+
+        centerlineShown = !centerlineShown;
+    }
+}
+
+void CenterlineRenderer::render()
+{
     vtkNew<vtkPoints> points;
     vtkNew<vtkCellArray> lines;
 
-    const std::vector<Point>& newPoints = newCenterline->GetPoints();
+    const std::vector<Point>& newPoints = centerfiber_ptr->GetPoints();
     points->SetNumberOfPoints(newPoints.size());
 
     vtkNew<vtkPolyLine> polyLine;
@@ -79,27 +107,5 @@ void CenterlineRenderer::Update(const Fiber* newCenterline)
     {
         renderer->AddActor(actor);
         std::cout << "Rendered new centerline" << std::endl;
-    }
-}
-
-void CenterlineRenderer::KeyPressed(const std::basic_string<char>& key)
-{
-    if(key == "c")
-    {
-        if(actor != nullptr)
-        {
-            if (centerlineShown)
-            {
-                renderer->RemoveActor(actor);
-                std::cout << "Centerline hidden" << std::endl;
-            }
-            else
-            {
-                renderer->AddActor(actor);
-                std::cout << "Centerline shown" << std::endl;
-            }
-        }
-
-        centerlineShown = !centerlineShown;
     }
 }
