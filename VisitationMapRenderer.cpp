@@ -16,7 +16,8 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap, vtkSm
     : visitationMap(visitationMap),
       renderer(std::move(renderer)),
       actor(vtkSmartPointer<vtkActor>::New()),
-      isovalue(0)
+      isovalue(0),
+      isSmooth(false)
 {
     initialize();
 }
@@ -36,44 +37,63 @@ void VisitationMapRenderer::initialize()
     vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
     color->AddRGBPoint(0, 0, 0, 1);
 
-    vtkSmartPointer<vtkVolumeProperty> property = vtkSmartPointer<vtkVolumeProperty>::New();
-    property->SetScalarOpacity(opacity);
-    property->SetColor(color);
-    property->ShadeOn();
-    //property->SetInterpolationTypeToLinear();
-    property->SetDiffuse(0.6);
-    property->SetSpecular(0.5);
-    property->SetAmbient(0.5);
+    volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
+    volumeProperty->SetScalarOpacity(opacity);
+    volumeProperty->SetColor(color);
+    volumeProperty->ShadeOn();
+    volumeProperty->SetDiffuse(0.6);
+    volumeProperty->SetSpecular(0.5);
+    volumeProperty->SetAmbient(0.5);
 
-    isoValues = property->GetIsoSurfaceValues();
+    isoValues = volumeProperty->GetIsoSurfaceValues();
 
     vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
     volume->SetMapper(mapper);
-    volume->SetProperty(property);
+    volume->SetProperty(volumeProperty);
 
     renderer->AddActor(volume);
 }
 
-void VisitationMapRenderer::KeyPressed(const std::basic_string<char>& key)
+void VisitationMapRenderer::updateIsovalue()
 {
-        if(key == "u")
-        {
-            if(isovalue != UINT_MAX)
-            {
-                isovalue++;
-            }
-        }
-        else if(key == "j")
-        {
-            if(isovalue != 0)
-            {
-                isovalue--;
-            }
-        }
-
     std::cout << "isovalue set to " << isovalue << std::endl;
     opacity->RemoveAllPoints();
     opacity->AddPoint(isovalue, SURFACE_TRANSPARENCY);
 
     isoValues->SetValue(0, isovalue);
+}
+
+void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
+{
+    if(key == "u")
+    {
+        //Increasing isovalue
+        if (isovalue != UINT_MAX)
+        {
+            isovalue++;
+        }
+        updateIsovalue();
+    }
+    else if(key == "j")
+    {
+        //Decreasing isovalue
+        if (isovalue != 0)
+        {
+            isovalue--;
+        }
+        updateIsovalue();
+    }
+    else if(key == "s")
+    {
+        //Toggle hull smoothing
+        if(isSmooth)
+        {
+            volumeProperty->SetInterpolationTypeToNearest();
+        }
+        else
+        {
+            volumeProperty->SetInterpolationTypeToLinear();
+        }
+        isSmooth = !isSmooth;
+    }
 }

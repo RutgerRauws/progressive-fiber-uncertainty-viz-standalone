@@ -15,7 +15,7 @@
 class VisitationMapRenderer : public KeyPressObserver
 {
     private:
-        static constexpr double SURFACE_TRANSPARENCY = 0.6f;
+        static constexpr double SURFACE_TRANSPARENCY = 0.35f;
 
         VisitationMap& visitationMap;
         vtkSmartPointer<vtkRenderer> renderer;
@@ -23,10 +23,13 @@ class VisitationMapRenderer : public KeyPressObserver
 
         vtkSmartPointer<vtkPiecewiseFunction> opacity;
         vtkSmartPointer<vtkContourValues> isoValues;
+        vtkSmartPointer<vtkVolumeProperty> volumeProperty;
 
         int isovalue;
+        bool isSmooth;
 
         void initialize();
+        void updateIsovalue();
 
     public:
         VisitationMapRenderer(VisitationMap& visitationMap, vtkSmartPointer<vtkRenderer> renderer);

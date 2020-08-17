@@ -97,6 +97,7 @@ int main()
     VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
     keypressHandler->AddObserver("u", &visitationMapRenderer); //Increasing isovalue
     keypressHandler->AddObserver("j", &visitationMapRenderer); //Decreasing isovalue
+    keypressHandler->AddObserver("s", &visitationMapRenderer); //Toggle hull smoothing
     keypressHandler->AddObserver("f", &fiberRenderer); //Toggle rendering of fibers.
     keypressHandler->AddObserver("p", &fiberRenderer); //Toggle rendering of points of fibers.
     keypressHandler->AddObserver("c", &centerlineRenderer); //Toggle rendering of centerline.
