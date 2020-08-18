@@ -11,7 +11,7 @@
 
 class Fiber
 {
-    protected:
+    public:
         static unsigned int GLOBAL_FIBER_ID;
 
     private:

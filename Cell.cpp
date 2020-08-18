@@ -24,6 +24,10 @@ Cell::Cell(Point position,
     }
 }
 
+void Cell::updateValue()
+{
+    *value_ptr = fibers.size();
+}
 
 unsigned int Cell::GetValue() const
 {
@@ -36,16 +40,23 @@ unsigned int Cell::GetValue() const
     return *value_ptr;
 }
 
-void Cell::SetValue(unsigned int val)
-{
-    if(value_ptr == nullptr)
-    {
-        throw std::invalid_argument("Cannot set value to incorrectly initialized Cell!");
-    }
+//void Cell::SetValue(unsigned int val)
+//{
+//    if(value_ptr == nullptr)
+//    {
+//        throw std::invalid_argument("Cannot set value to incorrectly initialized Cell!");
+//    }
+//
+//    *value_ptr = val;
+//    (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
+//}
 
-    *value_ptr = val;
-    (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
+void Cell::InsertFiber(const Fiber &fiber)
+{
+    fibers.emplace_back(fiber);
+    updateValue();
 }
+
 
 Point Cell::GetPosition() const
 {
@@ -77,4 +88,17 @@ bool Cell::Contains(const Point& point) const
     return (xmin <= point.X) && (point.X <= xmax)
         && (ymin <= point.Y) && (point.Y <= ymax)
         && (zmin <= point.Z) && (point.Z <= zmax);
+}
+
+bool Cell::Contains(const Fiber& otherFiber) const
+{
+    for(const Fiber& fiber : fibers)
+    {
+        if(fiber.GetId() == otherFiber.GetId())
+        {
+            return true;
+        }
+    }
+
+    return false;
 }

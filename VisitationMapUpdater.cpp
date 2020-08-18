@@ -16,13 +16,18 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
     {
         Cell* cell = visitationMap.FindCell(point);
 
-//        if(value == nullptr)
+        if(cell == nullptr)
+        {
+            std::cerr << "No corresponding voxel found." << std::endl;
+            continue;
+        }
+
+//        if(!cell->Contains(*fiber))
 //        {
-//            std::cerr << "No corresponding voxel found." << std::endl;
-//            continue;
+        cell->InsertFiber(*fiber);
 //        }
 
-        cell->SetValue(cell->GetValue() + 1);
+//       cell->SetValue(cell->GetValue() + 1);
         //visitationMap.SetCell(point, value + 1);
     }
 }

@@ -20,7 +20,7 @@ class VisitationMap
         int height;
         int depth;
 
-        double cellSize = 3;
+        double cellSize = 5;
 
         vtkSmartPointer<vtkImageData> imageData;
         unsigned int* start_ptr = nullptr;
