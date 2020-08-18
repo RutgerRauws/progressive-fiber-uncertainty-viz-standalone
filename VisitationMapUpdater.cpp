@@ -3,27 +3,26 @@
 //
 
 #include "VisitationMapUpdater.h"
-
-#include <utility>
-#include "Voxel.h"
+#include "Cell.h"
 
 VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
         : visitationMap(visitationMap)
 {}
 
-void VisitationMapUpdater::NewFiber(const Fiber &fiber)
+void VisitationMapUpdater::NewFiber(Fiber* fiber)
 {
     //TODO: This should be based on edges
-    for(const Point& point : fiber.GetPoints())
+    for(const Point& point : fiber->GetPoints())
     {
-        Voxel* voxel = visitationMap.FindCell(point);
+        Cell* cell = visitationMap.FindCell(point);
 
-        if(voxel == nullptr)
-        {
-            std::cerr << "No corresponding voxel found." << std::endl;
-            continue;
-        }
+//        if(value == nullptr)
+//        {
+//            std::cerr << "No corresponding voxel found." << std::endl;
+//            continue;
+//        }
 
-        voxel->SetValue(voxel->GetValue() + 1);
+        cell->SetValue(cell->GetValue() + 1);
+        //visitationMap.SetCell(point, value + 1);
     }
 }

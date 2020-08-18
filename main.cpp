@@ -17,10 +17,15 @@
 #include "FiberRenderer.h"
 #include "VisitationMap.h"
 #include "VisitationMapUpdater.h"
-#include "VisitationMapDebugRenderer.h"
+//#include "VisitationMapDebugRenderer.h"
 #include "VisitationMapRenderer.h"
+#include "CenterlineRenderer.h"
 
-const std::string INPUT_FILE_NAME = "./data/FiberBundle_1_Output Volume-label.vtk"; //temporary hardcoded input file
+//temporary hardcoded input file
+//const std::string INPUT_FILE_NAME = "./data/corpus-callosum.vtk";
+//const std::string INPUT_FILE_NAME = "./data/fiber-samples-without-outliers.vtk";
+const std::string INPUT_FILE_NAME = "./data/fiber-samples-with-outliers.vtk";
+
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps
 
 bool KeepAddingFibers = true;
@@ -71,8 +76,8 @@ int main()
     renderWindowInteractor->AddObserver (vtkCommand::TimerEvent, renderCallback);
     renderWindowInteractor->CreateRepeatingTimer(RENDER_INTERVAL_MS);
 
-    vtkSmartPointer<KeyPressInteractorStyle> style = vtkSmartPointer<KeyPressInteractorStyle>::New();
-    renderWindowInteractor->SetInteractorStyle(style);
+    vtkSmartPointer<KeyPressInteractorStyle> keypressHandler = vtkSmartPointer<KeyPressInteractorStyle>::New();
+    renderWindowInteractor->SetInteractorStyle(keypressHandler);
     //renderWindowInteractor->AddObserver (vtkCommand::KeyPressEvent, renderCallback);
 
     /*
@@ -81,15 +86,24 @@ int main()
     renderWindow->Render();
 
     VisitationMap visitationMap(fiberPolyData->GetBounds());
+    VisitationMapUpdater visitationMapUpdater(visitationMap);
 
     FiberPublisher fiberPublisher(fiberPolyData);
 
+    CenterlineRenderer centerlineRenderer(renderer);
     FiberRenderer fiberRenderer(renderer);
-    VisitationMapUpdater visitationMapUpdater(visitationMap);
+
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
-    VisitationMapRenderer visitationMapDebugRenderer(visitationMap, renderer);
+    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
+    keypressHandler->AddObserver("u", &visitationMapRenderer); //Increasing isovalue
+    keypressHandler->AddObserver("j", &visitationMapRenderer); //Decreasing isovalue
+    keypressHandler->AddObserver("s", &visitationMapRenderer); //Toggle hull smoothing
+    keypressHandler->AddObserver("f", &fiberRenderer); //Toggle rendering of fibers.
+    keypressHandler->AddObserver("p", &fiberRenderer); //Toggle rendering of points of fibers.
+    keypressHandler->AddObserver("c", &centerlineRenderer); //Toggle rendering of centerline.
 
     fiberPublisher.RegisterObserver(fiberRenderer);
+    fiberPublisher.RegisterObserver(centerlineRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);
     fiberPublisher.Start();
 

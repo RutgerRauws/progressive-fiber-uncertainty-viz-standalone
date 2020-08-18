@@ -9,9 +9,10 @@
 #include <vtkStructuredGrid.h>
 #include <vtkImageData.h>
 #include "Point.h"
-#include "Voxel.h"
+#include "Cell.h"
 
-class VisitationMap {
+class VisitationMap
+{
     private:
         double xmin,xmax, ymin,ymax, zmin,zmax;
 
@@ -19,30 +20,27 @@ class VisitationMap {
         int height;
         int depth;
 
-        double voxelSize = 5;
+        double cellSize = 3;
 
-        Voxel** data;
+        vtkSmartPointer<vtkImageData> imageData;
+        unsigned int* start_ptr = nullptr;
+
+        Cell** data;
 
         void initialize();
+        void cellModifiedCallback();
 
     public:
         VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
         explicit VisitationMap(double* bounds);
-
         ~VisitationMap();
 
-        Voxel* GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
-        Voxel* GetCell(unsigned int index) const;
-
-        Voxel* FindCell(const Point& point) const;
-        Voxel* FindCell(double x, double y, double z) const;
-
-        void SetCell(int x, int y, int z, int value);
-        void SetCell(const Point& point, int value);
+        Cell* GetCell(unsigned int index) const;
+        Cell* FindCell(const Point& point) const;
 
         unsigned int GetNumberOfCells() const;
 
-        vtkSmartPointer<vtkImageData> GenerateImageData() const;
+        vtkSmartPointer<vtkImageData> GetImageData() const;
 };
 
 

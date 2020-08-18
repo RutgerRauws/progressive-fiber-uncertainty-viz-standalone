@@ -24,11 +24,11 @@ void VisitationMapDebugRenderer::initialize()
 
     for(unsigned int i = 0; i < visitationMap.GetNumberOfCells(); i++)
     {
-        Voxel* voxel = visitationMap.GetCell(i);
+        Cell* voxel = visitationMap.GetCell(i);
 
         vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
-        voxel->GetVTKObject()->Update();
-        input->ShallowCopy(voxel->GetVTKObject()->GetOutput());
+//        voxel->GetVTKObject()->Update();
+//        input->ShallowCopy(voxel->GetVTKObject()->GetOutput());
         appendFilter->AddInputData(input);
     }
 

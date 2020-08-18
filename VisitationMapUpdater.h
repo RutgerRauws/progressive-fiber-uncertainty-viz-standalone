@@ -7,6 +7,7 @@
 
 
 #include "FiberObserver.h"
+#include "Fiber.h"
 #include "VisitationMap.h"
 
 class VisitationMapUpdater : public FiberObserver {
@@ -15,7 +16,7 @@ class VisitationMapUpdater : public FiberObserver {
 
     public:
         explicit VisitationMapUpdater(VisitationMap& visitationMap);
-        void NewFiber(const Fiber &fiber) override;
+        void NewFiber(Fiber* fiber) override;
 };
 
 

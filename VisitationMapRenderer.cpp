@@ -3,16 +3,21 @@
 //
 
 #include "VisitationMapRenderer.h"
+
 #include <utility>
 #include <vtkGPUVolumeRayCastMapper.h>
 #include <vtkVolumeProperty.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkColorTransferFunction.h>
+#include <vtkOpenGLGPUVolumeRayCastMapper.h>
+#include <vtkContourValues.h>
 
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap, vtkSmartPointer<vtkRenderer> renderer)
     : visitationMap(visitationMap),
       renderer(std::move(renderer)),
-      actor(vtkSmartPointer<vtkActor>::New())
+      actor(vtkSmartPointer<vtkActor>::New()),
+      isovalue(0),
+      isSmooth(false)
 {
     initialize();
 }
@@ -20,44 +25,75 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap, vtkSm
 void VisitationMapRenderer::initialize()
 {
     //vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction> b = vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction>::New();
-    vtkSmartPointer<vtkGPUVolumeRayCastMapper> mapper = vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
-    mapper->SetInputData(visitationMap.GenerateImageData());
+    //vtkSmartPointer<vtkGPUVolumeRayCastMapper> mapper = vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
+    vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
+    mapper->SetInputData(visitationMap.GetImageData());
+    mapper->AutoAdjustSampleDistancesOff();
+    mapper->SetSampleDistance(0.01f);
+    mapper->SetBlendModeToIsoSurface();
 
-//    vtkSmartPointer<vtkPiecewiseFunction> opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
-//    opacity->AddPoint(0, 0);
-//    opacity->AddPoint(1, 0.5);
-//    opacity->AddPoint(2, 0.5);
-//    opacity->AddPoint(3, 0.5);
-//    opacity->AddPoint(4, 0.5);
-//    opacity->AddPoint(5, 0.5);
-//    opacity->AddPoint(6, 0.5);
-//    opacity->AddPoint(7, 0.5);
-//    opacity->AddPoint(8, 0.5);
+    opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
 
-    double colors[8][3] = {
-            {1, 0, 0},
-            {0, 1, 0},
-            {0, 0, 1},
-            {1, 1, 0},
-            {0, 1, 1},
-            {1, 0, 1},
-            {0.5, 1, 0.5},
-            {1, 1, 0.5} };
     vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
-    for (int i = 0; i < 8; i++) color->AddRGBPoint(i, colors[i][0], colors[i][1], colors[i][2]);
+    color->AddRGBPoint(0, 0, 0, 1);
 
-    vtkSmartPointer<vtkVolumeProperty> property = vtkSmartPointer<vtkVolumeProperty>::New();
-    //property->SetScalarOpacity(opacity);
-    property->SetColor(color);
-    property->ShadeOn();
-    property->SetDiffuse(0.6);
-    property->SetSpecular(0.5);
-    property->SetAmbient(0.5);
+    volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
+    volumeProperty->SetScalarOpacity(opacity);
+    volumeProperty->SetColor(color);
+    volumeProperty->ShadeOn();
+    volumeProperty->SetDiffuse(0.6);
+    volumeProperty->SetSpecular(0.5);
+    volumeProperty->SetAmbient(0.5);
+
+    isoValues = volumeProperty->GetIsoSurfaceValues();
 
     vtkSmartPointer<vtkVolume> volume = vtkSmartPointer<vtkVolume>::New();
     volume->SetMapper(mapper);
-    volume->SetProperty(property);
+    volume->SetProperty(volumeProperty);
 
     renderer->AddActor(volume);
 }
 
+void VisitationMapRenderer::updateIsovalue()
+{
+    std::cout << "isovalue set to " << isovalue << std::endl;
+    opacity->RemoveAllPoints();
+    opacity->AddPoint(isovalue, SURFACE_TRANSPARENCY);
+
+    isoValues->SetValue(0, isovalue);
+}
+
+void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
+{
+    if(key == "u")
+    {
+        //Increasing isovalue
+        if (isovalue != UINT_MAX)
+        {
+            isovalue++;
+        }
+        updateIsovalue();
+    }
+    else if(key == "j")
+    {
+        //Decreasing isovalue
+        if (isovalue != 0)
+        {
+            isovalue--;
+        }
+        updateIsovalue();
+    }
+    else if(key == "s")
+    {
+        //Toggle hull smoothing
+        if(isSmooth)
+        {
+            volumeProperty->SetInterpolationTypeToNearest();
+        }
+        else
+        {
+            volumeProperty->SetInterpolationTypeToLinear();
+        }
+        isSmooth = !isSmooth;
+    }
+}
