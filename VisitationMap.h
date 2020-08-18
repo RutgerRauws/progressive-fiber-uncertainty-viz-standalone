@@ -9,9 +9,10 @@
 #include <vtkStructuredGrid.h>
 #include <vtkImageData.h>
 #include "Point.h"
-#include "Voxel.h"
+#include "Cell.h"
 
-class VisitationMap {
+class VisitationMap
+{
     private:
         double xmin,xmax, ymin,ymax, zmin,zmax;
 
@@ -19,37 +20,27 @@ class VisitationMap {
         int height;
         int depth;
 
-        double voxelSize = 3;
+        double cellSize = 3;
 
         vtkSmartPointer<vtkImageData> imageData;
         unsigned int* start_ptr = nullptr;
 
+        Cell** data;
+
         void initialize();
-
-        unsigned int* getCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
-        unsigned int* getCell(unsigned int index) const;
-
-        unsigned int* findCell(const Point& point) const;
-
-        bool containedInCell(unsigned int x_index, unsigned int y_index, unsigned int z_index, const Point& point) const;
+        void cellModifiedCallback();
 
     public:
         VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
         explicit VisitationMap(double* bounds);
+        ~VisitationMap();
 
-        unsigned int GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
-        unsigned int GetCell(unsigned int index) const;
-
-        unsigned int FindCell(const Point& point) const;
-        unsigned int FindCell(double x, double y, double z) const;
-
-        void SetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index, unsigned int value);
-        void SetCell(const Point& point, unsigned int value);
+        Cell* GetCell(unsigned int index) const;
+        Cell* FindCell(const Point& point) const;
 
         unsigned int GetNumberOfCells() const;
 
         vtkSmartPointer<vtkImageData> GetImageData() const;
-        double GetVoxelSize() const;
 };
 
 

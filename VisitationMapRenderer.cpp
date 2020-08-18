@@ -29,7 +29,7 @@ void VisitationMapRenderer::initialize()
     vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
     mapper->SetInputData(visitationMap.GetImageData());
     mapper->AutoAdjustSampleDistancesOff();
-    mapper->SetSampleDistance(0.5);
+    mapper->SetSampleDistance(0.01f);
     mapper->SetBlendModeToIsoSurface();
 
     opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();

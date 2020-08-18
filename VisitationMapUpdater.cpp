@@ -3,9 +3,7 @@
 //
 
 #include "VisitationMapUpdater.h"
-
-#include <utility>
-#include "Voxel.h"
+#include "Cell.h"
 
 VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
         : visitationMap(visitationMap)
@@ -16,7 +14,7 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
     //TODO: This should be based on edges
     for(const Point& point : fiber->GetPoints())
     {
-        unsigned int value = visitationMap.FindCell(point);
+        Cell* cell = visitationMap.FindCell(point);
 
 //        if(value == nullptr)
 //        {
@@ -24,6 +22,7 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
 //            continue;
 //        }
 
-        visitationMap.SetCell(point, value + 1);
+        cell->SetValue(cell->GetValue() + 1);
+        //visitationMap.SetCell(point, value + 1);
     }
 }

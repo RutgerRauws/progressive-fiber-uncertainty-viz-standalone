@@ -2,62 +2,57 @@
 // Created by rutger on 7/20/20.
 //
 
-#include "Voxel.h"
+#include "Cell.h"
+#include "VisitationMap.h"
 #include <vtkCellData.h>
 
-Voxel::Voxel(Point position, double size, unsigned int* value_ptr)
+Cell::Cell(Point position,
+           double size,
+           unsigned int* value_ptr,
+           VisitationMap* visitationMap,
+           void (VisitationMap::*modifiedCallback)()
+           )
         : value_ptr(value_ptr),
           position(position),
           size(size),
-          cubeSource(vtkSmartPointer<vtkCubeSource>::New())
+          visitationMap(visitationMap),
+          modifiedCallback(modifiedCallback)
 {
     if(value_ptr == nullptr)
     {
         std::cerr << "Assigned value pointer is nullptr" << std::endl;
     }
-    else
-    {
-        updateVTKObject();
-    }
 }
 
-vtkSmartPointer<vtkCubeSource> Voxel::GetVTKObject() const
-{
-    return cubeSource;
-}
 
-unsigned int Voxel::GetValue() const
+unsigned int Cell::GetValue() const
 {
     if(value_ptr == nullptr)
     {
+        std::cerr << "Tried to get a value of a uninitialized visitation-map cell!" << std::endl;
         return 0;
     }
 
     return *value_ptr;
 }
 
-void Voxel::SetValue(unsigned int val)
+void Cell::SetValue(unsigned int val)
 {
-//    if(val < 0)
-//    {
-//        throw std::logic_error("Cannot set negative fiber frequency!");
-//    }
-
     if(value_ptr == nullptr)
     {
-        throw std::invalid_argument("Cannot set value to incorrectly initialized Voxel!");
+        throw std::invalid_argument("Cannot set value to incorrectly initialized Cell!");
     }
 
     *value_ptr = val;
-    //updateVTKObject();
+    (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
 }
 
-Point Voxel::GetPosition() const
+Point Cell::GetPosition() const
 {
     return position;
 }
 
-void Voxel::GetBounds(double* bounds) const
+void Cell::GetBounds(double* bounds) const
 {
     double halfSize = size / 2.0f;
 
@@ -69,7 +64,7 @@ void Voxel::GetBounds(double* bounds) const
     bounds[5] = position.Z + halfSize; //zMax
 }
 
-bool Voxel::Contains(const Point& point) const
+bool Cell::Contains(const Point& point) const
 {
     double halfSize = size / 2.0f;
     double xmin = position.X - halfSize;
@@ -82,20 +77,4 @@ bool Voxel::Contains(const Point& point) const
     return (xmin <= point.X) && (point.X <= xmax)
         && (ymin <= point.Y) && (point.Y <= ymax)
         && (zmin <= point.Z) && (point.Z <= zmax);
-}
-
-void Voxel::updateVTKObject()
-{
-    double halfSize = size / 2.0f;
-
-    cubeSource->SetBounds(
-        position.X - halfSize,
-        position.X + halfSize,
-        position.Y - halfSize,
-        position.Y + halfSize,
-        position.Z - halfSize,
-        position.Z + halfSize
-    );
-
-    cubeSource->Update();
 }
