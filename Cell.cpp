@@ -8,54 +8,94 @@
 
 Cell::Cell(Point position,
            double size,
-           unsigned int* value_ptr,
+           unsigned int* fiberFrequency_ptr,
+           unsigned int* fiberDistanceScore_ptr,
            VisitationMap* visitationMap,
            void (VisitationMap::*modifiedCallback)()
            )
-        : value_ptr(value_ptr),
+        : fiberFrequency_ptr(fiberFrequency_ptr),
+          fiberDistanceScore_ptr(fiberDistanceScore_ptr),
           position(position),
           size(size),
           visitationMap(visitationMap),
           modifiedCallback(modifiedCallback)
 {
-    if(value_ptr == nullptr)
+    if(fiberFrequency_ptr == nullptr)
     {
-        std::cerr << "Assigned value pointer is nullptr" << std::endl;
+        std::cerr << "Assigned fiber frequency pointer is nullptr" << std::endl;
+    }
+
+    if(fiberDistanceScore_ptr == nullptr)
+    {
+        std::cerr << "Assigned fiber distance score pointer is nullptr" << std::endl;
     }
 }
 
-void Cell::updateValue()
+void Cell::updateFiberFrequency()
 {
-    *value_ptr = fibers.size();
+    *fiberDistanceScore_ptr = fibers.size();
     (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
 }
 
-unsigned int Cell::GetValue() const
+void Cell::updateMinimumDistanceScore()
 {
-    if(value_ptr == nullptr)
+    //We have to iterate over all fibers in the cell, as fibers other than the latest added fiber may have a lower
+    //distance score.
+
+    for(const Fiber& fiber : fibers)
     {
-        std::cerr << "Tried to get a value of a uninitialized visitation-map cell!" << std::endl;
+        if(fiber.GetDistanceScore() < GetMinimumDistanceScore())
+        {
+            *fiberDistanceScore_ptr = fiber.GetDistanceScore();
+
+            if(*fiberDistanceScore_ptr != 0)
+            {
+                std::cout << *fiberDistanceScore_ptr << std::endl;
+            }
+        }
+    }
+
+    (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
+}
+
+unsigned int Cell::GetFiberFrequency() const
+{
+    if(fiberFrequency_ptr == nullptr)
+    {
+        std::cerr << "Tried to get a fiber frequency of a uninitialized visitation-map cell!" << std::endl;
         return 0;
     }
 
-    return *value_ptr;
+    return *fiberFrequency_ptr;
+}
+
+double Cell::GetMinimumDistanceScore() const
+{
+    if(fiberDistanceScore_ptr == nullptr)
+    {
+        std::cerr << "Tried to get a distance score of a uninitialized visitation-map cell!" << std::endl;
+        return 0;
+    }
+
+    return *fiberDistanceScore_ptr;
 }
 
 //void Cell::SetValue(unsigned int val)
 //{
-//    if(value_ptr == nullptr)
+//    if(fiberFrequency_ptr == nullptr)
 //    {
 //        throw std::invalid_argument("Cannot set value to incorrectly initialized Cell!");
 //    }
 //
-//    *value_ptr = val;
+//    *fiberFrequency_ptr = val;
 //    (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
 //}
 
-void Cell::InsertFiber(const Fiber &fiber)
+void Cell::InsertFiber(const Fiber& fiber)
 {
     fibers.emplace_back(fiber);
-    updateValue();
+    updateFiberFrequency();
+    updateMinimumDistanceScore();
 }
 
 

@@ -27,7 +27,7 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
         cell->InsertFiber(*fiber);
 //        }
 
-//       cell->SetValue(cell->GetValue() + 1);
+//       cell->SetValue(cell->GetFiberFrequency() + 1);
         //visitationMap.SetCell(point, value + 1);
     }
 }

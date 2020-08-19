@@ -15,7 +15,9 @@ class VisitationMap;
 class Cell
 {
     private:
-        unsigned int* value_ptr;
+        unsigned int* fiberFrequency_ptr;
+        unsigned int* fiberDistanceScore_ptr;
+
         Point position;
         double size;
 
@@ -24,18 +26,22 @@ class Cell
         VisitationMap* visitationMap;
         void (VisitationMap::*modifiedCallback)();
 
-        void updateValue();
+        void updateFiberFrequency();
+        void updateMinimumDistanceScore();
 
 public:
         Cell() = delete;
         Cell(Point position,
              double size,
-             unsigned int* value_ptr,
+             unsigned int* fiberFrequency_ptr,
+             unsigned int* fiberDistanceScore_ptr,
              VisitationMap* visitationMap,
              void (VisitationMap::*modifiedCallback)()
         );
 
-        unsigned int GetValue() const;
+        unsigned int GetFiberFrequency() const;
+        double GetMinimumDistanceScore() const;
+
         //void SetValue(unsigned int value);
         void InsertFiber(const Fiber& fiber);
 

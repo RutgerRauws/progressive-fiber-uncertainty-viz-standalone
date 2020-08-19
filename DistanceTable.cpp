@@ -40,7 +40,7 @@ double DistanceTable::calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fi
 
 bool compareFunc(const DistanceEntry& entry1, const DistanceEntry& entry2)
 {
-    return entry1.distance < entry2.distance;
+    return *entry1.distanceScore_ptr < *entry2.distanceScore_ptr;
 }
 
 void DistanceTable::printTable() const
@@ -49,13 +49,13 @@ void DistanceTable::printTable() const
     std::cout << "--------------" << std::endl;
     for(const DistanceEntry& entry : entries)
     {
-        std::cout << entry.distance << " - " << entry.fiber.get().GetId() << std::endl;
+        std::cout << *entry.distanceScore_ptr << " - " << entry.fiber.get().GetId() << std::endl;
     }
     std::cout << "--------------" << std::endl;
 }
 
 
-void DistanceTable::InsertNewFiber(const Fiber& newFiber)
+void DistanceTable::InsertNewFiber(Fiber& newFiber)
 {
     double newFiberDistance = 0;
 
@@ -75,10 +75,12 @@ void DistanceTable::InsertNewFiber(const Fiber& newFiber)
 //        }
 
         newFiberDistance += newDistance;
-        entries[i].distance += newDistance;
+        *entries[i].distanceScore_ptr += static_cast<unsigned int>(newDistance);
     }
 
-    DistanceEntry entry(newFiberDistance, newFiber);
+    *newFiber.GetDistanceScore_ptr() = static_cast<unsigned int>(newFiberDistance);
+
+    DistanceEntry entry(newFiber.GetDistanceScore_ptr(), newFiber);
     entries.emplace_back(entry);
 
     std::sort(entries.begin(), entries.end(), compareFunc);

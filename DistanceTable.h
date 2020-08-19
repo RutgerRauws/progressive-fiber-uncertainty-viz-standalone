@@ -8,20 +8,22 @@
 
 #include <vector>
 #include <functional>
+#include <unordered_map>
 #include "Fiber.h"
 
 struct DistanceEntry
 {
-    double distance;
+    unsigned int* distanceScore_ptr;
     std::reference_wrapper<const Fiber> fiber;
 
-    DistanceEntry(double distance, const Fiber& fiber) : distance(distance), fiber(fiber) {};
+    DistanceEntry(unsigned int* distanceScore_ptr, const Fiber& fiber) : distanceScore_ptr(distanceScore_ptr), fiber(fiber) {};
 };
 
 class DistanceTable
 {
     private:
         std::vector<DistanceEntry> entries;
+        //std::unordered_map<std::reference_wrapper<const Fiber>, double*> lookupTable;
 
         static double calculateMinimumDistanceScore(const Fiber& fiber1, const Fiber& fiber2);
         static double calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fiber& Fj);
@@ -29,7 +31,7 @@ class DistanceTable
         void printTable() const;
 
     public:
-        void InsertNewFiber(const Fiber& fiber);
+        void InsertNewFiber(Fiber& fiber);
         const Fiber& GetCenterline() const;
 };
 

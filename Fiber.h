@@ -17,7 +17,9 @@ class Fiber
     private:
         const unsigned int id;
         std::vector<Point> points;
-        
+        unsigned int distanceScore;
+
+
     public:
         Fiber();
 
@@ -28,6 +30,8 @@ class Fiber
         const std::vector<Point>& GetPoints() const;
 
         unsigned int GetId() const;
+        unsigned int GetDistanceScore() const;
+        unsigned int* GetDistanceScore_ptr();
 };
 
 

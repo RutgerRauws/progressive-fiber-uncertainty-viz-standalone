@@ -22,10 +22,13 @@ class VisitationMap
 
         double cellSize = 5;
 
-        vtkSmartPointer<vtkImageData> imageData;
-        unsigned int* start_ptr = nullptr;
+        vtkSmartPointer<vtkImageData> fiberFrequencyImageData;
+        vtkSmartPointer<vtkImageData> distanceScoreImageData;
 
-        Cell** data;
+        unsigned int* fiberFrequencyStart_ptr = nullptr;
+        unsigned int* distanceScoreStart_ptr = nullptr;
+
+        Cell** cells;
 
         void initialize();
         void cellModifiedCallback();
@@ -40,7 +43,8 @@ class VisitationMap
 
         unsigned int GetNumberOfCells() const;
 
-        vtkSmartPointer<vtkImageData> GetImageData() const;
+        vtkSmartPointer<vtkImageData> GetFiberFrequencyImageData() const;
+        vtkSmartPointer<vtkImageData> GetDistanceScoreImageData() const;
 };
 
 

@@ -8,7 +8,8 @@
 
 VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
     : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax),
-      imageData(vtkSmartPointer<vtkImageData>::New())
+      fiberFrequencyImageData(vtkSmartPointer<vtkImageData>::New()),
+      distanceScoreImageData(vtkSmartPointer<vtkImageData>::New())
 {
     //TODO: Look into fixing double to int conversion.
     width =  std::ceil(std::abs(xmin - xmax) / cellSize);
@@ -33,24 +34,30 @@ VisitationMap::~VisitationMap()
         delete GetCell(i);
     }
 
-    delete[] data;
+    delete[] cells;
 }
 
 void VisitationMap::initialize()
 {
     std::cout << "Initializing visitation map... " << std::flush;
 
-    data = new Cell*[GetNumberOfCells()];
+    cells = new Cell*[GetNumberOfCells()];
 
-    imageData->SetExtent(0, width - 1, 0, height - 1, 0, depth - 1);
-    imageData->SetSpacing(cellSize, cellSize, cellSize);
-    imageData->SetOrigin(xmin + cellSize / 2.0f, ymin + cellSize / 2.0f, zmin + cellSize / 2.0f);
+    fiberFrequencyImageData->SetExtent(0, width - 1, 0, height - 1, 0, depth - 1);
+    fiberFrequencyImageData->SetSpacing(cellSize, cellSize, cellSize);
+    fiberFrequencyImageData->SetOrigin(xmin + cellSize / 2.0f, ymin + cellSize / 2.0f, zmin + cellSize / 2.0f);
 
-    //Apparently the vtkVolumeRayCastMapper class only works with unsigned char and unsigned short data
-    imageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
+    distanceScoreImageData->SetExtent(0, width - 1, 0, height - 1, 0, depth - 1);
+    distanceScoreImageData->SetSpacing(cellSize, cellSize, cellSize);
+    distanceScoreImageData->SetOrigin(xmin + cellSize / 2.0f, ymin + cellSize / 2.0f, zmin + cellSize / 2.0f);
 
-    // Fill every entry of the image data with a color
-    start_ptr = static_cast<unsigned int*>(imageData->GetScalarPointer(0, 0, 0));
+    //Apparently the vtkVolumeRayCastMapper class only works with unsigned char and unsigned short cells
+    fiberFrequencyImageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
+    distanceScoreImageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
+
+    // Fill every entry of the image cells with a color
+    fiberFrequencyStart_ptr = static_cast<unsigned int*>(fiberFrequencyImageData->GetScalarPointer(0, 0, 0));
+    distanceScoreStart_ptr = static_cast<unsigned int*>(distanceScoreImageData->GetScalarPointer(0, 0, 0));
 
     double halfSize = cellSize / 2.0f;
 
@@ -65,14 +72,17 @@ void VisitationMap::initialize()
                 double pos_y = ymin + halfSize + y_index * cellSize;
                 double pos_z = zmin + halfSize + z_index * cellSize;
 
-                unsigned int* value_ptr = start_ptr + x_index + width * (y_index + z_index * height);
+                unsigned int* fiberFrequency_ptr = fiberFrequencyStart_ptr + x_index + width * (y_index + z_index * height);
+                unsigned int* distanceScore_ptr = distanceScoreStart_ptr + x_index + width * (y_index + z_index * height);
 
-                *value_ptr = 0;
+                *fiberFrequency_ptr = 1;
+                *distanceScore_ptr = std::numeric_limits<unsigned int>::max();
 
-                data[x_index + width * (y_index + z_index * height)] = new Cell(
+                cells[x_index + width * (y_index + z_index * height)] = new Cell(
                         Point(pos_x, pos_y, pos_z),
                         cellSize,
-                        value_ptr,
+                        fiberFrequency_ptr,
+                        distanceScore_ptr,
                         this,
                         &VisitationMap::cellModifiedCallback
                 );
@@ -85,12 +95,13 @@ void VisitationMap::initialize()
 
 void VisitationMap::cellModifiedCallback()
 {
-    imageData->Modified();
+    fiberFrequencyImageData->Modified();
+    distanceScoreImageData->Modified();
 }
 
 Cell* VisitationMap::GetCell(unsigned int index) const
 {
-    return data[index];
+    return cells[index];
 }
 
 Cell* VisitationMap::FindCell(const Point& point) const
@@ -102,13 +113,13 @@ Cell* VisitationMap::FindCell(const Point& point) const
 
     for(unsigned int index = 0; index < GetNumberOfCells(); index++)
     {
-        if(data[index]->Contains(point))
+        if(cells[index]->Contains(point))
         {
-            return data[index];
+            return cells[index];
         }
     }
 
-//    //TODO: Make use of acceleration data structures such as octrees.
+//    //TODO: Make use of acceleration cells structures such as octrees.
 //    for(unsigned int z_index = 0; z_index < depth + 1; z_index++)
 //    {
 //        for(unsigned int y_index = 0; y_index < height + 1; y_index++)
@@ -133,7 +144,12 @@ unsigned int VisitationMap::GetNumberOfCells() const
     return width * height * depth;
 }
 
-vtkSmartPointer<vtkImageData> VisitationMap::GetImageData() const
+vtkSmartPointer<vtkImageData> VisitationMap::GetFiberFrequencyImageData() const
 {
-    return imageData;
+    return fiberFrequencyImageData;
+}
+
+vtkSmartPointer<vtkImageData> VisitationMap::GetDistanceScoreImageData() const
+{
+    return distanceScoreImageData;
 }
