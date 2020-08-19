@@ -75,10 +75,10 @@ void DistanceTable::InsertNewFiber(Fiber& newFiber)
 //        }
 
         newFiberDistance += newDistance;
-        *entries[i].distanceScore_ptr += static_cast<unsigned int>(newDistance);
+        *entries[i].distanceScore_ptr += newDistance;
     }
 
-    *newFiber.GetDistanceScore_ptr() = static_cast<unsigned int>(newFiberDistance);
+    *newFiber.GetDistanceScore_ptr() = newFiberDistance;
 
     DistanceEntry entry(newFiber.GetDistanceScore_ptr(), newFiber);
     entries.emplace_back(entry);

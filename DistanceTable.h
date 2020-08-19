@@ -13,10 +13,10 @@
 
 struct DistanceEntry
 {
-    unsigned int* distanceScore_ptr;
+    double* distanceScore_ptr;
     std::reference_wrapper<const Fiber> fiber;
 
-    DistanceEntry(unsigned int* distanceScore_ptr, const Fiber& fiber) : distanceScore_ptr(distanceScore_ptr), fiber(fiber) {};
+    DistanceEntry(double* distanceScore_ptr, const Fiber& fiber) : distanceScore_ptr(distanceScore_ptr), fiber(fiber) {};
 };
 
 class DistanceTable

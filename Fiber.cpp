@@ -23,12 +23,12 @@ unsigned int Fiber::GetId() const
     return id;
 }
 
-unsigned int Fiber::GetDistanceScore() const
+double Fiber::GetDistanceScore() const
 {
     return distanceScore;
 }
 
-unsigned int* Fiber::GetDistanceScore_ptr()
+double* Fiber::GetDistanceScore_ptr()
 {
     return &distanceScore;
 }

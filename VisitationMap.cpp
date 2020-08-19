@@ -53,11 +53,11 @@ void VisitationMap::initialize()
 
     //Apparently the vtkVolumeRayCastMapper class only works with unsigned char and unsigned short cells
     fiberFrequencyImageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
-    distanceScoreImageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
+    distanceScoreImageData->AllocateScalars(VTK_DOUBLE, 1);
 
     // Fill every entry of the image cells with a color
     fiberFrequencyStart_ptr = static_cast<unsigned int*>(fiberFrequencyImageData->GetScalarPointer(0, 0, 0));
-    distanceScoreStart_ptr = static_cast<unsigned int*>(distanceScoreImageData->GetScalarPointer(0, 0, 0));
+    distanceScoreStart_ptr = static_cast<double*>(distanceScoreImageData->GetScalarPointer(0, 0, 0));
 
     double halfSize = cellSize / 2.0f;
 
@@ -73,7 +73,7 @@ void VisitationMap::initialize()
                 double pos_z = zmin + halfSize + z_index * cellSize;
 
                 unsigned int* fiberFrequency_ptr = fiberFrequencyStart_ptr + x_index + width * (y_index + z_index * height);
-                unsigned int* distanceScore_ptr = distanceScoreStart_ptr + x_index + width * (y_index + z_index * height);
+                double* distanceScore_ptr = distanceScoreStart_ptr + x_index + width * (y_index + z_index * height);
 
                 *fiberFrequency_ptr = 1;
                 *distanceScore_ptr = std::numeric_limits<unsigned int>::max();

@@ -9,7 +9,7 @@
 Cell::Cell(Point position,
            double size,
            unsigned int* fiberFrequency_ptr,
-           unsigned int* fiberDistanceScore_ptr,
+           double* fiberDistanceScore_ptr,
            VisitationMap* visitationMap,
            void (VisitationMap::*modifiedCallback)()
            )

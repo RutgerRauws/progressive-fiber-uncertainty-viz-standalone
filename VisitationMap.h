@@ -26,7 +26,7 @@ class VisitationMap
         vtkSmartPointer<vtkImageData> distanceScoreImageData;
 
         unsigned int* fiberFrequencyStart_ptr = nullptr;
-        unsigned int* distanceScoreStart_ptr = nullptr;
+        double* distanceScoreStart_ptr = nullptr;
 
         Cell** cells;
 

@@ -16,7 +16,7 @@ class Cell
 {
     private:
         unsigned int* fiberFrequency_ptr;
-        unsigned int* fiberDistanceScore_ptr;
+        double* fiberDistanceScore_ptr;
 
         Point position;
         double size;
@@ -34,7 +34,7 @@ public:
         Cell(Point position,
              double size,
              unsigned int* fiberFrequency_ptr,
-             unsigned int* fiberDistanceScore_ptr,
+             double* fiberDistanceScore_ptr,
              VisitationMap* visitationMap,
              void (VisitationMap::*modifiedCallback)()
         );
