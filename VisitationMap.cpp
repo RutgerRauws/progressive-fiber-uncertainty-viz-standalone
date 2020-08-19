@@ -75,8 +75,8 @@ void VisitationMap::initialize()
                 unsigned int* fiberFrequency_ptr = fiberFrequencyStart_ptr + x_index + width * (y_index + z_index * height);
                 double* distanceScore_ptr = distanceScoreStart_ptr + x_index + width * (y_index + z_index * height);
 
-                *fiberFrequency_ptr = 1;
-                *distanceScore_ptr = std::numeric_limits<unsigned int>::max();
+                *fiberFrequency_ptr = 0;
+                *distanceScore_ptr = std::numeric_limits<unsigned int>::max(); //TODO: Shouldn't this be double?
 
                 cells[x_index + width * (y_index + z_index * height)] = new Cell(
                         Point(pos_x, pos_y, pos_z),
@@ -119,7 +119,7 @@ Cell* VisitationMap::FindCell(const Point& point) const
         }
     }
 
-//    //TODO: Make use of acceleration cells structures such as octrees.
+//    //TODO: Make use of acceleration data structures such as octrees.
 //    for(unsigned int z_index = 0; z_index < depth + 1; z_index++)
 //    {
 //        for(unsigned int y_index = 0; y_index < height + 1; y_index++)

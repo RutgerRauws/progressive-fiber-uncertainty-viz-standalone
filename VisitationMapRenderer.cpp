@@ -27,8 +27,8 @@ void VisitationMapRenderer::initialize()
     //vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction> b = vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction>::New();
     //vtkSmartPointer<vtkGPUVolumeRayCastMapper> mapper = vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
     vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
-//    mapper->SetInputData(visitationMap.GetFiberFrequencyImageData());
-    mapper->SetInputData(visitationMap.GetDistanceScoreImageData());
+    mapper->SetInputData(visitationMap.GetFiberFrequencyImageData());
+//    mapper->SetInputData(visitationMap.GetDistanceScoreImageData());
     mapper->AutoAdjustSampleDistancesOff();
     mapper->SetSampleDistance(0.01f);
     mapper->SetBlendModeToIsoSurface();

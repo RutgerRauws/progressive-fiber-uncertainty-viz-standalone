@@ -33,7 +33,7 @@ Cell::Cell(Point position,
 
 void Cell::updateFiberFrequency()
 {
-    *fiberDistanceScore_ptr = fibers.size();
+    *fiberFrequency_ptr = fibers.size();
     (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
 }
 
