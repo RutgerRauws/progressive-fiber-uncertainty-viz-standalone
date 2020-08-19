@@ -27,6 +27,7 @@ Cell::Cell(Point position,
 void Cell::updateValue()
 {
     *value_ptr = fibers.size();
+    (visitationMap->*modifiedCallback)(); //Telling the visitation map that the vtkImageData object was modified
 }
 
 unsigned int Cell::GetValue() const
