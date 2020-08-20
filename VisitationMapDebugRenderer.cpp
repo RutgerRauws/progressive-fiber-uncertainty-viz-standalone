@@ -2,6 +2,8 @@
 // Created by rutger on 7/20/20.
 //
 
+#ifdef VISITATION_MAP_CELL_DEBUG
+
 #include "VisitationMapDebugRenderer.h"
 #include <utility>
 #include <vtkProperty.h>
@@ -18,17 +20,17 @@ VisitationMapDebugRenderer::VisitationMapDebugRenderer(VisitationMap& visitation
 
 void VisitationMapDebugRenderer::initialize()
 {
-    std::cout << "Initializing visitation map renderer... " << std::flush;
+    std::cout << "Initializing visitation map debug renderer... " << std::flush;
 
     vtkSmartPointer<vtkAppendPolyData> appendFilter = vtkSmartPointer<vtkAppendPolyData>::New();
 
     for(unsigned int i = 0; i < visitationMap.GetNumberOfCells(); i++)
     {
-        Cell* voxel = visitationMap.GetCell(i);
+        Cell* cell = visitationMap.GetCell(i);
 
         vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
-//        voxel->GetVTKObject()->Update();
-//        input->ShallowCopy(voxel->GetVTKObject()->GetOutput());
+        cell->GetVTKObject()->Update();
+        input->ShallowCopy(cell->GetVTKObject()->GetOutput());
         appendFilter->AddInputData(input);
     }
 
@@ -42,3 +44,5 @@ void VisitationMapDebugRenderer::initialize()
     renderer->AddActor(actor);
     std::cout << "Complete." << std::endl;
 }
+
+#endif //VISITATION_MAP_CELL_DEBUG

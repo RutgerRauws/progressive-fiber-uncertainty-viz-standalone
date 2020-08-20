@@ -5,6 +5,7 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_DEBUG_RENDERER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_DEBUG_RENDERER_H
 
+#ifdef VISITATION_MAP_CELL_DEBUG
 
 #include <vtkPolyDataMapper.h>
 #include <vtkRenderer.h>
@@ -26,5 +27,6 @@ public:
                                    vtkSmartPointer<vtkRenderer> renderer);
 };
 
+#endif //VISITATION_MAP_CELL_DEBUG
 
 #endif //PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_DEBUG_RENDERER_H

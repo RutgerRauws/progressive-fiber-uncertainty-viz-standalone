@@ -19,6 +19,9 @@ Cell::Cell(Point position,
           size(size),
           visitationMap(visitationMap),
           modifiedCallback(modifiedCallback)
+          #ifdef VISITATION_MAP_CELL_DEBUG
+          , cubeSource(vtkSmartPointer<vtkCubeSource>::New())
+          #endif
 {
     if(fiberFrequency_ptr == nullptr)
     {
@@ -29,7 +32,29 @@ Cell::Cell(Point position,
     {
         std::cerr << "Assigned fiber distance score pointer is nullptr" << std::endl;
     }
+
+    #ifdef VISITATION_MAP_CELL_DEBUG
+    updateVTKObject();
+    #endif
 }
+
+#ifdef VISITATION_MAP_CELL_DEBUG
+void Cell::updateVTKObject()
+{
+    double halfSize = size / 2.0f;
+
+    cubeSource->SetBounds(
+        position.X - halfSize,
+        position.X + halfSize,
+        position.Y - halfSize,
+        position.Y + halfSize,
+        position.Z - halfSize,
+        position.Z + halfSize
+    );
+
+    cubeSource->Update();
+}
+#endif
 
 void Cell::updateFiberFrequency()
 {
@@ -143,3 +168,10 @@ bool Cell::Contains(const Fiber& otherFiber) const
 
     return false;
 }
+
+#ifdef VISITATION_MAP_CELL_DEBUG
+vtkSmartPointer<vtkCubeSource> Cell::GetVTKObject() const
+{
+    return cubeSource;
+}
+#endif

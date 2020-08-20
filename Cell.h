@@ -26,6 +26,12 @@ class Cell
         VisitationMap* visitationMap;
         void (VisitationMap::*modifiedCallback)();
 
+        #ifdef VISITATION_MAP_CELL_DEBUG
+        vtkSmartPointer<vtkCubeSource> cubeSource;
+
+        void updateVTKObject();
+        #endif
+
         void updateFiberFrequency();
         void updateMinimumDistanceScore();
 
@@ -50,6 +56,10 @@ public:
 
         bool Contains(const Point& point) const;
         bool Contains(const Fiber& fiber) const;
+
+        #ifdef VISITATION_MAP_CELL_DEBUG
+        vtkSmartPointer<vtkCubeSource> GetVTKObject() const;
+        #endif
 };
 
 
