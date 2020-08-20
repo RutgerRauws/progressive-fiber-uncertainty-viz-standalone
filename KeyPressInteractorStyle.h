@@ -20,11 +20,26 @@ public:
     static KeyPressInteractorStyle* New();
     vtkTypeMacro(KeyPressInteractorStyle, vtkInteractorStyleTrackballCamera);
 
+    void OnChar() override
+    {
+        // By overriding this function and not calling the base method we do not forward the events,
+        // and no VTK-specific default keypresses are handled
+    }
+
     void OnKeyPress() override
     {
         // Get the keypress
         vtkRenderWindowInteractor *rwi = this->Interactor;
         std::string key = rwi->GetKeySym();
+
+        if(key == "q")
+        {
+            std::cout << "The exit key was pressed." << std::endl;
+
+            rwi->GetRenderWindow()->Finalize();
+            rwi->TerminateApp();
+            return;
+        }
 
         try
         {
@@ -35,7 +50,6 @@ public:
             //Key is not handled
         }
 
-        // Forward events
         vtkInteractorStyleTrackballCamera::OnKeyPress();
     }
 
@@ -43,16 +57,6 @@ public:
     {
         observers[key] = observer;
     }
-
-    void KeyPressed(std::basic_string<char> key)
-    {
-        std::cout << "The exit key was pressed." << std::endl;
-        vtkRenderWindowInteractor *rwi = this->Interactor;
-
-        rwi->GetRenderWindow()->Finalize();
-        rwi->TerminateApp();
-    }
-    
 };
 
 vtkStandardNewMacro(KeyPressInteractorStyle);
