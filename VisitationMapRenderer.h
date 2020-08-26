@@ -31,8 +31,14 @@ class VisitationMapRenderer : public KeyPressObserver
         void initialize();
         void updateIsovalue();
 
+        void setSmoothing(bool on);
+
     public:
-        VisitationMapRenderer(VisitationMap& visitationMap, vtkSmartPointer<vtkRenderer> renderer);
+        VisitationMapRenderer(VisitationMap& visitationMap,
+                              vtkSmartPointer<vtkRenderer> renderer,
+                              int startIsovalue = 0,
+                              bool isSmooth = false);
+
         void KeyPressed(const std::basic_string<char>& key) override;
 };
 

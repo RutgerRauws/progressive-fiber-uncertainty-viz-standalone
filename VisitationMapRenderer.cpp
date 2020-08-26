@@ -12,12 +12,15 @@
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkContourValues.h>
 
-VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap, vtkSmartPointer<vtkRenderer> renderer)
+VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
+                                             vtkSmartPointer<vtkRenderer> renderer,
+                                             int startIsovalue,
+                                             bool isSmooth)
     : visitationMap(visitationMap),
       renderer(std::move(renderer)),
       actor(vtkSmartPointer<vtkActor>::New()),
-      isovalue(0),
-      isSmooth(false)
+      isovalue(startIsovalue),
+      isSmooth(isSmooth)
 {
     initialize();
 }
@@ -44,6 +47,7 @@ void VisitationMapRenderer::initialize()
     volumeProperty->SetDiffuse(0.6);
     volumeProperty->SetSpecular(0.5);
     volumeProperty->SetAmbient(0.5);
+    setSmoothing(isSmooth);
 
     isoValues = volumeProperty->GetIsoSurfaceValues();
 
@@ -52,6 +56,8 @@ void VisitationMapRenderer::initialize()
     volume->SetProperty(volumeProperty);
 
     renderer->AddActor(volume);
+
+    updateIsovalue();
 }
 
 void VisitationMapRenderer::updateIsovalue()
@@ -86,14 +92,19 @@ void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
     else if(key == "s")
     {
         //Toggle hull smoothing
-        if(isSmooth)
-        {
-            volumeProperty->SetInterpolationTypeToNearest();
-        }
-        else
-        {
-            volumeProperty->SetInterpolationTypeToLinear();
-        }
         isSmooth = !isSmooth;
+        setSmoothing(isSmooth);
+    }
+}
+
+void VisitationMapRenderer::setSmoothing(bool on)
+{
+    if(on)
+    {
+        volumeProperty->SetInterpolationTypeToLinear();
+    }
+    else
+    {
+        volumeProperty->SetInterpolationTypeToNearest();
     }
 }
