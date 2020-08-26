@@ -33,6 +33,12 @@ void VisitationMap::initialize()
     data = new Cell*[GetNumberOfCells()];
 
     imageData->SetExtent(0, width - 1, 0, height - 1, 0, depth - 1);
+
+    // TODO: Perhaps the SetSpacing and SetOrigin calls should be removed.
+    // As we use vtkMRMLVolumeNode::SetAndObserveImageData, the ImageData object origin must be set to (0,0,0) and
+    // spacing must be set to (1,1,1). If the variables are set to different values then the application's behavior is
+    // undefined.
+    // https://apidocs.slicer.org/v4.8/classvtkMRMLVolumeNode.html
     imageData->SetSpacing(cellSize, cellSize, cellSize);
     imageData->SetOrigin(xmin + cellSize / 2.0f, ymin + cellSize / 2.0f, zmin + cellSize / 2.0f);
 
