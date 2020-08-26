@@ -92,13 +92,11 @@ void CenterlineRenderer::render()
     vtkNew<vtkPolyDataMapper> tubeMapper;
     tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
 
-    if(centerlineShown && actor != nullptr)
+    if(actor != nullptr)
     {
         renderer->RemoveActor(actor);
-        //actor->Delete();
     }
 
-    actor = vtkSmartPointer<vtkActor>::New();
     actor->GetProperty()->SetColor(1, 1, 1);
     actor->GetProperty()->SetOpacity(0.75);
     actor->SetMapper(tubeMapper);

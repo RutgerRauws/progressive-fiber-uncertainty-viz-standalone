@@ -26,16 +26,6 @@ VisitationMap::VisitationMap(double* bounds)
     : VisitationMap(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 {}
 
-VisitationMap::~VisitationMap()
-{
-    for(unsigned int i = 0; i < GetNumberOfCells(); i++)
-    {
-        delete GetCell(i);
-    }
-
-    delete[] data;
-}
-
 void VisitationMap::initialize()
 {
     std::cout << "Initializing visitation map... " << std::flush;

@@ -33,7 +33,6 @@ class VisitationMap
     public:
         VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
         explicit VisitationMap(double* bounds);
-        ~VisitationMap();
 
         Cell* GetCell(unsigned int index) const;
         Cell* FindCell(const Point& point) const;
