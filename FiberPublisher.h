@@ -6,6 +6,7 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_FIBER_PUBLISHER_H
 
 #include <vector>
+#include <thread>
 #include <vtkPolyData.h>
 #include "FiberObserver.h"
 

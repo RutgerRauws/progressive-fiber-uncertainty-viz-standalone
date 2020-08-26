@@ -7,6 +7,8 @@
 
 
 #include <functional>
+#include <vtkRenderer.h>
+#include <vtkActor.h>
 #include "KeyPressObserver.h"
 #include "Fiber.h"
 #include "DistanceTable.h"

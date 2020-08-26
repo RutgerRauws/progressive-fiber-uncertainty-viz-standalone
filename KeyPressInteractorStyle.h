@@ -7,7 +7,11 @@
 
 #include <vtkInteractorStyleTrackballCamera.h>
 #include <vtkObjectFactory.h>
+#include <vtkRenderWindow.h>
+#include <vtkRenderWindowInteractor.h>
+#include <iostream>
 #include <limits.h>
+#include <stdexcept>
 #include <map>
 #include "KeyPressObserver.h"
 
@@ -26,14 +30,15 @@ public:
         vtkRenderWindowInteractor *rwi = this->Interactor;
         std::string key = rwi->GetKeySym();
 
-        try
-        {
+        //TODO: figure out why lines below need to be commented out for 3D Slicer build to succeed.
+//        try
+//        {
             observers.at(key)->KeyPressed(key);
-        }
-        catch (const std::out_of_range& exception)
-        {
-            //Key is not handled
-        }
+//        }
+//        catch (const std::out_of_range&)
+//        {
+//            //Key is not handled
+//        }
 
         // Forward events
         vtkInteractorStyleTrackballCamera::OnKeyPress();
