@@ -24,11 +24,14 @@
 //temporary hardcoded input file
 //const std::string INPUT_FILE_NAME = "./data/corpus-callosum.vtk";
 //const std::string INPUT_FILE_NAME = "./data/fiber-samples-without-outliers.vtk";
-const std::string INPUT_FILE_NAME = "./data/fiber-samples-with-outliers.vtk";
+//const std::string INPUT_FILE_NAME = "./data/fiber-samples-with-outliers.vtk";
+//const std::string INPUT_FILE_NAME = "./data/cst-1.vtk";
+const std::string INPUT_FILE_NAME = "./data/cst-20.vtk";
+//const std::string INPUT_FILE_NAME = "./data/slf-1.vtk";
+//const std::string INPUT_FILE_NAME = "./data/slf-20.vtk";
+//const std::string INPUT_FILE_NAME = "./data/cc-5.vtk";
 
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps
-
-bool KeepAddingFibers = true;
 
 vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName);
 void render_callback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
