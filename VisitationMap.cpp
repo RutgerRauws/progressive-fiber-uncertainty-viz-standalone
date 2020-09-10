@@ -6,6 +6,14 @@
 #include "Point.h"
 #include "Cell.h"
 
+#include <vtkImageData.h>
+#include <vtkObjectFactory.h>
+#include <vtkStreamingDemandDrivenPipeline.h>
+#include <vtkInformationVector.h>
+#include <vtkInformation.h>
+#include <vtkDataObject.h>
+#include <vtkSmartPointer.h>
+
 VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
     : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax),
       imageData(vtkSmartPointer<vtkImageData>::New())
@@ -14,6 +22,9 @@ VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax,
     width =  std::ceil(std::abs(xmin - xmax) / cellSize);
     height = std::ceil(std::abs(ymin - ymax) / cellSize);
     depth =  std::ceil(std::abs(zmin - zmax) / cellSize);
+
+    this->SetNumberOfInputPorts(0);
+    this->SetNumberOfOutputPorts(1);
 
     initialize();
 }
@@ -25,6 +36,66 @@ VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax,
 VisitationMap::VisitationMap(double* bounds)
     : VisitationMap(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 {}
+
+//int VisitationMap::RequestInformation(vtkInformation* vtkNotUsed(request),
+//  vtkInformationVector** vtkNotUsed(inputVector), vtkInformationVector* outputVector)
+//{
+//    vtkInformation* outInfo = outputVector->GetInformationObject(0);
+//    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), this->imageData->GetExtent(), 6);
+//
+//    return 1;
+//}
+//
+
+int VisitationMap::RequestData(vtkInformation *vtkNotUsed(request),
+                                         vtkInformationVector **vtkNotUsed(inputVector),
+                                         vtkInformationVector *outputVector)
+{
+    // Get the info objects
+//    vtkInformation *inInfo = inputVector[0]->GetInformationObject(0);
+    vtkInformation *outInfo = outputVector->GetInformationObject(0);
+
+    // Get the input and ouptut
+//    vtkImageData *input = dynamic_cast<vtkImageData*>(
+//            inInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+//    vtkImageData *output = dynamic_cast<vtkImageData*>(
+//            outInfo->Get(vtkDataObject::DATA_OBJECT()));
+
+    vtkImageData *output = vtkImageData::SafeDownCast(
+            outInfo->Get(vtkDataObject::DATA_OBJECT())
+    );
+
+
+//    vtkSmartPointer<vtkImageData> image =
+//            vtkSmartPointer<vtkImageData>::New();
+//    image->ShallowCopy(input);
+//
+//    image->SetScalarComponentFromDouble(0,0,0,0, 5.0);
+//
+//    output->ShallowCopy(image);
+
+    output->ShallowCopy(imageData);
+    //output->DeepCopy(imageData);
+    // Without these lines, the output will appear real but will not work as the input to any other filters
+//                                    int extent[6];
+//                                //    input->GetExtent(extent);
+//                                    imageData->GetExtent(extent);
+//                                    output->SetExtent(extent);
+//                                    outInfo->Set(vtkStreamingDemandDrivenPipeline::UPDATE_EXTENT(),
+//                                                 extent,
+//                                                 6);
+//                                    outInfo->Set(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(),
+//                                                 extent,
+//                                                 6);
+
+    // Without these lines, the output will appear real but will not work as the input to any other filters
+    output->SetExtent(imageData->GetExtent());
+//    output->SetUpdateExtent(output->GetExtent());
+//    output->SetWholeExtent(output->GetExtent());
+
+    return 1;
+}
 
 void VisitationMap::initialize()
 {
@@ -76,6 +147,7 @@ void VisitationMap::initialize()
 void VisitationMap::cellModifiedCallback()
 {
     imageData->Modified();
+    this->Modified();
 }
 
 Cell* VisitationMap::GetCell(unsigned int index) const

@@ -5,12 +5,13 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_RENDERER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_RENDERER_H
 
-
 #include "VisitationMap.h"
 #include "KeyPressObserver.h"
 #include <vtkRenderer.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkContourValues.h>
+#include <vtkImageGaussianSmooth.h>
+#include <vtkOpenGLGPUVolumeRayCastMapper.h>
 
 class VisitationMapRenderer : public KeyPressObserver
 {
@@ -20,6 +21,9 @@ class VisitationMapRenderer : public KeyPressObserver
         VisitationMap& visitationMap;
         vtkSmartPointer<vtkRenderer> renderer;
         vtkSmartPointer<vtkActor> actor;
+
+        vtkSmartPointer<vtkImageGaussianSmooth> smoother;
+        vtkSmartPointer<vtkOpenGLGPUVolumeRayCastMapper> mapper;
 
         vtkSmartPointer<vtkPiecewiseFunction> opacity;
         vtkSmartPointer<vtkContourValues> isoValues;

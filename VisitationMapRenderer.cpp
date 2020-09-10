@@ -11,6 +11,7 @@
 #include <vtkColorTransferFunction.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkContourValues.h>
+#include <vtkImageGaussianSmooth.h>
 
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
                                              vtkSmartPointer<vtkRenderer> renderer,
@@ -19,6 +20,8 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
     : visitationMap(visitationMap),
       renderer(std::move(renderer)),
       actor(vtkSmartPointer<vtkActor>::New()),
+      smoother(vtkSmartPointer<vtkImageGaussianSmooth>::New()),
+      mapper(vtkSmartPointer<vtkOpenGLGPUVolumeRayCastMapper>::New()),
       isovalue(startIsovalue),
       isSmooth(isSmooth)
 {
@@ -27,11 +30,28 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
 
 void VisitationMapRenderer::initialize()
 {
+    isovalue++;
     //vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction> b = vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction>::New();
     //vtkSmartPointer<vtkGPUVolumeRayCastMapper> mapper = vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
-    vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
-    mapper->SetInputData(visitationMap.GetImageData());
+
+//    mapper->SetInputData(visitationMap.GetImageData());
+//    mapper->SetInputData(visitationMap.GetOutput());
+    mapper->SetInputConnection(visitationMap.GetOutputPort());
+//    mapper->SetInputData(visitationMap.GetOutput());
+//
+//    visitationMap.Update();
+
+    smoother->SetDimensionality(3);
+//    smoother->SetInputConnection(visitationMap.GetOutputPort());
+//    smoother->SetInputData(visitationMap.GetOutput());
+    smoother->SetStandardDeviations(4, 4, 4);
+    smoother->SetRadiusFactors(3, 3, 3);
+
+
+//    mapper->SetInputConnection(smoother->GetOutputPort());
+//    mapper->SetPartitions(2,2,1);
     mapper->AutoAdjustSampleDistancesOff();
+//    mapper->SetAutoAdjustSampleDistances(true);
     mapper->SetSampleDistance(0.01f);
     mapper->SetBlendModeToIsoSurface();
 
