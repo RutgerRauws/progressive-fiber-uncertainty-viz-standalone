@@ -16,7 +16,9 @@ public:
     double distance(const Point& p) const
     {
         return std::sqrt(
-                this->X + p.X + this->Y + p.Y + this->Z + p.Z
+                std::pow(this->X - p.X, 2)
+                +  std::pow(this->Y - p.Y, 2)
+                +  std::pow(this->Z - p.Z, 2)
         );
     }
 };
