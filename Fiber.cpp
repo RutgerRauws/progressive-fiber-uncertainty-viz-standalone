@@ -22,3 +22,15 @@ unsigned int Fiber::GetId() const
 {
     return id;
 }
+
+double Fiber::CalculateLength() const
+{
+    double length = 0.0f;
+
+    for(unsigned int i = 0; i < points.size() - 1; i++)
+    {
+        length += points[i].distance(points[i + 1]);
+    }
+
+    return length;
+}

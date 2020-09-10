@@ -28,6 +28,8 @@ class Fiber
         const std::vector<Point>& GetPoints() const;
 
         unsigned int GetId() const;
+
+        double CalculateLength() const;
 };
 
 
