@@ -96,32 +96,12 @@ Cell* VisitationMap::FindCell(const Point& point) const
         return nullptr;
     }
 
-    for(unsigned int index = 0; index < GetNumberOfCells(); index++)
-    {
-        if(data[index]->Contains(point))
-        {
-            return data[index];
-        }
-    }
+    unsigned int x_index = std::floor((point.X - xmin) / cellSize);
+    unsigned int y_index = std::floor((point.Y - ymin) / cellSize);
+    unsigned int z_index = std::floor((point.Z - zmin) / cellSize);
 
-//    //TODO: Make use of acceleration data structures such as octrees.
-//    for(unsigned int z_index = 0; z_index < depth + 1; z_index++)
-//    {
-//        for(unsigned int y_index = 0; y_index < height + 1; y_index++)
-//        {
-//            for(unsigned int x_index = 0; x_index < width + 1; x_index++)
-//            {
-//
-//
-//                if(containedInCell(x_index, y_index, z_index, point))
-//                {
-//                    return getCell(x_index, y_index, z_index);
-//                }
-//            }
-//        }
-//    }
-
-    return nullptr;
+    unsigned int index = x_index + width * (y_index + z_index * height);
+    return data[index];
 }
 
 unsigned int VisitationMap::GetNumberOfCells() const
