@@ -6,8 +6,9 @@
 #include "Point.h"
 #include "Cell.h"
 
-VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax)
+VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double cellSize)
     : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax),
+      cellSize(cellSize),
       imageData(vtkSmartPointer<vtkImageData>::New())
 {
     //TODO: Look into fixing double to int conversion.
@@ -22,8 +23,9 @@ VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax,
  *
  * @param bounds xmin,xmax, ymin,ymax, zmin,zmax
  */
-VisitationMap::VisitationMap(double* bounds)
-    : VisitationMap(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
+VisitationMap::VisitationMap(double* bounds, double cellSize)
+    : VisitationMap(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5],
+                    cellSize)
 {}
 
 void VisitationMap::initialize()
@@ -84,12 +86,30 @@ void VisitationMap::cellModifiedCallback()
     imageData->Modified();
 }
 
+void VisitationMap::GetIndex(const Point& point, unsigned int* x_index, unsigned int* y_index, unsigned int* z_index) const
+{
+    *x_index = std::floor((point.X - xmin) / cellSize);
+    *y_index = std::floor((point.Y - ymin) / cellSize);
+    *z_index = std::floor((point.Z - zmin) / cellSize);
+}
+
 Cell* VisitationMap::GetCell(unsigned int index) const
 {
     return data[index];
 }
 
-Cell* VisitationMap::FindCell(const Point& point) const
+Cell* VisitationMap::GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const
+{
+    unsigned int index = x_index + width * (y_index + z_index * height);
+
+    if(index >= GetNumberOfCells()) {
+        return nullptr;
+    }
+
+    return data[index];
+}
+
+Cell* VisitationMap::GetCell(const Point& point) const
 {
     if(point.X < xmin || point.X > xmax || point.Y < ymin || point.Y > ymax || point.Z < zmin || point.Z > zmax)
     {
@@ -100,13 +120,17 @@ Cell* VisitationMap::FindCell(const Point& point) const
     unsigned int y_index = std::floor((point.Y - ymin) / cellSize);
     unsigned int z_index = std::floor((point.Z - zmin) / cellSize);
 
-    unsigned int index = x_index + width * (y_index + z_index * height);
-    return data[index];
+    return GetCell(x_index, y_index, z_index);
 }
 
 unsigned int VisitationMap::GetNumberOfCells() const
 {
     return width * height * depth;
+}
+
+double VisitationMap::GetCellSize() const
+{
+    return cellSize;
 }
 
 vtkSmartPointer<vtkImageData> VisitationMap::GetImageData() const

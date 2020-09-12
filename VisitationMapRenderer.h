@@ -18,6 +18,7 @@ class VisitationMapRenderer : public KeyPressObserver
         static constexpr double SURFACE_TRANSPARENCY = 0.35f;
 
         VisitationMap& visitationMap;
+
         vtkSmartPointer<vtkRenderer> renderer;
         vtkSmartPointer<vtkActor> actor;
 

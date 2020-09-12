@@ -88,8 +88,9 @@ int main()
      */
     renderWindow->Render();
 
-    VisitationMap visitationMap(fiberPolyData->GetBounds());
-    VisitationMapUpdater visitationMapUpdater(visitationMap);
+    VisitationMap visitationMap(fiberPolyData->GetBounds(), 2);
+    VisitationMap visitationMapSplatted(fiberPolyData->GetBounds(), 0.5);
+    VisitationMapUpdater visitationMapUpdater(visitationMap, visitationMapSplatted, 2);
 
     FiberPublisher fiberPublisher(fiberPolyData);
 
@@ -97,7 +98,8 @@ int main()
     FiberRenderer fiberRenderer(renderer);
 
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
-    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
+//    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
+    VisitationMapRenderer visitationMapRenderer(visitationMapSplatted, renderer);
     keypressHandler->AddObserver("u", &visitationMapRenderer); //Increasing isovalue
     keypressHandler->AddObserver("j", &visitationMapRenderer); //Decreasing isovalue
     keypressHandler->AddObserver("s", &visitationMapRenderer); //Toggle hull smoothing

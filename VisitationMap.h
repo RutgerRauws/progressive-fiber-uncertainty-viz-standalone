@@ -20,24 +20,28 @@ class VisitationMap
         int height;
         int depth;
 
-        double cellSize = 3;
+        double cellSize;
 
         vtkSmartPointer<vtkImageData> imageData;
         unsigned int* start_ptr = nullptr;
-
         Cell** data;
 
         void initialize();
         void cellModifiedCallback();
 
     public:
-        VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax);
-        explicit VisitationMap(double* bounds);
+        VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double cellSize = 3.0);
+        explicit VisitationMap(double* bounds, double cellSize = 3.0);
+
+        void GetIndex(const Point& point, unsigned int* x_index, unsigned int* y_index, unsigned int* z_index) const;
 
         Cell* GetCell(unsigned int index) const;
-        Cell* FindCell(const Point& point) const;
+        Cell* GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
+        Cell* GetCell(const Point& point) const;
+
 
         unsigned int GetNumberOfCells() const;
+        double GetCellSize() const;
 
         vtkSmartPointer<vtkImageData> GetImageData() const;
 };
