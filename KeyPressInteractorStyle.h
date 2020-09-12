@@ -30,15 +30,17 @@ public:
         vtkRenderWindowInteractor *rwi = this->Interactor;
         std::string key = rwi->GetKeySym();
 
-        //TODO: figure out why lines below need to be commented out for 3D Slicer build to succeed.
-//        try
-//        {
+        //TODO: figure out why lines below cannot be used for 3D Slicer build to succeed.
+        #ifdef STANDALONE
+        try
+        {
             observers.at(key)->KeyPressed(key);
-//        }
-//        catch (const std::out_of_range&)
-//        {
-//            //Key is not handled
-//        }
+        }
+        catch (const std::out_of_range&)
+        {
+            //Key is not handled
+        }
+        #endif
 
         // Forward events
         vtkInteractorStyleTrackballCamera::OnKeyPress();
