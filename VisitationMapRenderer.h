@@ -15,7 +15,7 @@
 class VisitationMapRenderer : public KeyPressObserver
 {
     private:
-        static constexpr double SURFACE_TRANSPARENCY = 0.35f;
+        static constexpr double SURFACE_TRANSPARENCY = 0.7f;
 
         VisitationMap& visitationMap;
 

@@ -27,12 +27,16 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
 
 void VisitationMapRenderer::initialize()
 {
-    //vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction> b = vtkSmartPointer<vtkVolumeRayCastIsosurfaceFunction>::New();
-    //vtkSmartPointer<vtkGPUVolumeRayCastMapper> mapper = vtkSmartPointer<vtkGPUVolumeRayCastMapper>::New();
     vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
     mapper->SetInputData(visitationMap.GetImageData());
     mapper->AutoAdjustSampleDistancesOff();
     mapper->SetSampleDistance(0.01f);
+
+    /*TODO:
+     * Some voxels in the vtkImageData are not rendered with SetBelndModeToIsoSurface()
+     * They are rendered with the default rendering method, however, so something weird is going on that might need
+     * to be reported to the VTK issue tracker
+     */
     mapper->SetBlendModeToIsoSurface();
 
     opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
@@ -65,8 +69,12 @@ void VisitationMapRenderer::updateIsovalue()
     std::cout << "isovalue set to " << isovalue << std::endl;
     opacity->RemoveAllPoints();
     opacity->AddPoint(isovalue, SURFACE_TRANSPARENCY);
+//    opacity->AddPoint(2, 0.2);
+//    opacity->AddPoint(isovalue, 0.7);
 
     isoValues->SetValue(0, isovalue);
+//    isoValues->SetValue(0, 2);
+//    isoValues->SetValue(1, isovalue);
 }
 
 void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
