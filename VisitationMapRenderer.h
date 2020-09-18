@@ -16,7 +16,7 @@
 class VisitationMapRenderer : public KeyPressObserver, public FiberObserver
 {
     private:
-        static constexpr double SURFACE_TRANSPARENCY = 0.7f;
+        static constexpr double SURFACE_TRANSPARENCY = 0.35f;
         static constexpr float PERCENTAGE_DELTA = 0.01f;
 
         VisitationMap& visitationMap;

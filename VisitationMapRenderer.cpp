@@ -43,7 +43,7 @@ void VisitationMapRenderer::initialize()
     opacity = vtkSmartPointer<vtkPiecewiseFunction>::New();
 
     vtkSmartPointer<vtkColorTransferFunction> color = vtkSmartPointer<vtkColorTransferFunction>::New();
-    color->AddRGBPoint(0, 0, 0, 1);
+    color->AddRGBPoint(0, 1, 1, 0);
 
     volumeProperty = vtkSmartPointer<vtkVolumeProperty>::New();
     volumeProperty->SetScalarOpacity(opacity);
