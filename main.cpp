@@ -25,8 +25,8 @@
 //const std::string INPUT_FILE_NAME = "./data/corpus-callosum.vtk";
 //const std::string INPUT_FILE_NAME = "./data/fiber-samples-without-outliers.vtk";
 //const std::string INPUT_FILE_NAME = "./data/fiber-samples-with-outliers.vtk";
-//const std::string INPUT_FILE_NAME = "./data/cst-1.vtk";
-const std::string INPUT_FILE_NAME = "./data/cst-20.vtk";
+const std::string INPUT_FILE_NAME = "./data/cst-1.vtk";
+//const std::string INPUT_FILE_NAME = "./data/cst-20.vtk";
 //const std::string INPUT_FILE_NAME = "./data/slf-1.vtk";
 //const std::string INPUT_FILE_NAME = "./data/slf-20.vtk";
 //const std::string INPUT_FILE_NAME = "./data/cc-5.vtk";
@@ -110,6 +110,7 @@ int main()
     fiberPublisher.RegisterObserver(fiberRenderer);
     fiberPublisher.RegisterObserver(centerlineRenderer);
     fiberPublisher.RegisterObserver(visitationMapUpdater);
+    fiberPublisher.RegisterObserver(visitationMapRenderer);
     fiberPublisher.Start();
 
     //renderWindowInteractor->Initialize();

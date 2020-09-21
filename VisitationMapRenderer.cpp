@@ -19,7 +19,8 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
     : visitationMap(visitationMap),
       renderer(std::move(renderer)),
       actor(vtkSmartPointer<vtkActor>::New()),
-      isovalue(startIsovalue),
+      percentage(0.01f),
+      numberOfFibers(0),
       isSmooth(isSmooth)
 {
     initialize();
@@ -66,7 +67,8 @@ void VisitationMapRenderer::initialize()
 
 void VisitationMapRenderer::updateIsovalue()
 {
-    std::cout << "isovalue set to " << isovalue << std::endl;
+    float isovalue = ((float)numberOfFibers) * percentage;
+    std::cout << "percentage set to " << percentage * 100 << "% which is an isovalue of " << isovalue << std::endl;
     opacity->RemoveAllPoints();
     opacity->AddPoint(isovalue, SURFACE_TRANSPARENCY);
 //    opacity->AddPoint(2, 0.2);
@@ -81,19 +83,19 @@ void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
 {
     if(key == "u")
     {
-        //Increasing isovalue
-        if (isovalue != UINT_MAX)
+        //Increasing isovalue percentage
+        if (percentage < 1.0f)
         {
-            isovalue++;
+            percentage += PERCENTAGE_DELTA;
         }
         updateIsovalue();
     }
     else if(key == "j")
     {
-        //Decreasing isovalue
-        if (isovalue != 0)
+        //Decreasing isovalue percentage
+        if (percentage > 0.0f)
         {
-            isovalue--;
+            percentage -= PERCENTAGE_DELTA;
         }
         updateIsovalue();
     }
@@ -115,4 +117,10 @@ void VisitationMapRenderer::setSmoothing(bool on)
     {
         volumeProperty->SetInterpolationTypeToNearest();
     }
+}
+
+void VisitationMapRenderer::NewFiber(Fiber *fiber)
+{
+    numberOfFibers++;
+    updateIsovalue();
 }
