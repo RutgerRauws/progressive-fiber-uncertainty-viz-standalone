@@ -5,11 +5,30 @@
 #include <functional>
 #include <thread>
 #include <utility>
+#include <vtkGenericDataObjectReader.h>
+#include <vtkTransform.h>
+#include <vtkTransformPolyDataFilter.h>
 #include "FiberPublisher.h"
 
 FiberPublisher::FiberPublisher(vtkSmartPointer<vtkPolyData> fiberPolyData)
-    : keepAddingFibers(true), fiberPolyData(std::move(fiberPolyData))
+    : keepAddingFibers(true)
+{
+    fiberPolyDatas.emplace_back(fiberPolyData);
+}
+
+FiberPublisher::FiberPublisher(std::vector<vtkSmartPointer<vtkPolyData>> fiberPolyDatas)
+        : keepAddingFibers(true),
+          fiberPolyDatas(std::move(fiberPolyDatas))
 {}
+
+FiberPublisher::FiberPublisher(const std::string& path)
+    : FiberPublisher(FiberPublisher::loadFromFile(path))
+{}
+
+FiberPublisher::FiberPublisher(const std::vector<std::string>& paths)
+    : FiberPublisher(FiberPublisher::loadFromFiles(paths))
+{}
+
 
 FiberPublisher::~FiberPublisher()
 {
@@ -21,7 +40,7 @@ FiberPublisher::~FiberPublisher()
     }
 }
 
-void FiberPublisher::publishFibers_t()
+void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData, unsigned int seedPointId)
 {
     std::cout << "Started fiber publisher thread!" << std::endl;
     
@@ -30,7 +49,7 @@ void FiberPublisher::publishFibers_t()
 
     while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers)
     {
-        auto* fiber = new Fiber();
+        auto* fiber = new Fiber(seedPointId);
         fibers.emplace_back(fiber);
         
         for(vtkIdType id = 0; id < idList->GetNumberOfIds(); id++)
@@ -59,17 +78,89 @@ void FiberPublisher::Start()
         throw std::runtime_error("Cannot start fiber publisher again after it has been stopped.");
     }
     keepAddingFibers = true;
-    publishThread = std::thread(&FiberPublisher::publishFibers_t, this);
+
+    unsigned int maxSeedPointId = 0;
+
+    for(vtkSmartPointer<vtkPolyData> fiberPolyData : fiberPolyDatas)
+    {
+        unsigned int seedPointId = maxSeedPointId++;
+        publishThreads.emplace_back(std::thread(&FiberPublisher::publishFibers_t, this, fiberPolyData, maxSeedPointId));
+    }
 }
 
 void FiberPublisher::Stop()
 {
     if(!keepAddingFibers) { return; }
     keepAddingFibers = false;
-    publishThread.join();
+
+    for(std::thread& publishThread : publishThreads)
+    {
+        publishThread.join();
+    }
 }
 
 void FiberPublisher::RegisterObserver(FiberObserver& o)
 {
     observers.emplace_back(o);
+}
+
+vtkSmartPointer<vtkPolyData> FiberPublisher::loadFromFile(const std::string& path)
+{
+    std::cout << "Loading polygon file... " << std::flush;
+
+    vtkSmartPointer<vtkPolyData> fiberPolyData = vtkSmartPointer<vtkPolyData>::New();
+
+    try
+    {
+        vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
+        reader->SetFileName(path.c_str());
+        reader->Update();
+
+        if(!reader->IsFilePolyData())
+        {
+            throw std::invalid_argument("The file input is not polygon data");
+        }
+
+        vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
+        polyData->CopyStructure(reader->GetPolyDataOutput());
+
+        vtkSmartPointer<vtkTransform> rotation = vtkSmartPointer<vtkTransform>::New();
+        rotation->RotateZ(-90);
+
+        vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+        transformFilter->SetInputData(polyData);
+        transformFilter->SetTransform(rotation);
+        transformFilter->Update();
+
+        fiberPolyData->CopyStructure(transformFilter->GetOutput());
+        std::cout << "Complete." << std::endl;
+
+        std::cout << "Input has " << fiberPolyData->GetNumberOfLines() << " fibers." << std::endl;
+    }
+    catch(const std::invalid_argument& e)
+    {
+        throw std::runtime_error(e.what());
+    }
+
+    return fiberPolyData;
+}
+
+std::vector<vtkSmartPointer<vtkPolyData>> FiberPublisher::loadFromFiles(const std::vector<std::string>& paths)
+{
+    std::vector<vtkSmartPointer<vtkPolyData>> _fiberPolyDatas;
+
+    for(const std::string& path : paths)
+    {
+        _fiberPolyDatas.emplace_back(
+                FiberPublisher::loadFromFile(path)
+        );
+    }
+
+    return _fiberPolyDatas;
+}
+
+//TODO: Remove this function
+double* FiberPublisher::GetBounds() const
+{
+    return fiberPolyDatas[0]->GetBounds();
 }

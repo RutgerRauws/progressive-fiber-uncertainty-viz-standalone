@@ -1,57 +1,28 @@
+#include "main.h"
+
 #include <iostream>
-#include <thread>
+#include <X11/Xlib.h>
 
 #include <vtkSmartPointer.h>
-#include <vtkGenericDataObjectReader.h>
-
 #include <vtkRenderWindow.h>
 #include <vtkRenderer.h>
 #include <vtkCamera.h>
 #include <vtkRenderWindowInteractor.h>
-#include <X11/Xlib.h>
 #include <vtkCallbackCommand.h>
-#include <vtkTransform.h>
-#include <vtkTransformPolyDataFilter.h>
+
 #include "KeyPressInteractorStyle.h"
 #include "FiberPublisher.h"
 #include "FiberRenderer.h"
 #include "VisitationMap.h"
 #include "VisitationMapUpdater.h"
-//#include "VisitationMapDebugRenderer.h"
 #include "VisitationMapRenderer.h"
 #include "CenterlineRenderer.h"
-
-//temporary hardcoded input file
-//const std::string INPUT_FILE_NAME = "./data/corpus-callosum.vtk";
-//const std::string INPUT_FILE_NAME = "./data/fiber-samples-without-outliers.vtk";
-//const std::string INPUT_FILE_NAME = "./data/fiber-samples-with-outliers.vtk";
-const std::string INPUT_FILE_NAME = "./data/cst-1.vtk";
-//const std::string INPUT_FILE_NAME = "./data/cst-20.vtk";
-//const std::string INPUT_FILE_NAME = "./data/slf-1.vtk";
-//const std::string INPUT_FILE_NAME = "./data/slf-20.vtk";
-//const std::string INPUT_FILE_NAME = "./data/cc-5.vtk";
-
-const unsigned int RENDER_INTERVAL_MS = 33; //30fps
-
-vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName);
-void render_callback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
 
 int main()
 {
     XInitThreads();
 
     std::cout << "Application started." << std::endl;
-
-    vtkSmartPointer<vtkPolyData> fiberPolyData;
-
-    try {
-        fiberPolyData = readPolyData(INPUT_FILE_NAME);
-        std::cout << "Input has " << fiberPolyData->GetNumberOfLines() << " fibers." << std::endl;
-    }
-    catch( const std::invalid_argument& e ) {
-        std::cout << e.what() << std::endl;
-        return EXIT_FAILURE;
-    }
 
     vtkSmartPointer<vtkCamera> camera = vtkSmartPointer<vtkCamera>::New();
     camera->SetPosition(0, 0, 325);
@@ -88,11 +59,12 @@ int main()
      */
     renderWindow->Render();
 
-    VisitationMap visitationMap(fiberPolyData->GetBounds(), 2);
-    VisitationMap visitationMapSplatted(fiberPolyData->GetBounds(), 0.5);
-    VisitationMapUpdater visitationMapUpdater(visitationMap, visitationMapSplatted, 2);
+    FiberPublisher fiberPublisher(INPUT_FILE_NAME);
+//    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
 
-    FiberPublisher fiberPublisher(fiberPolyData);
+    VisitationMap visitationMap(fiberPublisher.GetBounds(), 2);
+    VisitationMap visitationMapSplatted(fiberPublisher.GetBounds(), 0.5);
+    VisitationMapUpdater visitationMapUpdater(visitationMap, visitationMapSplatted, 2);
 
     CenterlineRenderer centerlineRenderer(renderer);
     FiberRenderer fiberRenderer(renderer);
@@ -120,35 +92,6 @@ int main()
     fiberPublisher.Stop();
 
     return EXIT_SUCCESS;
-}
-
-vtkSmartPointer<vtkPolyData> readPolyData(const std::string& inputFileName)
-{
-    std::cout << "Loading polygon file... " << std::flush;
-
-    vtkSmartPointer<vtkGenericDataObjectReader> reader = vtkSmartPointer<vtkGenericDataObjectReader>::New();
-    reader->SetFileName(inputFileName.c_str());
-    reader->Update();
-    
-    if(!reader->IsFilePolyData())
-    {
-        throw std::invalid_argument("The file input is not polygon data");
-    }
-    
-    vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
-    polyData->CopyStructure(reader->GetPolyDataOutput());
-
-    vtkSmartPointer<vtkTransform> rotation = vtkSmartPointer<vtkTransform>::New();
-    rotation->RotateZ(-90);
-
-    vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-    transformFilter->SetInputData(polyData);
-    transformFilter->SetTransform(rotation);
-    transformFilter->Update();
-
-    polyData->CopyStructure(transformFilter->GetOutput());
-    std::cout << "Complete." << std::endl;
-    return polyData;
 }
 
 void render_callback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData)

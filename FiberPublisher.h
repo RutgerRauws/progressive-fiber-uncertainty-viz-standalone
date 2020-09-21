@@ -13,24 +13,33 @@
 class FiberPublisher
 {
 private:
+
     const int PROGRESSIVE_INTERVAL_MS = 100;
     bool keepAddingFibers;
-    vtkSmartPointer<vtkPolyData> fiberPolyData;
+
+    std::vector<vtkSmartPointer<vtkPolyData>> fiberPolyDatas;
     std::vector<std::reference_wrapper<FiberObserver>> observers;
 
     std::vector<Fiber*> fibers;
 
-    std::thread publishThread;
+    std::vector<std::thread> publishThreads;
     
-    void publishFibers_t();
+    void publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData, unsigned int seedPointId);
+    static vtkSmartPointer<vtkPolyData> loadFromFile(const std::string& path);
+    std::vector<vtkSmartPointer<vtkPolyData>> loadFromFiles(const std::vector<std::string>& paths);
     
 public:
     explicit FiberPublisher(vtkSmartPointer<vtkPolyData> fiberPolyData);
+    explicit FiberPublisher(std::vector<vtkSmartPointer<vtkPolyData>> fiberPolyDatas);
+    explicit FiberPublisher(const std::string& path);
+    explicit FiberPublisher(const std::vector<std::string>& paths);
     ~FiberPublisher();
-    
+
     void Start();
     void Stop();
     void RegisterObserver(FiberObserver& o);
+
+    double* GetBounds() const;
 };
 
 

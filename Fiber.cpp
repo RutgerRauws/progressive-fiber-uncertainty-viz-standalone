@@ -6,7 +6,10 @@
 
 unsigned int Fiber::GLOBAL_FIBER_ID = 0;
 
-Fiber::Fiber() : id(++GLOBAL_FIBER_ID) {}
+Fiber::Fiber(unsigned int seedPointId)
+    : id(++GLOBAL_FIBER_ID),
+      seedPointId(seedPointId)
+{}
 
 void Fiber::AddPoint(double x, double y, double z)
 {
@@ -21,6 +24,11 @@ const std::vector<Point>& Fiber::GetPoints() const
 unsigned int Fiber::GetId() const
 {
     return id;
+}
+
+unsigned int Fiber::GetSeedPointId() const
+{
+    return seedPointId;
 }
 
 double Fiber::CalculateLength() const

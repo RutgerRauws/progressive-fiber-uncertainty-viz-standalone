@@ -16,10 +16,11 @@ class Fiber
 
     private:
         const unsigned int id;
+        const unsigned int seedPointId;
         std::vector<Point> points;
         
     public:
-        Fiber();
+        Fiber(unsigned int seedPointId);
 
         Fiber(const Fiber&) = delete;
         Fiber& operator=(const Fiber&) = delete;
@@ -28,6 +29,7 @@ class Fiber
         const std::vector<Point>& GetPoints() const;
 
         unsigned int GetId() const;
+        unsigned int GetSeedPointId() const;
 
         double CalculateLength() const;
 };
