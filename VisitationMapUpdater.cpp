@@ -18,19 +18,8 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
     //TODO: This should be based on edges
     for(const Point& point : fiber->GetPoints())
     {
-        Cell* cell = visitationMap.GetCell(point); //O(1) run-time complexity now
-
-        if(cell == nullptr)
-        {
-            std::cerr << "No corresponding voxel found." << std::endl;
-            continue;
-        }
-
-        if(!cell->Contains(*fiber))
-        {
-            cell->InsertFiber(*fiber);
-            splat(point, splatKernelRadius, fiber);
-        }
+        visitationMap.InsertPoint(point);
+//        splat(point, splatKernelRadius, fiber);
     }
 }
 
@@ -41,43 +30,43 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
  * @param radius The radius of the sphere.
  * @param fiber  Which fiber should be added to the cells that are considered part of the sphere.
  */
-void VisitationMapUpdater::splat(const Point& point, double radius, Fiber* fiber)
-{
-    //It's not the prettiest code, but this is mainly to make it as efficient as possible on the CPU.
-    unsigned int x_index = 0;
-    unsigned int y_index = 0;
-    unsigned int z_index = 0;
-
-    visitationMapSplatted.GetIndex(point, &x_index, &y_index, &z_index);
-    Cell* centerCell = visitationMapSplatted.GetCell(x_index, y_index, z_index);
-    centerCell->InsertFiber(*fiber);
-
-    //TODO: is this correct?
-    int radiusInNumberCells = std::ceil(radius / visitationMapSplatted.GetCellSize());
-
-    for(int x_index_offset = -radiusInNumberCells; x_index_offset < radiusInNumberCells; x_index_offset++)
-    {
-        for(int y_index_offset = -radiusInNumberCells; y_index_offset < radiusInNumberCells; y_index_offset++)
-        {
-            for(int z_index_offset = -radiusInNumberCells; z_index_offset < radiusInNumberCells; z_index_offset++)
-            {
-                Cell* cell = visitationMapSplatted.GetCell(
-                        x_index + x_index_offset,
-                        y_index + y_index_offset,
-                        z_index + z_index_offset
-                );
-
-                if(cell == nullptr) { continue; }
-
-                if(isCellInsideSphere(point, radius, cell->GetPosition(), visitationMapSplatted.GetCellSize())
-                   && !cell->Contains(*fiber))
-                {
-                    cell->InsertFiber(*fiber);
-                }
-            }
-        }
-    }
-}
+//void VisitationMapUpdater::splat(const Point& point, double radius, Fiber* fiber)
+//{
+//    //It's not the prettiest code, but this is mainly to make it as efficient as possible on the CPU.
+//    unsigned int x_index = 0;
+//    unsigned int y_index = 0;
+//    unsigned int z_index = 0;
+//
+//    visitationMapSplatted.GetIndex(point, &x_index, &y_index, &z_index);
+//    Cell* centerCell = visitationMapSplatted.GetCell(x_index, y_index, z_index);
+//    centerCell->InsertFiber(*fiber);
+//
+//    //TODO: is this correct?
+//    int radiusInNumberCells = std::ceil(radius / visitationMapSplatted.GetCellSize());
+//
+//    for(int x_index_offset = -radiusInNumberCells; x_index_offset < radiusInNumberCells; x_index_offset++)
+//    {
+//        for(int y_index_offset = -radiusInNumberCells; y_index_offset < radiusInNumberCells; y_index_offset++)
+//        {
+//            for(int z_index_offset = -radiusInNumberCells; z_index_offset < radiusInNumberCells; z_index_offset++)
+//            {
+//                Cell* cell = visitationMapSplatted.GetCell(
+//                        x_index + x_index_offset,
+//                        y_index + y_index_offset,
+//                        z_index + z_index_offset
+//                );
+//
+//                if(cell == nullptr) { continue; }
+//
+//                if(isCellInsideSphere(point, radius, cell->GetPosition(), visitationMapSplatted.GetCellSize())
+//                   && !cell->Contains(*fiber))
+//                {
+//                    cell->InsertFiber(*fiber);
+//                }
+//            }
+//        }
+//    }
+//}
 
 bool VisitationMapUpdater::isCellInsideSphere(const Point& center, double radius, const Point& point, double cellSize)
 {

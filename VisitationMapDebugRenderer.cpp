@@ -22,15 +22,15 @@ void VisitationMapDebugRenderer::initialize()
 
     vtkSmartPointer<vtkAppendPolyData> appendFilter = vtkSmartPointer<vtkAppendPolyData>::New();
 
-    for(unsigned int i = 0; i < visitationMap.GetNumberOfCells(); i++)
-    {
-        Cell* voxel = visitationMap.GetCell(i);
+//    for(unsigned int i = 0; i < visitationMap.GetNumberOfCells(); i++)
+//    {
+//        Cell* voxel = visitationMap.GetCell(i);
 
-        vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
+//        vtkSmartPointer<vtkPolyData> input = vtkSmartPointer<vtkPolyData>::New();
 //        voxel->GetVTKObject()->Update();
 //        input->ShallowCopy(voxel->GetVTKObject()->GetOutput());
-        appendFilter->AddInputData(input);
-    }
+//        appendFilter->AddInputData(input);
+//    }
 
     vtkSmartPointer<vtkPolyDataMapper> mapper = vtkSmartPointer<vtkPolyDataMapper>::New();
     mapper->SetInputConnection(appendFilter->GetOutputPort());

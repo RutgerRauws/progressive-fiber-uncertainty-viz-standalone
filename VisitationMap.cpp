@@ -5,127 +5,93 @@
 #include "VisitationMap.h"
 #include "Point.h"
 #include "Cell.h"
+#include <vtkPointData.h>
 
-VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double cellSize)
-    : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax),
-      cellSize(cellSize),
-      imageData(vtkSmartPointer<vtkImageData>::New())
+VisitationMap::VisitationMap(double cellSize)
+    : cellSize(cellSize),
+      vtkData(vtkSmartPointer<vtkPolyData>::New()),
+      splatter(vtkSmartPointer<vtkGaussianSplatter>::New()),
+      frequencies(vtkSmartPointer<vtkUnsignedIntArray>::New()),
+      distanceScores(vtkSmartPointer<vtkDoubleArray>::New())
 {
-    //TODO: Look into fixing double to int conversion.
-    width =  std::ceil(std::abs(xmin - xmax) / cellSize);
-    height = std::ceil(std::abs(ymin - ymax) / cellSize);
-    depth =  std::ceil(std::abs(zmin - zmax) / cellSize);
-
     initialize();
 }
-
-/**
- *
- * @param bounds xmin,xmax, ymin,ymax, zmin,zmax
- */
-VisitationMap::VisitationMap(double* bounds, double cellSize)
-    : VisitationMap(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5],
-                    cellSize)
-{}
 
 void VisitationMap::initialize()
 {
     std::cout << "Initializing visitation map... " << std::flush;
+    frequencies->SetName("FiberFrequencies");
+    distanceScores->SetName("DistanceScores");
 
-    data = new Cell*[GetNumberOfCells()];
+    vtkData->SetPoints(vtkSmartPointer<vtkPoints>::New());
 
-    imageData->SetExtent(0, width - 1, 0, height - 1, 0, depth - 1);
+    vtkData->GetPointData()->AddArray(frequencies);
+    vtkData->GetPointData()->AddArray(distanceScores);
 
-    // TODO: Perhaps the SetSpacing and SetOrigin calls should be removed.
-    // As we use vtkMRMLVolumeNode::SetAndObserveImageData, the ImageData object origin must be set to (0,0,0) and
-    // spacing must be set to (1,1,1). If the variables are set to different values then the application's behavior is
-    // undefined.
-    // https://apidocs.slicer.org/v4.8/classvtkMRMLVolumeNode.html
-    imageData->SetSpacing(cellSize, cellSize, cellSize);
-    imageData->SetOrigin(xmin + cellSize / 2.0f, ymin + cellSize / 2.0f, zmin + cellSize / 2.0f);
+    vtkData->GetPointData()->SetActiveScalars(frequencies->GetName());
 
-    //Apparently the vtkVolumeRayCastMapper class only works with unsigned char and unsigned short data
-    imageData->AllocateScalars(VTK_UNSIGNED_INT, 1);
+    splatter->SetInputData(vtkData);
+//    splatter->SetSampleDimensions(20, 20, 20); //Higher values produce better results but are much slower.
+//    splatter->SetRadius(0.05f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
+//    splatter->SetExponentFactor(-10); //sharpness of decay of the splats. This is the exponent constant in the Gaussian equation. Normally this is a negative value.
+//    splatter->SetEccentricity(2); //Control the shape of elliptical splatting. Eccentricity > 1 creates needles with the long axis in the direction of the normal; Eccentricity<1 creates pancakes perpendicular to the normal vector.
 
-    // Fill every entry of the image data with a color
-    start_ptr = static_cast<unsigned int*>(imageData->GetScalarPointer(0, 0, 0));
 
-    double halfSize = cellSize / 2.0f;
+    splatter->SetSampleDimensions(50, 50, 50); //Higher values produce better results but are much slower.
+    splatter->SetRadius(0.1f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
+    splatter->SetExponentFactor(-5); //sharpness of decay of the splats. This is the exponent constant in the Gaussian equation. Normally this is a negative value.
+    splatter->SetEccentricity(1); //Control the shape of elliptical splatting. Eccentricity > 1 creates needles with the long axis in the direction of the normal; Eccentricity<1 creates pancakes perpendicular to the normal vector.
+    splatter->NormalWarpingOff();
+//    splatter->ScalarWarpingOff();
+    splatter->Update();
 
-    for(unsigned int x_index = 0; x_index < width; x_index++)
-    {
-        for(unsigned int y_index = 0; y_index < height; y_index++)
-        {
-            for(unsigned int z_index = 0; z_index < depth; z_index++)
-            {
-                //int x = std::floor(xmin + halfSize); x < std::ceil(xmax - halfSize); x = std::floor(x + cellSize)
-                double pos_x = xmin + halfSize + x_index * cellSize;
-                double pos_y = ymin + halfSize + y_index * cellSize;
-                double pos_z = zmin + halfSize + z_index * cellSize;
-
-                unsigned int* value_ptr = start_ptr + x_index + width * (y_index + z_index * height);
-
-                *value_ptr = 0;
-
-                data[x_index + width * (y_index + z_index * height)] = new Cell(
-                        Point(pos_x, pos_y, pos_z),
-                        cellSize,
-                        value_ptr,
-                        this,
-                        &VisitationMap::cellModifiedCallback
-                );
-            }
-        }
-    }
-
-    std::cout << "Complete." << std::endl;
+//    data = new Cell*[GetNumberOfCells()];
 }
 
 void VisitationMap::cellModifiedCallback()
 {
-    imageData->Modified();
+    vtkData->Modified();
 }
 
-void VisitationMap::GetIndex(const Point& point, unsigned int* x_index, unsigned int* y_index, unsigned int* z_index) const
+void VisitationMap::InsertPoint(const Point& point) const
 {
-    *x_index = std::floor((point.X - xmin) / cellSize);
-    *y_index = std::floor((point.Y - ymin) / cellSize);
-    *z_index = std::floor((point.Z - zmin) / cellSize);
-}
+    vtkIdType cellPtId = vtkData->FindPoint(point.X, point.Y, point.Z);
 
-Cell* VisitationMap::GetCell(unsigned int index) const
-{
-    return data[index];
-}
-
-Cell* VisitationMap::GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const
-{
-    unsigned int index = x_index + width * (y_index + z_index * height);
-
-    if(index >= GetNumberOfCells()) {
-        return nullptr;
-    }
-
-    return data[index];
-}
-
-Cell* VisitationMap::GetCell(const Point& point) const
-{
-    if(point.X < xmin || point.X > xmax || point.Y < ymin || point.Y > ymax || point.Z < zmin || point.Z > zmax)
+    if(cellPtId != -1)
     {
-        return nullptr;
+        double* cellPt = vtkData->GetPoint(cellPtId);
+
+        if(isInCell(cellPt, point, cellSize))
+        {
+            frequencies->SetValue(cellPtId, frequencies->GetValue(cellPtId) + 1);
+            frequencies->Modified();
+            return;
+        }
     }
 
-    unsigned int x_index = std::floor((point.X - xmin) / cellSize);
-    unsigned int y_index = std::floor((point.Y - ymin) / cellSize);
-    unsigned int z_index = std::floor((point.Z - zmin) / cellSize);
+//    double shifted_x = point.X - std::fmod(point.X, cellSize) / 2.0f;
+//    double shifted_y = point.Y - std::fmod(point.Y, cellSize) / 2.0f;
+//    double shifted_z = point.Z - std::fmod(point.Z, cellSize) / 2.0f;
+    double halfSize = cellSize / 2.0f;
+    double shifted_x = std::floor(point.X/cellSize) * cellSize + halfSize;
+    double shifted_y = std::floor(point.Y/cellSize) * cellSize + halfSize;
+    double shifted_z = std::floor(point.Z/cellSize) * cellSize + halfSize;
 
-    return GetCell(x_index, y_index, z_index);
+//    vtkIdType ptId = vtkData->GetPoints()->InsertNextPoint(shifted_x, shifted_y, shifted_z);
+    //frequencies->SetValue(ptId, 1);
+    vtkData->GetPoints()->InsertNextPoint(shifted_x, shifted_y, shifted_z);
+    frequencies->InsertNextValue(1);
+
+    vtkData->GetPoints()->Modified();
+    frequencies->Modified();
 }
 
-unsigned int VisitationMap::GetNumberOfCells() const
+unsigned int VisitationMap::GetFrequency(const Point& point) const
 {
-    return width * height * depth;
+    vtkIdType ptId = vtkData->FindPoint(point.X, point.Y, point.Z);
+    unsigned int frequency = frequencies->GetValue(ptId);
+
+    return frequency;
 }
 
 double VisitationMap::GetCellSize() const
@@ -133,7 +99,32 @@ double VisitationMap::GetCellSize() const
     return cellSize;
 }
 
-vtkSmartPointer<vtkImageData> VisitationMap::GetImageData() const
+vtkSmartPointer<vtkPolyData> VisitationMap::GetVTKData() const
 {
-    return imageData;
+    return vtkData;
+}
+
+vtkAlgorithmOutput* VisitationMap::GetImageOutput() const
+{
+    return splatter->GetOutputPort();
+}
+
+bool VisitationMap::isInCell(const double* cellCenterPoint, const Point& point, double cellSize)
+{
+    double x = cellCenterPoint[0];
+    double y = cellCenterPoint[1];
+    double z = cellCenterPoint[2];
+
+    double halfSize = cellSize / 2.0f;
+
+    double xmin = x - halfSize;
+    double xmax = x + halfSize;
+    double ymin = y - halfSize;
+    double ymax = y + halfSize;
+    double zmin = z - halfSize;
+    double zmax = z + halfSize;
+
+    return (xmin <= point.X) && (point.X <= xmax)
+           && (ymin <= point.Y) && (point.Y <= ymax)
+           && (zmin <= point.Z) && (point.Z <= zmax);
 }

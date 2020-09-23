@@ -62,16 +62,16 @@ int main()
     FiberPublisher fiberPublisher(INPUT_FILE_NAME);
 //    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
 
-    VisitationMap visitationMap(fiberPublisher.GetBounds(), 2);
-    VisitationMap visitationMapSplatted(fiberPublisher.GetBounds(), 0.5);
+    VisitationMap visitationMap(1);
+    VisitationMap visitationMapSplatted(0.5);
     VisitationMapUpdater visitationMapUpdater(visitationMap, visitationMapSplatted, 2);
 
     CenterlineRenderer centerlineRenderer(renderer);
     FiberRenderer fiberRenderer(renderer);
 
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
-//    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
-    VisitationMapRenderer visitationMapRenderer(visitationMapSplatted, renderer);
+    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
+//    VisitationMapRenderer visitationMapRenderer(visitationMapSplatted, renderer);
     keypressHandler->AddObserver("u", &visitationMapRenderer); //Increasing isovalue
     keypressHandler->AddObserver("j", &visitationMapRenderer); //Decreasing isovalue
     keypressHandler->AddObserver("s", &visitationMapRenderer); //Toggle hull smoothing

@@ -17,7 +17,7 @@ class VisitationMapUpdater : public FiberObserver {
 
         double splatKernelRadius;
 
-        void splat(const Point& p, double radius, Fiber* fiber);
+//        void splat(const Point& p, double radius, Fiber* fiber);
         static bool isCellInsideSphere(const Point& center, double radius, const Point& point, double cellSize);
         static bool isPointInsideSphere(const Point& center, double radius, double x, double y, double z);
 

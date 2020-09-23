@@ -11,6 +11,11 @@
 #include <vtkColorTransferFunction.h>
 #include <vtkOpenGLGPUVolumeRayCastMapper.h>
 #include <vtkContourValues.h>
+#include <vtkVertexGlyphFilter.h>
+#include <vtkPolyDataMapper.h>
+#include <vtkProperty.h>
+#include <vtkNamedColors.h>
+#include <vtkPointData.h>
 
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
                                              vtkSmartPointer<vtkRenderer> renderer,
@@ -29,7 +34,7 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap &visitationMap,
 void VisitationMapRenderer::initialize()
 {
     vtkNew<vtkOpenGLGPUVolumeRayCastMapper> mapper;
-    mapper->SetInputData(visitationMap.GetImageData());
+    mapper->SetInputConnection(visitationMap.GetImageOutput());
     mapper->AutoAdjustSampleDistancesOff();
     mapper->SetSampleDistance(0.01f);
 
@@ -63,6 +68,19 @@ void VisitationMapRenderer::initialize()
     renderer->AddActor(volume);
 
     updateIsovalue();
+
+
+    vtkNew<vtkVertexGlyphFilter> vertexFilter;
+    vertexFilter->SetInputData(visitationMap.GetVTKData());
+    vertexFilter->Update();
+
+    vtkNew<vtkPolyDataMapper> pointsMapper;
+    pointsMapper->SetInputConnection(vertexFilter->GetOutputPort());
+
+    vtkNew<vtkActor> pointsActor;
+    pointsActor->SetMapper(pointsMapper);
+    pointsActor->GetProperty()->SetPointSize(10);
+    renderer->AddActor(pointsActor);
 }
 
 void VisitationMapRenderer::updateIsovalue()
@@ -84,7 +102,7 @@ void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
     if(key == "u")
     {
         //Increasing isovalue percentage
-        if (percentage < 1.0f)
+        if (percentage + PERCENTAGE_DELTA <= 1.0f)
         {
             percentage += PERCENTAGE_DELTA;
         }
@@ -93,7 +111,7 @@ void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
     else if(key == "j")
     {
         //Decreasing isovalue percentage
-        if (percentage > 0.0f)
+        if (percentage - PERCENTAGE_DELTA >= 1.0f)
         {
             percentage -= PERCENTAGE_DELTA;
         }

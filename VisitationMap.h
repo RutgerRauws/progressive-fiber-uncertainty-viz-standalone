@@ -6,44 +6,51 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_H
 
 #include <vtkSmartPointer.h>
-#include <vtkStructuredGrid.h>
+#include <vtkPolyData.h>
+#include <vtkDoubleArray.h>
+#include <vtkUnsignedIntArray.h>
 #include <vtkImageData.h>
+#include <vtkGaussianSplatter.h>
 #include "Point.h"
 #include "Cell.h"
 
 class VisitationMap
 {
     private:
-        double xmin,xmax, ymin,ymax, zmin,zmax;
-
-        int width;
-        int height;
-        int depth;
-
         double cellSize;
 
-        vtkSmartPointer<vtkImageData> imageData;
+        vtkSmartPointer<vtkPolyData> vtkData;
+        vtkSmartPointer<vtkGaussianSplatter> splatter;
+
+        //vtkSmartPointer<vtkUnsignedIntArray> fiberIds;
+        vtkSmartPointer<vtkUnsignedIntArray> frequencies;
+        vtkSmartPointer<vtkDoubleArray> distanceScores;
+
         unsigned int* start_ptr = nullptr;
         Cell** data;
 
         void initialize();
         void cellModifiedCallback();
 
+        static bool isInCell(const double* cellCenterPoint, const Point& point, double cellSize);
+
     public:
-        VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double cellSize = 3.0);
-        explicit VisitationMap(double* bounds, double cellSize = 3.0);
+        explicit VisitationMap(double cellSize);
 
-        void GetIndex(const Point& point, unsigned int* x_index, unsigned int* y_index, unsigned int* z_index) const;
+//        void GetIndex(const Point& point, unsigned int* x_index, unsigned int* y_index, unsigned int* z_index) const;
+//
+//        Cell* GetCell(unsigned int index) const;
+//        Cell* GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
+//        Cell* GetCell(const Point& point) const;
 
-        Cell* GetCell(unsigned int index) const;
-        Cell* GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
-        Cell* GetCell(const Point& point) const;
-
+        void InsertPoint(const Point& point) const;
+        unsigned int GetFrequency(const Point& point) const;
 
         unsigned int GetNumberOfCells() const;
         double GetCellSize() const;
 
-        vtkSmartPointer<vtkImageData> GetImageData() const;
+        vtkSmartPointer<vtkPolyData> GetVTKData() const;
+        vtkAlgorithmOutput* GetImageOutput() const;
 };
 
 
