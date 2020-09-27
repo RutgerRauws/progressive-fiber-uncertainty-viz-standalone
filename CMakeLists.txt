@@ -8,7 +8,7 @@ INCLUDE(${VTK_USE_FILE})
 
 add_definitions(-DSTANDALONE)
 
-add_executable(progressive_fiber_uncertainty_viz main.cpp KeyPressInteractorStyle.h FiberObserver.h FiberRenderer.cpp FiberRenderer.h FiberPublisher.cpp FiberPublisher.h Fiber.cpp Fiber.h Point.h VisitationMap.cpp VisitationMap.h Cell.cpp Cell.h VisitationMapUpdater.cpp VisitationMapUpdater.h VisitationMapDebugRenderer.cpp VisitationMapDebugRenderer.h VisitationMapRenderer.cpp VisitationMapRenderer.h KeyPressObserver.h CenterlineRenderer.cpp CenterlineRenderer.h DistanceTable.cpp DistanceTable.h)
+add_executable(progressive_fiber_uncertainty_viz main.cpp KeyPressInteractorStyle.h FiberObserver.h FiberRenderer.cpp FiberRenderer.h FiberPublisher.cpp FiberPublisher.h Fiber.cpp Fiber.h Point.h VisitationMap.cpp VisitationMap.h Cell.cpp Cell.h VisitationMapUpdater.cpp VisitationMapUpdater.h VisitationMapDebugRenderer.cpp VisitationMapDebugRenderer.h VisitationMapRenderer.cpp VisitationMapRenderer.h KeyPressObserver.h CenterlineRenderer.cpp CenterlineRenderer.h DistanceTable.cpp DistanceTable.h GaussianFiberSplatter.h GaussianFiberSplatter.cpp)
 
 target_link_libraries(progressive_fiber_uncertainty_viz ${VTK_LIBRARIES})
 

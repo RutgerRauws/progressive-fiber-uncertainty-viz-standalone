@@ -5,12 +5,13 @@
 #include "VisitationMap.h"
 #include "Point.h"
 #include "Cell.h"
+#include "GaussianFiberSplatter.h"
 #include <vtkPointData.h>
 
 VisitationMap::VisitationMap(double cellSize)
     : cellSize(cellSize),
       vtkData(vtkSmartPointer<vtkPolyData>::New()),
-      splatter(vtkSmartPointer<vtkGaussianSplatter>::New()),
+      splatter(vtkSmartPointer<GaussianFiberSplatter>::New()),
       frequencies(vtkSmartPointer<vtkUnsignedIntArray>::New()),
       distanceScores(vtkSmartPointer<vtkDoubleArray>::New())
 {
@@ -31,29 +32,52 @@ void VisitationMap::initialize()
     vtkData->GetPointData()->SetActiveScalars(frequencies->GetName());
 
     splatter->SetInputData(vtkData);
-//    splatter->SetSampleDimensions(20, 20, 20); //Higher values produce better results but are much slower.
-//    splatter->SetRadius(0.05f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
+    splatter->SetExistingPointsFiberData(fibers);
+    //splatter->SetSampleDimensions(80, 80, 80); //Higher values produce better results but are much slower.
+    splatter->SetRadius(0.05f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
+//    splatter->SetRadius(0.01f);
+
 //    splatter->SetExponentFactor(-10); //sharpness of decay of the splats. This is the exponent constant in the Gaussian equation. Normally this is a negative value.
 //    splatter->SetEccentricity(2); //Control the shape of elliptical splatting. Eccentricity > 1 creates needles with the long axis in the direction of the normal; Eccentricity<1 creates pancakes perpendicular to the normal vector.
 
+//                            int sampleDimension = 40; //indicates quality
+//                            splatter->SetSampleDimensions(sampleDimension, sampleDimension, sampleDimension); //Higher values produce better results but are much slower.
+//
+//                            double radius =  ((float)sampleDimension / 2.0f) / cellSize;
+//                            double ratio = 0.1f * radius / ((float)sampleDimension);
+//                            splatter->SetRadius(ratio);
 
-    splatter->SetSampleDimensions(50, 50, 50); //Higher values produce better results but are much slower.
-    splatter->SetRadius(0.1f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
+//    int sampleDimension = 20; //indicates quality
+//    splatter->SetSampleDimensions(sampleDimension, sampleDimension, sampleDimension); //Higher values produce better results but are much slower.
+
+    //double radius =  ((float)sampleDimension / 2.0f) * cellSize;
+    //double ratio = radius / (sampleDimension * cellSize);
+//    double ratio = 1.0f / ((float)sampleDimension);
+//    splatter->SetRadius(ratio);
+
+//    splatter->SetRadius(0.05f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
+
     splatter->SetExponentFactor(-5); //sharpness of decay of the splats. This is the exponent constant in the Gaussian equation. Normally this is a negative value.
     splatter->SetEccentricity(1); //Control the shape of elliptical splatting. Eccentricity > 1 creates needles with the long axis in the direction of the normal; Eccentricity<1 creates pancakes perpendicular to the normal vector.
-    splatter->NormalWarpingOff();
+    //splatter->NormalWarpingOff();
 //    splatter->ScalarWarpingOff();
     splatter->Update();
-
-//    data = new Cell*[GetNumberOfCells()];
 }
 
-void VisitationMap::cellModifiedCallback()
+void VisitationMap::InsertFiber(const Fiber& fiber)
 {
-    vtkData->Modified();
+    //TODO: This should be based on edges
+    for(const Point& point : fiber.GetPoints())
+    {
+        insertPoint(point, fiber);
+    }
+
+    frequencies->Modified();
+    vtkData->GetPoints()->Modified();
+//    updateBounds();
 }
 
-void VisitationMap::InsertPoint(const Point& point) const
+void VisitationMap::insertPoint(const Point& point, const Fiber& fiber)
 {
     vtkIdType cellPtId = vtkData->FindPoint(point.X, point.Y, point.Z);
 
@@ -63,27 +87,21 @@ void VisitationMap::InsertPoint(const Point& point) const
 
         if(isInCell(cellPt, point, cellSize))
         {
+            fibers[cellPtId].emplace_back(fiber);
+
             frequencies->SetValue(cellPtId, frequencies->GetValue(cellPtId) + 1);
-            frequencies->Modified();
             return;
         }
     }
 
-//    double shifted_x = point.X - std::fmod(point.X, cellSize) / 2.0f;
-//    double shifted_y = point.Y - std::fmod(point.Y, cellSize) / 2.0f;
-//    double shifted_z = point.Z - std::fmod(point.Z, cellSize) / 2.0f;
     double halfSize = cellSize / 2.0f;
     double shifted_x = std::floor(point.X/cellSize) * cellSize + halfSize;
     double shifted_y = std::floor(point.Y/cellSize) * cellSize + halfSize;
     double shifted_z = std::floor(point.Z/cellSize) * cellSize + halfSize;
 
-//    vtkIdType ptId = vtkData->GetPoints()->InsertNextPoint(shifted_x, shifted_y, shifted_z);
-    //frequencies->SetValue(ptId, 1);
     vtkData->GetPoints()->InsertNextPoint(shifted_x, shifted_y, shifted_z);
     frequencies->InsertNextValue(1);
-
-    vtkData->GetPoints()->Modified();
-    frequencies->Modified();
+    fibers.push_back({fiber});
 }
 
 unsigned int VisitationMap::GetFrequency(const Point& point) const
@@ -127,4 +145,35 @@ bool VisitationMap::isInCell(const double* cellCenterPoint, const Point& point, 
     return (xmin <= point.X) && (point.X <= xmax)
            && (ymin <= point.Y) && (point.Y <= ymax)
            && (zmin <= point.Z) && (point.Z <= zmax);
+}
+
+void VisitationMap::updateBounds()
+{
+    double bounds[6];
+    vtkData->GetBounds(bounds);
+
+    double width  = std::abs(bounds[0] - bounds[1]);
+    double height = std::abs(bounds[2] - bounds[3]);
+    double depth  = std::abs(bounds[4] - bounds[5]);
+
+    std::cout << width << ", " << height << ", " << depth << std::endl;
+
+    int numberOfCellsWidth = std::ceil(width / cellSize);
+    int numberOfCellsHeight = std::ceil(height / cellSize);
+    int numberOfCellsDepth = std::ceil(depth / cellSize);
+
+    splatter->SetSampleDimensions(numberOfCellsWidth, numberOfCellsHeight, numberOfCellsDepth); //Higher values produce better results but are much slower.
+
+    //The radius is expressed as a percentage of the length of the longest side of the sampling volume.
+    //Smaller numbers greatly reduce execution time.
+
+    double longestSide = std::max(width, std::max(height, depth));
+
+    double radius =  cellSize / longestSide;
+
+    std::cout << radius << std::endl;
+
+    splatter->SetRadius(radius);
+
+    splatter->Update();
 }

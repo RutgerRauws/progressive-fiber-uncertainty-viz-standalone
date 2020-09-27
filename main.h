@@ -31,6 +31,8 @@ const std::vector<std::string> INPUT_FILE_NAMES = {
 };
 
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps
+const double CELL_SIZE = 1.0f;
+const double SPLAT_KERNEL_RADIUS = 2.0f;
 
 void render_callback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
 

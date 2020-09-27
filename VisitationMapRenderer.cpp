@@ -111,7 +111,7 @@ void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
     else if(key == "j")
     {
         //Decreasing isovalue percentage
-        if (percentage - PERCENTAGE_DELTA >= 1.0f)
+        if (percentage - PERCENTAGE_DELTA >= 0.0f)
         {
             percentage -= PERCENTAGE_DELTA;
         }

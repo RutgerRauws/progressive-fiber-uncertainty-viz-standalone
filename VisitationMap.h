@@ -10,9 +10,10 @@
 #include <vtkDoubleArray.h>
 #include <vtkUnsignedIntArray.h>
 #include <vtkImageData.h>
-#include <vtkGaussianSplatter.h>
 #include "Point.h"
 #include "Cell.h"
+#include "GaussianFiberSplatter.h"
+#include "FiberObserver.h"
 
 class VisitationMap
 {
@@ -20,30 +21,23 @@ class VisitationMap
         double cellSize;
 
         vtkSmartPointer<vtkPolyData> vtkData;
-        vtkSmartPointer<vtkGaussianSplatter> splatter;
+        vtkSmartPointer<GaussianFiberSplatter> splatter;
 
-        //vtkSmartPointer<vtkUnsignedIntArray> fiberIds;
         vtkSmartPointer<vtkUnsignedIntArray> frequencies;
         vtkSmartPointer<vtkDoubleArray> distanceScores;
-
-        unsigned int* start_ptr = nullptr;
-        Cell** data;
+        std::vector<std::vector<std::reference_wrapper<const Fiber>>> fibers;
 
         void initialize();
-        void cellModifiedCallback();
+        void insertPoint(const Point& point, const Fiber& fiber);
+
+        void updateBounds();
 
         static bool isInCell(const double* cellCenterPoint, const Point& point, double cellSize);
 
     public:
         explicit VisitationMap(double cellSize);
 
-//        void GetIndex(const Point& point, unsigned int* x_index, unsigned int* y_index, unsigned int* z_index) const;
-//
-//        Cell* GetCell(unsigned int index) const;
-//        Cell* GetCell(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
-//        Cell* GetCell(const Point& point) const;
-
-        void InsertPoint(const Point& point) const;
+        void InsertFiber(const Fiber& fiber);
         unsigned int GetFrequency(const Point& point) const;
 
         unsigned int GetNumberOfCells() const;

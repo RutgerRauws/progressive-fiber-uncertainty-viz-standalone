@@ -62,9 +62,8 @@ int main()
     FiberPublisher fiberPublisher(INPUT_FILE_NAME);
 //    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
 
-    VisitationMap visitationMap(1);
-    VisitationMap visitationMapSplatted(0.5);
-    VisitationMapUpdater visitationMapUpdater(visitationMap, visitationMapSplatted, 2);
+    VisitationMap visitationMap(CELL_SIZE);
+    VisitationMapUpdater visitationMapUpdater(visitationMap);
 
     CenterlineRenderer centerlineRenderer(renderer);
     FiberRenderer fiberRenderer(renderer);

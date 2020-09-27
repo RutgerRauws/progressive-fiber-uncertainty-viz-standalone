@@ -13,16 +13,13 @@
 class VisitationMapUpdater : public FiberObserver {
     private:
         VisitationMap& visitationMap;
-        VisitationMap& visitationMapSplatted;
-
-        double splatKernelRadius;
 
 //        void splat(const Point& p, double radius, Fiber* fiber);
         static bool isCellInsideSphere(const Point& center, double radius, const Point& point, double cellSize);
         static bool isPointInsideSphere(const Point& center, double radius, double x, double y, double z);
 
 public:
-        VisitationMapUpdater(VisitationMap& visitationMap, VisitationMap& visitationMapSplatted, double splatKernelRadius);
+        VisitationMapUpdater(VisitationMap& visitationMap);
         void NewFiber(Fiber* fiber) override;
 };
 
