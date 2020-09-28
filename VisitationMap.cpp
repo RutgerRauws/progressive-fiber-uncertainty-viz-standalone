@@ -11,7 +11,8 @@
 VisitationMap::VisitationMap(double cellSize)
     : cellSize(cellSize),
       vtkData(vtkSmartPointer<vtkPolyData>::New()),
-      splatter(vtkSmartPointer<GaussianFiberSplatter>::New()),
+//      splatter(vtkSmartPointer<GaussianFiberSplatter>::New()),
+      splatter(vtkSmartPointer<FiberSplatter>::New()),
       frequencies(vtkSmartPointer<vtkUnsignedIntArray>::New()),
       distanceScores(vtkSmartPointer<vtkDoubleArray>::New())
 {
@@ -33,34 +34,7 @@ void VisitationMap::initialize()
 
     splatter->SetInputData(vtkData);
     splatter->SetExistingPointsFiberData(fibers);
-    //splatter->SetSampleDimensions(80, 80, 80); //Higher values produce better results but are much slower.
-    splatter->SetRadius(0.05f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
-//    splatter->SetRadius(0.01f);
 
-//    splatter->SetExponentFactor(-10); //sharpness of decay of the splats. This is the exponent constant in the Gaussian equation. Normally this is a negative value.
-//    splatter->SetEccentricity(2); //Control the shape of elliptical splatting. Eccentricity > 1 creates needles with the long axis in the direction of the normal; Eccentricity<1 creates pancakes perpendicular to the normal vector.
-
-//                            int sampleDimension = 40; //indicates quality
-//                            splatter->SetSampleDimensions(sampleDimension, sampleDimension, sampleDimension); //Higher values produce better results but are much slower.
-//
-//                            double radius =  ((float)sampleDimension / 2.0f) / cellSize;
-//                            double ratio = 0.1f * radius / ((float)sampleDimension);
-//                            splatter->SetRadius(ratio);
-
-//    int sampleDimension = 20; //indicates quality
-//    splatter->SetSampleDimensions(sampleDimension, sampleDimension, sampleDimension); //Higher values produce better results but are much slower.
-
-    //double radius =  ((float)sampleDimension / 2.0f) * cellSize;
-    //double ratio = radius / (sampleDimension * cellSize);
-//    double ratio = 1.0f / ((float)sampleDimension);
-//    splatter->SetRadius(ratio);
-
-//    splatter->SetRadius(0.05f); //This value is expressed as a percentage of the length of the longest side of the sampling volume. Smaller numbers greatly reduce execution time.
-
-    splatter->SetExponentFactor(-5); //sharpness of decay of the splats. This is the exponent constant in the Gaussian equation. Normally this is a negative value.
-    splatter->SetEccentricity(1); //Control the shape of elliptical splatting. Eccentricity > 1 creates needles with the long axis in the direction of the normal; Eccentricity<1 creates pancakes perpendicular to the normal vector.
-    //splatter->NormalWarpingOff();
-//    splatter->ScalarWarpingOff();
     splatter->Update();
 }
 
@@ -162,7 +136,7 @@ void VisitationMap::updateBounds()
     int numberOfCellsHeight = std::ceil(height / cellSize);
     int numberOfCellsDepth = std::ceil(depth / cellSize);
 
-    splatter->SetSampleDimensions(numberOfCellsWidth, numberOfCellsHeight, numberOfCellsDepth); //Higher values produce better results but are much slower.
+    //splatter->SetSampleDimensions(numberOfCellsWidth, numberOfCellsHeight, numberOfCellsDepth); //Higher values produce better results but are much slower.
 
     //The radius is expressed as a percentage of the length of the longest side of the sampling volume.
     //Smaller numbers greatly reduce execution time.
@@ -173,7 +147,7 @@ void VisitationMap::updateBounds()
 
     std::cout << radius << std::endl;
 
-    splatter->SetRadius(radius);
+    //splatter->SetRadius(radius);
 
     splatter->Update();
 }

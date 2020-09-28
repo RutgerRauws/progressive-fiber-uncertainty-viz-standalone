@@ -14,6 +14,7 @@
 #include "Cell.h"
 #include "GaussianFiberSplatter.h"
 #include "FiberObserver.h"
+#include "FiberSplatter.h"
 
 class VisitationMap
 {
@@ -21,7 +22,8 @@ class VisitationMap
         double cellSize;
 
         vtkSmartPointer<vtkPolyData> vtkData;
-        vtkSmartPointer<GaussianFiberSplatter> splatter;
+//        vtkSmartPointer<GaussianFiberSplatter> splatter;
+        vtkSmartPointer<FiberSplatter> splatter;
 
         vtkSmartPointer<vtkUnsignedIntArray> frequencies;
         vtkSmartPointer<vtkDoubleArray> distanceScores;
