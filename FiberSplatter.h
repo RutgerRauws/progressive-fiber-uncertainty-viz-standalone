@@ -8,6 +8,7 @@
 
 #include <vtkImageAlgorithm.h>
 #include <vector>
+#include <vtkUnsignedIntArray.h>
 #include "Fiber.h"
 
 class FiberSplatter : public vtkImageAlgorithm
@@ -21,14 +22,15 @@ class FiberSplatter : public vtkImageAlgorithm
         static FiberSplatter* New();
 
         void SetExistingPointsFiberData(std::vector<std::vector<std::reference_wrapper<const Fiber>>>& fibers);
+        void SetCellFrequencies(vtkUnsignedIntArray* cellFrequencies);
 
         //int RequestInformation(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
         int RequestData(vtkInformation*, vtkInformationVector**, vtkInformationVector*) override;
         int FillInputPortInformation(int port, vtkInformation* info) override;
 
     private:
-        std::vector<std::vector<std::reference_wrapper<const Fiber>>>* NewPointsFibers;
         std::vector<std::vector<std::reference_wrapper<const Fiber>>>* ExistingPointsFibers;
+        vtkUnsignedIntArray* CellFrequencies;
 
         void getExtent(double* bounds, int* extent) const;
 

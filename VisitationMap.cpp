@@ -32,7 +32,11 @@ void VisitationMap::initialize()
 
     vtkData->GetPointData()->SetActiveScalars(frequencies->GetName());
 
+    splatter->CellSize = cellSize;
+    splatter->KernelRadius = 1;
+
     splatter->SetInputData(vtkData);
+    splatter->SetCellFrequencies(frequencies);
     splatter->SetExistingPointsFiberData(fibers);
 
     splatter->Update();

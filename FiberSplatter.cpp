@@ -10,6 +10,7 @@
 #include <vtkStreamingDemandDrivenPipeline.h>
 #include <vtkPolyData.h>
 #include <vtkObjectFactory.h>
+#include <functional>
 
 vtkStandardNewMacro(FiberSplatter);
 
@@ -22,6 +23,11 @@ void FiberSplatter::SetExistingPointsFiberData(std::vector<std::vector<std::refe
     this->ExistingPointsFibers = &fibers;
 }
 
+void FiberSplatter::SetCellFrequencies(vtkUnsignedIntArray* cellFrequencies)
+{
+    this->CellFrequencies = cellFrequencies;
+}
+
 int FiberSplatter::RequestData(vtkInformation* vtkNotUsed(request),
                                vtkInformationVector** inputVector,
                                vtkInformationVector* outputVector)
@@ -30,60 +36,52 @@ int FiberSplatter::RequestData(vtkInformation* vtkNotUsed(request),
     vtkInformation* outInfo = outputVector->GetInformationObject(0);
     vtkImageData* output = vtkImageData::GetData(outputVector, 0);
 
-    output->SetExtent(outInfo->Get(vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT()));
-    output->AllocateScalars(outInfo);
-
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     vtkDataSet* inputDS = vtkDataSet::GetData(inInfo);
     vtkPolyData* inputPolyData = vtkPolyData::GetData(inInfo);
 
-    vtkIdType inNumPts = inputPolyData->GetNumberOfPoints();
 
+    int extent[6];
+    getExtent(inputPolyData->GetBounds(), extent);
+    output->SetExtent(extent);
+
+    output->SetExtent(extent);
+
+    // TODO: Perhaps the SetSpacing and SetOrigin calls should be removed.
+    // As we use vtkMRMLVolumeNode::SetAndObserveImageData, the ImageData object origin must be set to (0,0,0) and
+    // spacing must be set to (1,1,1). If the variables are set to different values then the application's behavior is
+    // undefined.
+    // https://apidocs.slicer.org/v4.8/classvtkMRMLVolumeNode.html
+    output->SetSpacing(CellSize, CellSize, CellSize);
+    output->SetOrigin(CellSize / 2.0f, CellSize / 2.0f, CellSize / 2.0f);
+
+    //Apparently the vtkVolumeRayCastMapper class only works with unsigned char and unsigned short data
+    output->AllocateScalars(VTK_UNSIGNED_INT, 1);
+
+    auto scalars_ptr = static_cast<unsigned int*>(output->GetScalarPointer());
+    std::fill_n(scalars_ptr, output->GetNumberOfPoints(), 0);
+
+    vtkIdType inNumPts = inputPolyData->GetNumberOfPoints();
     if (inNumPts == 0)
     {
         return 1;
     }
 
-//    output->SetDimensions(this->GetSampleDimensions());
-    int extent[6];
-    getExtent(inputPolyData->GetBounds(), extent);
-    output->SetExtent(extent);
-
-    int xmin = extent[0];
-    int xmax = extent[1];
-    int ymin = extent[2];
-    int ymax = extent[3];
-    int zmin = extent[4];
-    int zmax = extent[5];
-
-    output->SetSpacing(CellSize, CellSize, CellSize);
-    output->AllocateScalars(VTK_UNSIGNED_INT, 1);
-
-    vtkIdType outNumPts = std::abs(xmin) * std::abs(xmax) * std::abs(ymin) * std::abs(ymax) * std::abs(zmin) * std::abs(zmax);
-
-    std::vector<std::vector<Fiber*>> outPointFibers(outNumPts);
-
-//    auto start_ptr = static_cast<unsigned int*>(output->GetScalarPointer(0, 0, 0));
+    std::vector<std::vector<Fiber*>> outPointFibers(output->GetNumberOfPoints());
 
     for(vtkIdType inPtId = 0; inPtId < inNumPts; inPtId++)
     {
-        //output->GetPoint()
         double* inPt = inputPolyData->GetPoint(inPtId);
 
-        vtkIdType outPtId = output->FindPoint(inPt);
-        double* outPt = output->GetPoint(outPtId);
+        int index_x = std::floor(inPt[0] / CellSize);
+        int index_y = std::floor(inPt[1] / CellSize);
+        int index_z = std::floor(inPt[2] / CellSize);
 
-//        int index_x = std::floor((outPt[0] - xmin) / CellSize);
-//        int index_y = std::floor((outPt[1] - ymin) / CellSize);
-//        int index_z = std::floor((outPt[2] - zmin) / CellSize);
-        int index_x = std::floor((outPt[0]) / CellSize);
-        int index_y = std::floor((outPt[1]) / CellSize);
-        int index_z = std::floor((outPt[2]) / CellSize);
-
-        //unsigned int* value_ptr = start_ptr + x_index + width * (y_index + z_index * height);
         auto value_ptr = static_cast<unsigned int*>(output->GetScalarPointer(index_x, index_y, index_z));
 
-        *value_ptr = 1;
+//        auto& test = ExistingPointsFibers[inPtId];
+//        *value_ptr = test.size();
+        *value_ptr = CellFrequencies->GetValue(inPtId);
     }
 
     return 1;
