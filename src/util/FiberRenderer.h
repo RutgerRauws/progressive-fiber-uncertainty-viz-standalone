@@ -14,7 +14,7 @@
 #include <vtkPolyDataMapper.h>
 #include <vtkVertexGlyphFilter.h>
 #include "FiberObserver.h"
-#include "KeyPressObserver.h"
+#include "../interaction/KeyPressObserver.h"
 
 class FiberRenderer : public FiberObserver, public KeyPressObserver
 {

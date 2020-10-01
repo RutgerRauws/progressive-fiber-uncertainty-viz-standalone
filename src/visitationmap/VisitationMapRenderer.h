@@ -7,8 +7,8 @@
 
 
 #include "VisitationMap.h"
-#include "KeyPressObserver.h"
-#include "FiberObserver.h"
+#include "../interaction/KeyPressObserver.h"
+#include "../util/FiberObserver.h"
 #include <vtkRenderer.h>
 #include <vtkPiecewiseFunction.h>
 #include <vtkContourValues.h>

@@ -7,8 +7,8 @@
 
 #include <vtkCubeSource.h>
 #include <functional>
-#include "Point.h"
-#include "Fiber.h"
+#include "../util/Point.h"
+#include "../util/Fiber.h"
 
 class VisitationMap;
 

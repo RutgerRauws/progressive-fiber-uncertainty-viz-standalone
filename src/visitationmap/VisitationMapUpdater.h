@@ -6,8 +6,8 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_UPDATER_H
 
 
-#include "FiberObserver.h"
-#include "Fiber.h"
+#include "../util/FiberObserver.h"
+#include "../util/Fiber.h"
 #include "VisitationMap.h"
 
 class VisitationMapUpdater : public FiberObserver {

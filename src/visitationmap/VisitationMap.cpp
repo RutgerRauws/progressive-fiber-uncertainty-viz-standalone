@@ -3,7 +3,7 @@
 //
 
 #include "VisitationMap.h"
-#include "Point.h"
+#include "../util/Point.h"
 #include "Cell.h"
 
 VisitationMap::VisitationMap(double xmin, double xmax, double ymin, double ymax, double zmin, double zmax, double cellSize)

@@ -10,7 +10,7 @@
 #include <vtkRenderer.h>
 #include <vtkRenderWindow.h>
 #include "VisitationMap.h"
-#include "FiberObserver.h"
+#include "../util/FiberObserver.h"
 
 class VisitationMapDebugRenderer
 {

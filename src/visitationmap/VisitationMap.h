@@ -8,7 +8,7 @@
 #include <vtkSmartPointer.h>
 #include <vtkStructuredGrid.h>
 #include <vtkImageData.h>
-#include "Point.h"
+#include "../util/Point.h"
 #include "Cell.h"
 
 class VisitationMap

@@ -9,10 +9,10 @@
 #include <functional>
 #include <vtkRenderer.h>
 #include <vtkActor.h>
-#include "KeyPressObserver.h"
-#include "Fiber.h"
+#include "../interaction/KeyPressObserver.h"
+#include "../util/Fiber.h"
 #include "DistanceTable.h"
-#include "FiberObserver.h"
+#include "../util/FiberObserver.h"
 
 class CenterlineRenderer : public KeyPressObserver, public FiberObserver
 {

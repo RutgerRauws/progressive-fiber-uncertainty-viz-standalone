@@ -10,14 +10,14 @@
 #include <vtkRenderWindowInteractor.h>
 #include <vtkCallbackCommand.h>
 
-#include "KeyPressInteractorStyle.h"
-#include "FiberPublisher.h"
-#include "FiberRenderer.h"
-#include "VisitationMap.h"
-#include "VisitationMapUpdater.h"
-#include "VisitationMapRenderer.h"
-#include "CenterlineRenderer.h"
-#include "gpu/ShaderTest.h"
+#include "src/interaction/KeyPressInteractorStyle.h"
+#include "src/util/FiberPublisher.h"
+#include "src/util/FiberRenderer.h"
+#include "src/visitationmap/VisitationMap.h"
+#include "src/visitationmap/VisitationMapUpdater.h"
+#include "src/visitationmap/VisitationMapRenderer.h"
+#include "src/centerline/CenterlineRenderer.h"
+#include "src/visitationmap/gpu/ShaderTest.h"
 
 int main()
 {
