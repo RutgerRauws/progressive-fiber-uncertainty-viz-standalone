@@ -38,8 +38,9 @@ int FiberSplatter::RequestData(vtkInformation* vtkNotUsed(request),
 
     vtkInformation* inInfo = inputVector[0]->GetInformationObject(0);
     vtkDataSet* inputDS = vtkDataSet::GetData(inInfo);
-    vtkPolyData* inputPolyData = vtkPolyData::GetData(inInfo);
-
+//    vtkPolyData* inputPolyData = vtkPolyData::GetData(inInfo);
+    vtkNew<vtkPolyData> inputPolyData;
+    inputPolyData->DeepCopy(vtkPolyData::GetData(inInfo));
 
     int extent[6];
     getExtent(inputPolyData->GetBounds(), extent);
@@ -81,7 +82,10 @@ int FiberSplatter::RequestData(vtkInformation* vtkNotUsed(request),
 
 //        auto& test = ExistingPointsFibers[inPtId];
 //        *value_ptr = test.size();
-        *value_ptr = CellFrequencies->GetValue(inPtId);
+        //*value_ptr = CellFrequencies->GetValue(inPtId);
+        *value_ptr = 2;
+
+//        std::cout << *value_ptr << std::endl;
     }
 
     return 1;
@@ -101,10 +105,10 @@ int FiberSplatter::FillInputPortInformation(int vtkNotUsed(port), vtkInformation
  */
 void FiberSplatter::getExtent(double* bounds, int* extent) const
 {
-    extent[0] = std::floor((bounds[0] - KernelRadius) / CellSize); //xmin
-    extent[1] = std::ceil( (bounds[1] + KernelRadius) / CellSize); //xmax
-    extent[2] = std::floor((bounds[2] - KernelRadius) / CellSize); //ymin
-    extent[3] = std::ceil( (bounds[3] + KernelRadius) / CellSize); //ymax
-    extent[4] = std::floor((bounds[4] - KernelRadius) / CellSize); //zmin
-    extent[5] = std::ceil( (bounds[5] + KernelRadius) / CellSize); //zmax
+    extent[0] = std::floor((bounds[0] - CellSize) / CellSize); //xmin
+    extent[1] = std::ceil( (bounds[1] + CellSize) / CellSize); //xmax
+    extent[2] = std::floor((bounds[2] - CellSize) / CellSize); //ymin
+    extent[3] = std::ceil( (bounds[3] + CellSize) / CellSize); //ymax
+    extent[4] = std::floor((bounds[4] - CellSize) / CellSize); //zmin
+    extent[5] = std::ceil( (bounds[5] + CellSize) / CellSize); //zmax
 }

@@ -5,13 +5,27 @@
 #include "VisitationMapUpdater.h"
 #include "Cell.h"
 
-VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
-        : visitationMap(visitationMap)
+VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap,
+                                           VisitationMap& visitationMapSplatted,
+                                           double splatKernelRadius)
+        : visitationMap(visitationMap),
+          visitationMapSplatted(visitationMapSplatted),
+          splatKernelRadius(splatKernelRadius)
 {}
 
 void VisitationMapUpdater::NewFiber(Fiber* fiber)
 {
-    visitationMap.InsertFiber(*fiber);
+//    visitationMap.InsertFiber(*fiber);
+
+    //TODO: This should be based on edges
+    for(const Point& point : fiber->GetPoints())
+    {
+        visitationMap.InsertPoint(point, *fiber);
+        visitationMapSplatted.InsertSphere(point, *fiber, splatKernelRadius);
+    }
+
+    visitationMap.Modified();
+    visitationMapSplatted.Modified();
 }
 
 bool VisitationMapUpdater::isCellInsideSphere(const Point& center, double radius, const Point& point, double cellSize)

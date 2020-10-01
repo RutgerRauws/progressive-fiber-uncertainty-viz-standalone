@@ -10,16 +10,20 @@
 #include "Fiber.h"
 #include "VisitationMap.h"
 
-class VisitationMapUpdater : public FiberObserver {
+class VisitationMapUpdater : public FiberObserver
+{
     private:
         VisitationMap& visitationMap;
+        VisitationMap& visitationMapSplatted;
 
-//        void splat(const Point& p, double radius, Fiber* fiber);
+        double splatKernelRadius;
+
+        void splat(const Point& p, double radius, Fiber* fiber);
         static bool isCellInsideSphere(const Point& center, double radius, const Point& point, double cellSize);
         static bool isPointInsideSphere(const Point& center, double radius, double x, double y, double z);
 
 public:
-        VisitationMapUpdater(VisitationMap& visitationMap);
+        VisitationMapUpdater(VisitationMap& visitationMap, VisitationMap& visitationMapSplatted, double splatKernelRadius);
         void NewFiber(Fiber* fiber) override;
 };
 

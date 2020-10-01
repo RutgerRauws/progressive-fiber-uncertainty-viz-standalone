@@ -22,7 +22,6 @@ class VisitationMap
         double cellSize;
 
         vtkSmartPointer<vtkPolyData> vtkData;
-//        vtkSmartPointer<GaussianFiberSplatter> splatter;
         vtkSmartPointer<FiberSplatter> splatter;
 
         vtkSmartPointer<vtkUnsignedIntArray> frequencies;
@@ -30,16 +29,18 @@ class VisitationMap
         std::vector<std::vector<std::reference_wrapper<const Fiber>>> fibers;
 
         void initialize();
-        void insertPoint(const Point& point, const Fiber& fiber);
-
-        void updateBounds();
 
         static bool isInCell(const double* cellCenterPoint, const Point& point, double cellSize);
+        static bool isCellInsideSphere(const Point& center, double radius, const Point& point, double cellSize);
+        static bool isPointInsideSphere(const Point& center, double radius, double x, double y, double z);
 
     public:
         explicit VisitationMap(double cellSize);
 
-        void InsertFiber(const Fiber& fiber);
+        void InsertPoint(const Point& point, const Fiber& fiber);
+        void InsertSphere(const Point& point, const Fiber& fiber, double radius);
+        //void InsertFiber(const Fiber& fiber);
+
         unsigned int GetFrequency(const Point& point) const;
 
         unsigned int GetNumberOfCells() const;
@@ -47,6 +48,8 @@ class VisitationMap
 
         vtkSmartPointer<vtkPolyData> GetVTKData() const;
         vtkAlgorithmOutput* GetImageOutput() const;
+
+        void Modified();
 };
 
 

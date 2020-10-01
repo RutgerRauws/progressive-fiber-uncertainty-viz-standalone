@@ -63,14 +63,15 @@ int main()
 //    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
 
     VisitationMap visitationMap(CELL_SIZE);
-    VisitationMapUpdater visitationMapUpdater(visitationMap);
+    VisitationMap visitationMapSplatted(0.25f);
+    VisitationMapUpdater visitationMapUpdater(visitationMap, visitationMapSplatted, SPLAT_KERNEL_RADIUS);
 
     CenterlineRenderer centerlineRenderer(renderer);
     FiberRenderer fiberRenderer(renderer);
 
     //VisitationMapDebugRenderer visitationMapDebugRenderer(visitationMap, renderer);
-    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
-//    VisitationMapRenderer visitationMapRenderer(visitationMapSplatted, renderer);
+//    VisitationMapRenderer visitationMapRenderer(visitationMap, renderer);
+    VisitationMapRenderer visitationMapRenderer(visitationMapSplatted, renderer);
     keypressHandler->AddObserver("u", &visitationMapRenderer); //Increasing isovalue
     keypressHandler->AddObserver("j", &visitationMapRenderer); //Decreasing isovalue
     keypressHandler->AddObserver("s", &visitationMapRenderer); //Toggle hull smoothing

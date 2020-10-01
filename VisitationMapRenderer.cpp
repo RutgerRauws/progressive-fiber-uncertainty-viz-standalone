@@ -70,17 +70,17 @@ void VisitationMapRenderer::initialize()
     updateIsovalue();
 
 
-    vtkNew<vtkVertexGlyphFilter> vertexFilter;
-    vertexFilter->SetInputData(visitationMap.GetVTKData());
-    vertexFilter->Update();
-
-    vtkNew<vtkPolyDataMapper> pointsMapper;
-    pointsMapper->SetInputConnection(vertexFilter->GetOutputPort());
-
-    vtkNew<vtkActor> pointsActor;
-    pointsActor->SetMapper(pointsMapper);
-    pointsActor->GetProperty()->SetPointSize(10);
-    renderer->AddActor(pointsActor);
+//    vtkNew<vtkVertexGlyphFilter> vertexFilter;
+//    vertexFilter->SetInputData(visitationMap.GetVTKData());
+//    vertexFilter->Update();
+//
+//    vtkNew<vtkPolyDataMapper> pointsMapper;
+//    pointsMapper->SetInputConnection(vertexFilter->GetOutputPort());
+//
+//    vtkNew<vtkActor> pointsActor;
+//    pointsActor->SetMapper(pointsMapper);
+//    pointsActor->GetProperty()->SetPointSize(10);
+//    renderer->AddActor(pointsActor);
 }
 
 void VisitationMapRenderer::updateIsovalue()

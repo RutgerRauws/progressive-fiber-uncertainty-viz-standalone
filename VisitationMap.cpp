@@ -42,20 +42,20 @@ void VisitationMap::initialize()
     splatter->Update();
 }
 
-void VisitationMap::InsertFiber(const Fiber& fiber)
-{
-    //TODO: This should be based on edges
-    for(const Point& point : fiber.GetPoints())
-    {
-        insertPoint(point, fiber);
-    }
+//void VisitationMap::InsertFiber(const Fiber& fiber)
+//{
+//    //TODO: This should be based on edges
+//    for(const Point& point : fiber.GetPoints())
+//    {
+//        insertPoint(point, fiber);
+//    }
+//
+//    frequencies->Modified();
+//    vtkData->GetPoints()->Modified();
+////    updateBounds();
+//}
 
-    frequencies->Modified();
-    vtkData->GetPoints()->Modified();
-//    updateBounds();
-}
-
-void VisitationMap::insertPoint(const Point& point, const Fiber& fiber)
+void VisitationMap::InsertPoint(const Point& point, const Fiber& fiber)
 {
     vtkIdType cellPtId = vtkData->FindPoint(point.X, point.Y, point.Z);
 
@@ -80,6 +80,41 @@ void VisitationMap::insertPoint(const Point& point, const Fiber& fiber)
     vtkData->GetPoints()->InsertNextPoint(shifted_x, shifted_y, shifted_z);
     frequencies->InsertNextValue(1);
     fibers.push_back({fiber});
+}
+
+void VisitationMap::InsertSphere(const Point& point, const Fiber& fiber, double radius)
+{
+    double halfSize = cellSize / 2.0f;
+    double shifted_x = std::floor(point.X/cellSize) * cellSize + halfSize;
+    double shifted_y = std::floor(point.Y/cellSize) * cellSize + halfSize;
+    double shifted_z = std::floor(point.Z/cellSize) * cellSize + halfSize;
+
+    Point centerPoint(shifted_x, shifted_y, shifted_z);
+    InsertPoint(centerPoint, fiber);
+
+
+    //TODO: is this correct?
+    int radiusInNumberCells = std::ceil(radius / GetCellSize());
+
+    for(int x_index_offset = -radiusInNumberCells; x_index_offset < radiusInNumberCells; x_index_offset++)
+    {
+        for(int y_index_offset = -radiusInNumberCells; y_index_offset < radiusInNumberCells; y_index_offset++)
+        {
+            for(int z_index_offset = -radiusInNumberCells; z_index_offset < radiusInNumberCells; z_index_offset++)
+            {
+                Point splatPoint(
+                    shifted_x + x_index_offset * GetCellSize(),
+                    shifted_y + y_index_offset * GetCellSize(),
+                    shifted_z + z_index_offset * GetCellSize()
+                );
+
+                if(isCellInsideSphere(centerPoint, radius, splatPoint, GetCellSize()))
+                {
+                    InsertPoint(splatPoint, fiber);
+                }
+            }
+        }
+    }
 }
 
 unsigned int VisitationMap::GetFrequency(const Point& point) const
@@ -125,33 +160,39 @@ bool VisitationMap::isInCell(const double* cellCenterPoint, const Point& point, 
            && (zmin <= point.Z) && (point.Z <= zmax);
 }
 
-void VisitationMap::updateBounds()
+
+bool VisitationMap::isCellInsideSphere(const Point& center, double radius, const Point& point, double cellSize)
 {
-    double bounds[6];
-    vtkData->GetBounds(bounds);
+    double halfSize = cellSize / 2.0f;
 
-    double width  = std::abs(bounds[0] - bounds[1]);
-    double height = std::abs(bounds[2] - bounds[3]);
-    double depth  = std::abs(bounds[4] - bounds[5]);
+    if(isPointInsideSphere(center, radius, point.X - halfSize, point.Y - halfSize, point.Z - halfSize)
+       || isPointInsideSphere(center, radius, point.X - halfSize, point.Y - halfSize, point.Z + halfSize)
+       || isPointInsideSphere(center, radius, point.X - halfSize, point.Y + halfSize, point.Z - halfSize)
+       || isPointInsideSphere(center, radius, point.X - halfSize, point.Y + halfSize, point.Z + halfSize)
+       || isPointInsideSphere(center, radius, point.X + halfSize, point.Y - halfSize, point.Z - halfSize)
+       || isPointInsideSphere(center, radius, point.X + halfSize, point.Y - halfSize, point.Z + halfSize)
+       || isPointInsideSphere(center, radius, point.X + halfSize, point.Y + halfSize, point.Z - halfSize)
+       || isPointInsideSphere(center, radius, point.X + halfSize, point.Y + halfSize, point.Z + halfSize)
+            )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
 
-    std::cout << width << ", " << height << ", " << depth << std::endl;
 
-    int numberOfCellsWidth = std::ceil(width / cellSize);
-    int numberOfCellsHeight = std::ceil(height / cellSize);
-    int numberOfCellsDepth = std::ceil(depth / cellSize);
+bool VisitationMap::isPointInsideSphere(const Point& center, double radius, double x, double y, double z)
+{
+    return pow(x - center.X, 2)
+           +  pow(y - center.Y, 2)
+           +  pow(z - center.Z, 2) <= std::pow(radius, 2);
+}
 
-    //splatter->SetSampleDimensions(numberOfCellsWidth, numberOfCellsHeight, numberOfCellsDepth); //Higher values produce better results but are much slower.
-
-    //The radius is expressed as a percentage of the length of the longest side of the sampling volume.
-    //Smaller numbers greatly reduce execution time.
-
-    double longestSide = std::max(width, std::max(height, depth));
-
-    double radius =  cellSize / longestSide;
-
-    std::cout << radius << std::endl;
-
-    //splatter->SetRadius(radius);
-
-    splatter->Update();
+void VisitationMap::Modified()
+{
+    frequencies->Modified();
+    vtkData->GetPoints()->Modified();
 }

@@ -19,7 +19,7 @@ const std::string INPUT_FILE_NAME = "./data/cst-1.vtk";
 //const std::string INPUT_FILE_NAME = "./data/slf-1.vtk";
 //const std::string INPUT_FILE_NAME = "./data/slf-20.vtk";
 //const std::string INPUT_FILE_NAME = "./data/cc-5.vtk";
-//const std::string INPUT_FILE_NAME = "./data/for-each-seedpoint/1.vtk";
+//const std::string INPUT_FILE_NAME = "./data/for-each-seedpoint/4.vtk";
 
 const std::vector<std::string> INPUT_FILE_NAMES = {
     "./data/for-each-seedpoint/1.vtk",
@@ -32,7 +32,7 @@ const std::vector<std::string> INPUT_FILE_NAMES = {
 
 const unsigned int RENDER_INTERVAL_MS = 33; //30fps
 const double CELL_SIZE = 2.0f;
-const double SPLAT_KERNEL_RADIUS = 2.0f;
+const double SPLAT_KERNEL_RADIUS = 1.0f;
 
 void render_callback(vtkObject* caller, long unsigned int eventId, void* clientData, void* callData);
 
