@@ -1,37 +1,26 @@
-//VTK::System::Dec // always start with this line
-//VTK::Output::Dec // always have this line in your FS
-uniform vec3 diffuseColorUniform;
-
-varying vec3 vPos;
-
-//in cell
-//{
-//  int x;
-//  int y;
-//  int z;
-//} test[1024];
+#version 430
+//#ifndef GL_ES
+//#define highp
+//#define mediump
+//#define lowp
+//#endif // GL_ES
+//#define attribute in
+//#define varying out
+////***VT***K::System::Dec // always start with this line
+//
+////VTK::Output::Dec // always have this line in your FS, VTK uses it to map shader outputs to the framebufer.
+//uniform vec3 diffuseColorUniform;
+//
+//varying vec3 vPos;
+//
+////layout(std430, binding = 0) buffer frequencyMap
+////{
+////    uint frequency_map[];
+////};
+out vec4 outColor;
 
 void main ()
 {
-  //texture3D(cells, )
-//  int x = test[0].x;
-//  int y = test[0].y;
-//  int z = test[0].z;
-//  int x = cells[0];
-//  int y = cells[1];
-//  int z = cells[2];
-//  int x = 0;
-//  int y = 1;
-//  int z = 0;
-
-//  if(abs(vPos.x - x) < 0.3
-//  && abs(vPos.y - y) < 0.3
-//  && abs(vPos.z - z) < 0.3)
-//  {
-//    gl_FragData[0] = vec4(0, 1, 0, 1);
-//  }
-//  else
-//  {
-    gl_FragData[0] = vec4(1, 0, 0, 1);
-//  }
+//    gl_FragColor = vec4(1, 0, 0, 1);
+    outColor = vec4(1.0);
 }

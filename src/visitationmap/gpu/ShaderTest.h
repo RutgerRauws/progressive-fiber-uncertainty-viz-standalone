@@ -28,11 +28,17 @@ class ShaderTest
         const std::string COMPUTE_SHADER_PATH = "./shaders/compute.glsl";
 
         //DTI/DWI volume dimensions from example data set
-        const unsigned int width  = 112;
-        const unsigned int height = 112;
-        const unsigned int depth  = 70;
-        const float spacing = 2;
+//        const unsigned int width  = 112;
+//        const unsigned int height = 112;
+//        const unsigned int depth  = 70;
+//        const float spacing = 2;
 
+        double xmin, xmax, ymin, ymax, zmin, zmax;
+        double spacing;
+
+        unsigned int width;
+        unsigned int height;
+        unsigned int depth;
 
         vtkSmartPointer<vtkRenderer> renderer;
         vtkSmartPointer<vtkActor> actor;
@@ -43,7 +49,7 @@ class ShaderTest
         static void checkForErrors(GLuint shader);
 
     public:
-        ShaderTest(vtkSmartPointer<vtkRenderer> renderer);
+        ShaderTest(vtkSmartPointer<vtkRenderer> renderer, double* bounds, double spacing);
 };
 
 

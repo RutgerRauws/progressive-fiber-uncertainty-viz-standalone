@@ -15,30 +15,30 @@
 #include <vtkVertexGlyphFilter.h>
 #include "FiberObserver.h"
 #include "../interaction/KeyPressObserver.h"
+#include "RenderElement.h"
+#include "glm/vec3.hpp"
 
-class FiberRenderer : public FiberObserver, public KeyPressObserver
+class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderElement
 {
     private:
-        vtkSmartPointer<vtkRenderer> renderer;
-
-        vtkIdType currentId;
-        vtkSmartPointer<vtkPoints> points;
-        vtkSmartPointer<vtkCellArray> polyLines;
-
-        vtkSmartPointer<vtkActor> fiberActor;
-        vtkSmartPointer<vtkActor> pointsActor;
-
-        vtkSmartPointer<vtkVertexGlyphFilter> vertexGlyphFilter;
+        unsigned int numberOfFibers;
+        unsigned int numberOfVertices;
 
         bool fibersShown, pointsShown;
 
-        void initialize();
-        
+        void initialize() override;
+        void updateData();
+
     public:
-        explicit FiberRenderer(vtkSmartPointer<vtkRenderer> renderer);
+        explicit FiberRenderer();
         void NewFiber(Fiber* fiber) override;
 
-        void KeyPressed(const std::basic_string<char>& key) override;
+        void Render() override;
+
+        unsigned int GetNumberOfVertices() override;
+        unsigned int GetNumberOfBytes() override;
+
+        void KeyPressed(const sf::Keyboard::Key& key) override;
 };
 
 

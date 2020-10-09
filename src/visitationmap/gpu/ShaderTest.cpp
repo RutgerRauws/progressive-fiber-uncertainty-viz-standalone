@@ -5,18 +5,23 @@
 #include "ShaderTest.h"
 
 #include <utility>
-#include <vtkOpenGLPolyDataMapper.h>
+#include <sstream>
+
+#include <vtkPolyData.h>
+#include <vtkPolyLine.h>
 #include <vtkProperty.h>
 #include <vtkShaderProperty.h>
 #include <vtkCommand.h>
 #include <vtkShaderProgram.h>
-#include <vtkPolyData.h>
-#include <vtkPolyLine.h>
 #include <vtkCellData.h>
 #include <vtkOpenGLUniforms.h>
-#include <sstream>
-
+#include <vtkOpenGLPolyDataMapper.h>
 #include <vtkOpenGLImageAlgorithmHelper.h>
+#include <vtkOpenGLGPUVolumeRayCastMapper.h>
+#include <vtkColorTransferFunction.h>
+#include <vtkVolumeProperty.h>
+#include <vtkImageData.h>
+#include <vtkContourValues.h>
 
 //------------------------------------------------------------------------------
 // Update a uniform in the shader for each render. We do this with a
@@ -34,68 +39,34 @@ public:
 
         float diffuseColor[3];
 
-#if 0 // trippy mode
-    float inputHSV[3];
-    double theTime = vtkTimerLog::GetUniversalTime();
-    double twopi = 2.0*vtkMath::Pi();
-
-    inputHSV[0] = sin(twopi*fmod(theTime,3.0)/3.0)/4.0 + 0.25;
-    inputHSV[1] = sin(twopi*fmod(theTime,4.0)/4.0)/2.0 + 0.5;
-    inputHSV[2] = 0.7*(sin(twopi*fmod(theTime,19.0)/19.0)/2.0 + 0.5);
-    vtkMath::HSVToRGB(inputHSV,diffuseColor);
-    cellBO->Program->SetUniform3f("diffuseColorUniform", diffuseColor);
-
-    if (this->Renderer)
-    {
-      inputHSV[0] = sin(twopi*fmod(theTime,5.0)/5.0)/4.0 + 0.75;
-      inputHSV[1] = sin(twopi*fmod(theTime,7.0)/7.0)/2.0 + 0.5;
-      inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
-      vtkMath::HSVToRGB(inputHSV,diffuseColor);
-      this->Renderer->SetBackground(diffuseColor[0], diffuseColor[1], diffuseColor[2]);
-
-      inputHSV[0] = sin(twopi*fmod(theTime,11.0)/11.0)/2.0+0.5;
-      inputHSV[1] = sin(twopi*fmod(theTime,13.0)/13.0)/2.0 + 0.5;
-      inputHSV[2] = 0.5*(sin(twopi*fmod(theTime,17.0)/17.0)/2.0 + 0.5);
-      vtkMath::HSVToRGB(inputHSV,diffuseColor);
-      this->Renderer->SetBackground2(diffuseColor[0], diffuseColor[1], diffuseColor[2]);
-    }
-#else
         diffuseColor[0] = 0.4;
         diffuseColor[1] = 0.7;
         diffuseColor[2] = 0.6;
         program->SetUniform3f("diffuseColorUniform", diffuseColor);
-
-
-//        std::vector<int> points(1024);
-//        points[0] = 0;
-//        points[1] = 1;
-//        points[2] = 0;
-//
-//        program->SetAttributeArray(
-//                "cells",
-//                points,
-//                3,
-//                vtkShaderProgram::NormalizeOption::NoNormalize
-//        );
-
-#endif
     }
 
     vtkShaderCallback() { this->Renderer = nullptr; }
 };
 
 
-
-ShaderTest::ShaderTest(vtkSmartPointer<vtkRenderer> renderer)
+ShaderTest::ShaderTest(vtkSmartPointer<vtkRenderer> renderer, double* bounds, double spacing)
     : renderer(std::move(renderer)),
+      xmin(bounds[0]), xmax(bounds[1]),
+      ymin(bounds[2]), ymax(bounds[3]),
+      zmin(bounds[4]), zmax(bounds[5]),
+      spacing(spacing),
       actor(vtkSmartPointer<vtkActor>::New())
 {
+    //TODO: Look into fixing double to int conversion.
+    width =  std::ceil( std::abs(xmin - xmax) / spacing);
+    height = std::ceil(std::abs(ymin - ymax) / spacing);
+    depth =  std::ceil(std::abs(zmin - zmax) / spacing);
+
     initialize();
 }
 
 void ShaderTest::initialize()
 {
-//    vtkNew<vtkOpenGLImageAlgorithmHelper> helper;
     /***
      *
      * Setting up OpenGL
@@ -148,14 +119,28 @@ void ShaderTest::initialize()
      */
     //Visitation Map Properties
     GLint vmProp_loc;
-    vmProp_loc = glGetUniformLocation(program, "visitationMapProp.width");
-    glProgramUniform1i(program, vmProp_loc, width);
-    vmProp_loc = glGetUniformLocation(program, "visitationMapProp.height");
-    glProgramUniform1i(program, vmProp_loc, height);
-    vmProp_loc = glGetUniformLocation(program, "visitationMapProp.depth");
-    glProgramUniform1i(program, vmProp_loc, depth);
-    vmProp_loc = glGetUniformLocation(program, "visitationMapProp.cellSize");
-    glProgramUniform1f(program, vmProp_loc, spacing);
+    vmProp_loc = glGetUniformLocation(program, "vmp.xmin");
+    glProgramUniform1d(program, vmProp_loc, xmin);
+    vmProp_loc = glGetUniformLocation(program, "vmp.xmax");
+    glProgramUniform1d(program, vmProp_loc, xmax);
+    vmProp_loc = glGetUniformLocation(program, "vmp.ymin");
+    glProgramUniform1d(program, vmProp_loc, ymin);
+    vmProp_loc = glGetUniformLocation(program, "vmp.ymax");
+    glProgramUniform1d(program, vmProp_loc, ymax);
+    vmProp_loc = glGetUniformLocation(program, "vmp.zmin");
+    glProgramUniform1d(program, vmProp_loc, zmin);
+    vmProp_loc = glGetUniformLocation(program, "vmp.zmax");
+    glProgramUniform1d(program, vmProp_loc, zmax);
+
+    vmProp_loc = glGetUniformLocation(program, "vmp.cellSize");
+    glProgramUniform1d(program, vmProp_loc, spacing);
+
+    vmProp_loc = glGetUniformLocation(program, "vmp.width");
+    glProgramUniform1ui(program, vmProp_loc, width);
+    vmProp_loc = glGetUniformLocation(program, "vmp.height");
+    glProgramUniform1ui(program, vmProp_loc, height);
+    vmProp_loc = glGetUniformLocation(program, "vmp.depth");
+    glProgramUniform1ui(program, vmProp_loc, depth);
 
     //Visitation Map frequencies itself
     unsigned int frequency_data[width * height * depth];
@@ -184,7 +169,7 @@ void ShaderTest::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
     GLuint* ptr = (GLuint*) glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 
-    memcpy(frequency_data, ptr, sizeof(frequency_data));
+    memcpy(frequency_data, ptr, sizeof(unsigned int) * width * height * depth);
 
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
@@ -202,7 +187,7 @@ void ShaderTest::initialize()
 
     /***
      *
-     * Unrelated stuff
+     * Rendering
      *
      */
     vtkNew<vtkOpenGLPolyDataMapper> mapper;
@@ -231,24 +216,7 @@ void ShaderTest::initialize()
     polyData->SetPoints(line->GetPoints());
     polyData->SetLines(polyLines);
 
-//    vtkNew<vtkPointData> pointData;
-//    polyData->SetPoints(vtkSmartPointer<vtkPoints>::New());
-//    polyData->GetPoints()->InsertPoint(0, 1, 0, 0);
-//    polyData->GetPoints()->InsertPoint(1, 1, 1, 0);
-//    polyData->GetPoints()->InsertPoint(2, 0, 0, 1);
-//    polyData->GetPoints()->InsertPoint(3, 0, 1, 0);
-//    polyData->GetPoints()->InsertPoint(4, 1, 0, 1);
-//
-//    mapper->SetInputData(pointData);
-
-//    mapper->SetInputConnection(polyData)
     mapper->SetInputData(polyData);
-
-//    vtkNew<vtkPolyDataNormals> norms;
-//    norms->SetInputConnection(reader->GetOutputPort());
-//    norms->Update();
-//
-//    mapper->SetInputConnection(norms->GetOutputPort());
 
     actor->SetMapper(mapper.Get());
     actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
@@ -261,45 +229,30 @@ void ShaderTest::initialize()
     actor->GetProperty()->SetOpacity(1.0);
 
     vtkShaderProperty* sp = actor->GetShaderProperty();
-
     // Clear all custom shader tag replacements
     sp->ClearAllVertexShaderReplacements();
     sp->ClearAllFragmentShaderReplacements();
     sp->ClearAllGeometryShaderReplacements();
     sp->ClearAllShaderReplacements();
 
+    sp->SetVertexShaderCode(
+        readStringFromFile(VERTEX_SHADER_PATH).data()
+    );
 
-//    sp->SetVertexShaderCode(
-//        readStringFromFile(VERTEX_SHADER_PATH).frequency_data()
-//    );
-//
-//    sp->SetGeometryShaderCode(
-//        readStringFromFile(GEOMETRY_SHADER_PATH).frequency_data()
-//    );
-//
-//    sp->SetFragmentShaderCode(
-//        readStringFromFile(FRAGMENT_SHADER_PATH).frequency_data()
-//    );
+    sp->SetGeometryShaderCode(
+        readStringFromFile(GEOMETRY_SHADER_PATH).data()
+    );
 
-
-//    std::vector<int> points(1024);
-//    points[0] = 0;
-//    points[1] = 1;
-//    points[2] = 0;
-//
-//    sp->GetFragmentCustomUniforms()->SetUniform(
-//        "cells",
-//        vtkUniforms::TupleType::TupleTypeVector,
-//        points.capacity(),
-//        points
-//    );
+    sp->SetFragmentShaderCode(
+        readStringFromFile(FRAGMENT_SHADER_PATH).data()
+    );
 
     // Setup a callback to change some uniforms
     vtkNew<vtkShaderCallback> myCallback;
     myCallback->Renderer = renderer;
     mapper->AddObserver(vtkCommand::UpdateShaderEvent, myCallback);
-
 }
+
 
 std::string ShaderTest::readStringFromFile(const std::string& path)
 {

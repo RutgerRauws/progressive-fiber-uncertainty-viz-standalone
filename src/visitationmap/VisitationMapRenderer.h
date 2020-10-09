@@ -44,7 +44,7 @@ class VisitationMapRenderer : public KeyPressObserver, public FiberObserver
                               int startIsovalue = 0,
                               bool isSmooth = false);
 
-        void KeyPressed(const std::basic_string<char>& key) override;
+        void KeyPressed(const sf::Keyboard::Key& key) override;
 
         void NewFiber(Fiber* fiber) override;
 };

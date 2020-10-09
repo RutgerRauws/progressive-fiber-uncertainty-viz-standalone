@@ -32,7 +32,7 @@ class CenterlineRenderer : public KeyPressObserver, public FiberObserver
 
         void NewFiber(Fiber* fiber) override;
 
-        void KeyPressed(const std::basic_string<char>& value) override;
+        void KeyPressed(const sf::Keyboard::Key& key) override;
 };
 
 

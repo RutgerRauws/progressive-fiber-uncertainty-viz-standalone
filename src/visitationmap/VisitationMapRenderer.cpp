@@ -79,9 +79,9 @@ void VisitationMapRenderer::updateIsovalue()
 //    isoValues->SetValue(1, isovalue);
 }
 
-void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
+void VisitationMapRenderer::KeyPressed(const sf::Keyboard::Key& key)
 {
-    if(key == "u")
+    if(key == sf::Keyboard::U)
     {
         //Increasing isovalue percentage
         if (percentage + PERCENTAGE_DELTA <= 1.0f)
@@ -90,7 +90,7 @@ void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
         }
         updateIsovalue();
     }
-    else if(key == "j")
+    else if(key == sf::Keyboard::J)
     {
         //Decreasing isovalue percentage
         if (percentage - PERCENTAGE_DELTA >= 0.0f)
@@ -99,7 +99,7 @@ void VisitationMapRenderer::KeyPressed(const std::basic_string<char> &key)
         }
         updateIsovalue();
     }
-    else if(key == "s")
+    else if(key == sf::Keyboard::S)
     {
         //Toggle hull smoothing
         isSmooth = !isSmooth;

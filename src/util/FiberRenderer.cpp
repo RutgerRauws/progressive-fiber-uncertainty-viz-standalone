@@ -2,111 +2,130 @@
 // Created by rutger on 7/2/20.
 //
 
-#include <vtkPolyLine.h>
-#include <vtkProperty.h>
+#include <GL/glew.h>
 #include "FiberRenderer.h"
 
-FiberRenderer::FiberRenderer(vtkSmartPointer<vtkRenderer> renderer)
-    : renderer(std::move(renderer)),
-      currentId(0),
-      points(vtkSmartPointer<vtkPoints>::New()),
-      polyLines(vtkSmartPointer<vtkCellArray>::New()),
-      fiberActor(vtkSmartPointer<vtkActor>::New()),
-      pointsActor(vtkSmartPointer<vtkActor>::New()),
-      vertexGlyphFilter(vtkSmartPointer<vtkVertexGlyphFilter>::New()),
-      fibersShown(true),
-      pointsShown(false)
+FiberRenderer::FiberRenderer()
+    : fibersShown(true), pointsShown(false), numberOfFibers(0), numberOfVertices(0)
 {
-    initialize();
+    FiberRenderer::initialize();
 }
 
 void FiberRenderer::initialize()
 {
-    /*
-     * Fibers
-     */
-    vtkNew<vtkPolyData> polyData;
-    polyData->SetPoints(points);
-    polyData->SetLines(polyLines);
+    vertices = nullptr;
 
-    vertexGlyphFilter->AddInputData(polyData);
-    vertexGlyphFilter->Update();
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+}
 
-    vtkNew<vtkPolyDataMapper> fiberMapper;
-    fiberMapper->SetInputData(polyData);
-
-    fiberActor->SetMapper(fiberMapper);
-    fiberActor->GetProperty()->SetLineWidth(2);
-
-    if(fibersShown)
+void FiberRenderer::updateData()
+{
+    if(GetVertexBufferData() == nullptr)
     {
-        renderer->AddActor(fiberActor);
+        return;
     }
 
-    /*
-     * Points
-     */
-    auto glyphMapper = vtkSmartPointer<vtkPolyDataMapper>::New();
-    glyphMapper->SetInputConnection(vertexGlyphFilter->GetOutputPort());
+    glBindVertexArray(vao);
 
-    pointsActor->SetMapper(glyphMapper);
-    pointsActor->GetProperty()->SetColor(1, 0, 0);
-    pointsActor->GetProperty()->SetPointSize(5);
-
-    if(pointsShown)
-    {
-        renderer->AddActor(pointsActor);
-    }
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glEnableVertexAttribArray(0);
 }
 
 void FiberRenderer::NewFiber(Fiber* fiber)
 {
     const std::vector<Point>& fiberPoints = fiber->GetPoints();
 
-    vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
-    polyLine->GetPointIds()->SetNumberOfIds(fiberPoints.size());
+    float* oldPtr = GetVertexBufferData();
+    unsigned int incomingNumberOfPoints = fiberPoints.size();
+    unsigned int currentNumberOfPoints = GetNumberOfVertices();
 
-    for(unsigned int i = 0; i < fiberPoints.size(); i++)
+    unsigned int newNumberOfPoints = currentNumberOfPoints + incomingNumberOfPoints;
+
+    float* newVertices = new float[newNumberOfPoints * 3];
+
+    if(currentNumberOfPoints > 0)
+    {
+        memcpy(newVertices, vertices, currentNumberOfPoints * 3);
+    }
+
+    for(unsigned int i = 0; i < fiberPoints.size(); i += 3)
     {
         const Point& point = fiberPoints[i];
 
-        points->InsertPoint(currentId, point.X, point.Y, point.Z);
-        polyLine->GetPointIds()->SetId(i, currentId);
-        currentId++;
+        newVertices[currentNumberOfPoints * 3 + i + 0] = point.X;
+        newVertices[currentNumberOfPoints * 3 + i + 1] = point.Y;
+        newVertices[currentNumberOfPoints * 3 + i + 2] = point.Z;
+
+//        std::cout << point.X << ", " << point.Y << ", " << point.Z << std::endl;
     }
 
-    // Create a cell array to store the lines in and add the lines to it
-    polyLines->InsertNextCell(polyLine);
+    vertices = newVertices;
+    numberOfVertices += incomingNumberOfPoints;
+    numberOfFibers++;
+    updateData();
 
-    points->Modified();
+    delete[] oldPtr;
+//    vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
+//    polyLine->GetPointIds()->SetNumberOfIds(fiberPoints.size());
+//
+//    for(unsigned int i = 0; i < fiberPoints.size(); i++)
+//    {
+//        const Point& point = fiberPoints[i];
+//
+//        points->InsertPoint(currentId, point.X, point.Y, point.Z);
+//        polyLine->GetPointIds()->SetId(i, currentId);
+//        currentId++;
+//    }
+//
+//    // Create a cell array to store the lines in and add the lines to it
+//    polyLines->InsertNextCell(polyLine);
 }
 
-void FiberRenderer::KeyPressed(const std::basic_string<char>& key)
+void FiberRenderer::Render()
 {
-    if(key == "p")
-    {
-        if(pointsShown)
-        {
-            renderer->RemoveActor(pointsActor);
-        }
-        else
-        {
-            renderer->AddActor(pointsActor);
-        }
+    glBindVertexArray(vao);
+    glDrawArrays(GL_LINES, 0, GetNumberOfVertices());
+}
 
-        pointsShown = !pointsShown;
-    }
-    else if(key == "f")
-    {
-        if(fibersShown)
-        {
-            renderer->RemoveActor(fiberActor);
-        }
-        else
-        {
-            renderer->AddActor(fiberActor);
-        }
+unsigned int FiberRenderer::GetNumberOfVertices()
+{
+    return numberOfVertices;
+}
 
-        fibersShown = !fibersShown;
-    }
+unsigned int FiberRenderer::GetNumberOfBytes()
+{
+    return GetNumberOfVertices() * 3 * sizeof(float);
+}
+
+void FiberRenderer::KeyPressed(const sf::Keyboard::Key& key)
+{
+//    if(key == sf::Keyboard::P)
+//    {
+//        if(pointsShown)
+//        {
+//            renderer->RemoveActor(pointsActor);
+//        }
+//        else
+//        {
+//            renderer->AddActor(pointsActor);
+//        }
+//
+//        pointsShown = !pointsShown;
+//    }
+//    else if(key == sf::Keyboard::F)
+//    {
+//        if(fibersShown)
+//        {
+//            renderer->RemoveActor(fiberActor);
+//        }
+//        else
+//        {
+//            renderer->AddActor(fiberActor);
+//        }
+//
+//        fibersShown = !fibersShown;
+//    }
 }

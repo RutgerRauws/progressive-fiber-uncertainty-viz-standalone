@@ -30,9 +30,9 @@ void CenterlineRenderer::NewFiber(Fiber* newCenterline)
     }
 }
 
-void CenterlineRenderer::KeyPressed(const std::basic_string<char>& key)
+void CenterlineRenderer::KeyPressed(const sf::Keyboard::Key& key)
 {
-    if(key == "c")
+    if(key == sf::Keyboard::C)
     {
         if(actor != nullptr)
         {

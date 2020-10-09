@@ -2,15 +2,17 @@ cmake_minimum_required(VERSION 3.9)
 project(progressive_fiber_uncertainty_viz)
 set(CMAKE_CXX_STANDARD 98)
 
+set(EXECUTABLE_NAME "progressive_fiber_uncertainty_viz")
+
 set(VTK_DIR /home/rutger/Desktop/Graduation/slicer/Slicer-SuperBuild-Debug/VTK-build)
 FIND_PACKAGE(VTK REQUIRED)
 INCLUDE(${VTK_USE_FILE})
 
 add_definitions(-DSTANDALONE)
 
-add_executable(progressive_fiber_uncertainty_viz
+add_executable(${EXECUTABLE_NAME}
         main.cpp
-        src/interaction/KeyPressInteractorStyle.h
+        src/interaction/InteractionManager.h
         src/util/FiberObserver.h
         src/util/FiberRenderer.cpp src/util/FiberRenderer.h
         src/util/FiberPublisher.cpp src/util/FiberPublisher.h
@@ -25,9 +27,26 @@ add_executable(progressive_fiber_uncertainty_viz
         src/centerline/CenterlineRenderer.cpp src/centerline/CenterlineRenderer.h
         src/centerline/DistanceTable.cpp src/centerline/DistanceTable.h
         src/visitationmap/gpu/ShaderTest.cpp src/visitationmap/gpu/ShaderTest.h
+        src/util/Shader.cpp src/util/Shader.h
+        src/util/ShaderProgram.cpp src/util/ShaderProgram.h
+        src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
+        src/util/Box.cpp src/util/Box.h
 )
 
-target_link_libraries(progressive_fiber_uncertainty_viz ${VTK_LIBRARIES})
+#Find any version 2.X of SFML
+#See the FindSFML.cmake file for additional details and instructions
+find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+
+## OpenGL
+#find_package(OpenGL REQUIRED)
+#include_directories(${OPENGL_INCLUDE_DIR})
+#if (OPENGL_FOUND)
+#    target_link_libraries(${EXECUTABLE_NAME} ${OPENGL_LIBRARIES})
+#    # or: target_link_libraries(${EXECUTABLE_NAME} ${OPENGL_gl_LIBRARY})
+#    target_link_libraries(${EXECUTABLE_NAME} m)  # if you use maths.h
+#endif()
+
+target_link_libraries(progressive_fiber_uncertainty_viz ${VTK_LIBRARIES} -lGL -lGLU -lGLEW sfml-graphics sfml-window sfml-system)
 
 file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION data/)
 
