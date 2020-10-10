@@ -49,9 +49,44 @@ void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData,
 
     while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers)
     {
+//        auto* fiber = new Fiber(0);
+//        fibers.emplace_back(fiber);
+//
+//        fiber->AddPoint(0, 0, 0);
+//        fiber->AddPoint(112, 112, 70);
+//        fiber->AddPoint(30, 30, 70);
+//        fiber->AddPoint(30, 0, 10);
+//
+//        for(FiberObserver& o : observers)
+//        {
+//            o.NewFiber(fiber);
+//        }
+//
+//        auto* fiber2 = new Fiber(1);
+//        fibers.emplace_back(fiber2);
+//
+////        fiber->AddPoint(-112, -112, -70);
+////        fiber->AddPoint(-30, -30, -70);
+////        fiber->AddPoint(-30, 0, -10);
+////        fiber->AddPoint(-30, -100, -10);
+//
+//        fiber2->AddPoint(20, 20, 20);
+//        fiber2->AddPoint(90, 90, 35);
+//        fiber2->AddPoint(15, 15, 35);
+//        fiber2->AddPoint(15, 0, 5);
+//
+//        for(FiberObserver& o : observers)
+//        {
+//            o.NewFiber(fiber2);
+//        }
+//
+//
+//
+//        break;
+
         auto* fiber = new Fiber(seedPointId);
         fibers.emplace_back(fiber);
-        
+
         for(vtkIdType id = 0; id < idList->GetNumberOfIds(); id++)
         {
             double point[3];
@@ -83,7 +118,7 @@ void FiberPublisher::Start()
 
     for(vtkSmartPointer<vtkPolyData> fiberPolyData : fiberPolyDatas)
     {
-        unsigned int seedPointId = maxSeedPointId++;
+        unsigned int seedPointId = maxSeedPointId++; //TODO: Shouldn't this variable be passed to the thread?
         publishThreads.emplace_back(std::thread(&FiberPublisher::publishFibers_t, this, fiberPolyData, maxSeedPointId));
     }
 }
@@ -124,15 +159,17 @@ vtkSmartPointer<vtkPolyData> FiberPublisher::loadFromFile(const std::string& pat
         vtkSmartPointer<vtkPolyData> polyData = vtkSmartPointer<vtkPolyData>::New();
         polyData->CopyStructure(reader->GetPolyDataOutput());
 
-        vtkSmartPointer<vtkTransform> rotation = vtkSmartPointer<vtkTransform>::New();
-        rotation->RotateZ(-90);
+        //TODO: Confirm that this transformation below is not necessary.
+//        vtkSmartPointer<vtkTransform> rotation = vtkSmartPointer<vtkTransform>::New();
+//        rotation->RotateZ(-90);
 
-        vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
-        transformFilter->SetInputData(polyData);
-        transformFilter->SetTransform(rotation);
-        transformFilter->Update();
+//        vtkSmartPointer<vtkTransformPolyDataFilter> transformFilter = vtkSmartPointer<vtkTransformPolyDataFilter>::New();
+//        transformFilter->SetInputData(polyData);
+//        transformFilter->SetTransform(rotation);
+//        transformFilter->Update();
 
-        fiberPolyData->CopyStructure(transformFilter->GetOutput());
+//        fiberPolyData->CopyStructure(transformFilter->GetOutput());
+        fiberPolyData->CopyStructure(polyData);
         std::cout << "Complete." << std::endl;
 
         std::cout << "Input has " << fiberPolyData->GetNumberOfLines() << " fibers." << std::endl;

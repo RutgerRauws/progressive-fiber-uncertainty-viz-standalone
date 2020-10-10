@@ -99,7 +99,7 @@ int main()
             glm::radians(45.0f),
             (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT,
             0.1f,
-            1000.0f
+            10000.0f
     );
 
 //    Box box(-0.5,0.5,-0.5,0.5,-0.5,0.5);
@@ -165,9 +165,6 @@ int main()
         window.clear();
 
         //Actual draw calls
-//        drawBuffer.render(window);
-//        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementBuffer);
-//        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 
         glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE,  glm::value_ptr(modelMat));
         glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE,  glm::value_ptr(viewMat));
@@ -175,7 +172,6 @@ int main()
 
         box.Render();
         fiberRenderer.Render();
-//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         window.display();
     }

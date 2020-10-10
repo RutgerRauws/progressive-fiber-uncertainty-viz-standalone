@@ -3,10 +3,11 @@
 //
 
 #include <GL/glew.h>
+#include <cstring>
 #include "FiberRenderer.h"
 
 FiberRenderer::FiberRenderer()
-    : fibersShown(true), pointsShown(false), numberOfFibers(0), numberOfVertices(0)
+    : fibersShown(true), pointsShown(false), numberOfFibers(0)
 {
     FiberRenderer::initialize();
 }
@@ -17,6 +18,48 @@ void FiberRenderer::initialize()
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
+
+
+//    const float DTI_XMAX =  112;
+//    const float DTI_YMAX =  112;
+//    const float DTI_ZMAX =  70;
+//
+//
+//    Fiber fiber(0);
+//    fiber.AddPoint(0, 0, 0);
+//    fiber.AddPoint(DTI_XMAX, DTI_YMAX, DTI_ZMAX);
+//    fiber.AddPoint(DTI_XMAX, 2*DTI_YMAX, DTI_ZMAX);
+//    fiber.AddPoint(2*DTI_XMAX, 2*DTI_YMAX, DTI_ZMAX);
+//
+//    const std::vector<Point>& fiberPoints = fiber.GetPoints();
+//
+//    unsigned int incomingNumberOfPoints = fiberPoints.size();
+//    unsigned int currentNumberOfPoints = GetNumberOfVertices();
+//
+//    unsigned int newNumberOfPoints = currentNumberOfPoints + incomingNumberOfPoints;
+//
+//    float* newVertices = new float[newNumberOfPoints * 3];
+//
+//    if(currentNumberOfPoints > 0)
+//    {
+//        memcpy(newVertices, vertices, currentNumberOfPoints * 3);
+//    }
+//
+//    for(unsigned int i = 0; i < fiberPoints.size(); i++)
+//    {
+//        const Point& point = fiberPoints[i];
+//
+//        newVertices[(currentNumberOfPoints + i) * 3 + 0] = point.X;
+//        newVertices[(currentNumberOfPoints + i) * 3 + 1] = point.Y;
+//        newVertices[(currentNumberOfPoints + i) * 3 + 2] = point.Z;
+//
+////        std::cout << point.X << ", " << point.Y << ", " << point.Z << std::endl;
+//    }
+//
+//    vertices = newVertices;
+//    numberOfVertices += incomingNumberOfPoints;
+//    numberOfFibers++;
+//    updateData();
 }
 
 void FiberRenderer::updateData()
@@ -30,7 +73,7 @@ void FiberRenderer::updateData()
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
 }
 
@@ -38,66 +81,44 @@ void FiberRenderer::NewFiber(Fiber* fiber)
 {
     const std::vector<Point>& fiberPoints = fiber->GetPoints();
 
-    float* oldPtr = GetVertexBufferData();
     unsigned int incomingNumberOfPoints = fiberPoints.size();
     unsigned int currentNumberOfPoints = GetNumberOfVertices();
 
-    unsigned int newNumberOfPoints = currentNumberOfPoints + incomingNumberOfPoints;
-
-    float* newVertices = new float[newNumberOfPoints * 3];
-
-    if(currentNumberOfPoints > 0)
-    {
-        memcpy(newVertices, vertices, currentNumberOfPoints * 3);
-    }
-
-    for(unsigned int i = 0; i < fiberPoints.size(); i += 3)
+    for(unsigned int i = 0; i < incomingNumberOfPoints; i++)
     {
         const Point& point = fiberPoints[i];
 
-        newVertices[currentNumberOfPoints * 3 + i + 0] = point.X;
-        newVertices[currentNumberOfPoints * 3 + i + 1] = point.Y;
-        newVertices[currentNumberOfPoints * 3 + i + 2] = point.Z;
-
-//        std::cout << point.X << ", " << point.Y << ", " << point.Z << std::endl;
+        verticesVector.push_back(point.X);
+        verticesVector.push_back(point.Y);
+        verticesVector.push_back(point.Z);
     }
 
-    vertices = newVertices;
-    numberOfVertices += incomingNumberOfPoints;
+    firstVertexOfEachFiber.push_back(currentNumberOfPoints);
+    numberOfVerticesPerFiber.push_back(incomingNumberOfPoints);
+
+    vertices = &verticesVector.front();
     numberOfFibers++;
     updateData();
-
-    delete[] oldPtr;
-//    vtkSmartPointer<vtkPolyLine> polyLine = vtkSmartPointer<vtkPolyLine>::New();
-//    polyLine->GetPointIds()->SetNumberOfIds(fiberPoints.size());
-//
-//    for(unsigned int i = 0; i < fiberPoints.size(); i++)
-//    {
-//        const Point& point = fiberPoints[i];
-//
-//        points->InsertPoint(currentId, point.X, point.Y, point.Z);
-//        polyLine->GetPointIds()->SetId(i, currentId);
-//        currentId++;
-//    }
-//
-//    // Create a cell array to store the lines in and add the lines to it
-//    polyLines->InsertNextCell(polyLine);
 }
 
 void FiberRenderer::Render()
 {
+    updateData();
     glBindVertexArray(vao);
-    glDrawArrays(GL_LINES, 0, GetNumberOfVertices());
+//    glDrawArrays(GL_LINES, 0, GetNumberOfVertices());
+//    glDrawArrays(GL_LINE_STRIP, 0, GetNumberOfVertices());
+//    glDrawArrays()
+    glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
 }
 
 unsigned int FiberRenderer::GetNumberOfVertices()
 {
-    return numberOfVertices;
+    return verticesVector.size() / 3;
 }
 
 unsigned int FiberRenderer::GetNumberOfBytes()
 {
-    return GetNumberOfVertices() * 3 * sizeof(float);
+    return verticesVector.size() * sizeof(float);
 }
 
 void FiberRenderer::KeyPressed(const sf::Keyboard::Key& key)
