@@ -57,14 +57,19 @@ int main()
     glewExperimental = GL_TRUE;
     glewInit();
     window.display();
+    Shader* visitationMapVS = nullptr;
+    Shader* visitationMapFS = nullptr;
 
-    Shader* vertexShader = nullptr;
-    Shader* fragmentShader = nullptr;
+    Shader* fibersVS = nullptr;
+    Shader* fibersFS = nullptr;
 
     try
     {
-        vertexShader = Shader::LoadFromFile(VERTEX_SHADER_PATH, GL_VERTEX_SHADER);
-        vertexShader->Compile();
+        visitationMapVS = Shader::LoadFromFile(VERTEX_SHADER_VM_PATH, GL_VERTEX_SHADER);
+        visitationMapVS->Compile();
+
+        fibersVS = Shader::LoadFromFile(VERTEX_SHADER_FIB_PATH, GL_VERTEX_SHADER);
+        fibersVS->Compile();
     }
     catch(const ShaderError& e)
     {
@@ -74,8 +79,11 @@ int main()
 
     try
     {
-        fragmentShader = Shader::LoadFromFile(FRAGMENT_SHADER_PATH, GL_FRAGMENT_SHADER);
-        fragmentShader->Compile();
+        visitationMapFS = Shader::LoadFromFile(FRAGMENT_SHADER_VM_PATH, GL_FRAGMENT_SHADER);
+        visitationMapFS->Compile();
+
+        fibersFS = Shader::LoadFromFile(FRAGMENT_SHADER_FIB_PATH, GL_FRAGMENT_SHADER);
+        fibersFS->Compile();
     }
     catch(const ShaderError& e)
     {
@@ -83,10 +91,13 @@ int main()
         return -1;
     }
 
-    Shader* shaders[2] = {vertexShader, fragmentShader};
-    ShaderProgram shaderProgram(shaders, 2);
-    shaderProgram.Use();
+    Shader* shadersVM[2] = {visitationMapVS, visitationMapFS};
+    ShaderProgram visitationMapShaderProgram(shadersVM, 2);
+//    visitationMapShaderProgram.Use();
 
+    Shader* shadersFib[2] = {fibersVS, fibersFS};
+    ShaderProgram fibersShaderProgram(shadersFib, 2);
+//    fibersShaderProgram.Use();
 
     glm::mat4 modelMat = glm::mat4(1.0f);
 //    modelMat = glm::rotate(modelMat, glm::radians(-55.0f), glm::vec3(1, 0, 0));
@@ -128,14 +139,22 @@ int main()
 //                                    glVertexAttribPointer(posAttrib, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
 //                                    glEnableVertexAttribArray(posAttrib);
 
-    int modelMatLoc = glGetUniformLocation(shaderProgram.GetId(), "modelMat");
-    int viewMatLoc = glGetUniformLocation(shaderProgram.GetId(), "viewMat");
-    int projMatLoc = glGetUniformLocation(shaderProgram.GetId(), "projMat");
+    fibersShaderProgram.Use();
+    int modelMatFibLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "modelMat");
+    int viewMatFibLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "viewMat");
+    int projMatFibLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "projMat");
+
+    visitationMapShaderProgram.Use();
+    int modelMatVMLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "modelMat");
+    int viewMatVMLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "viewMat");
+    int projMatVMLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "projMat");
 
     InteractionManager interactionManager;
     MovementHandler movementHandler(window, modelMat, viewMat, projMat);
     movementHandler.SetCameraPosition(CAMERA_POS);
     movementHandler.SetCameraFront(CAMERA_FRT);
+
+    glEnable(GL_DEPTH_TEST);
 
     fiberPublisher.Start();
 
@@ -162,22 +181,31 @@ int main()
         }
 
         // clear the window with black color
-        window.clear();
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
         //Actual draw calls
 
-        glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE,  glm::value_ptr(modelMat));
-        glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE,  glm::value_ptr(viewMat));
-        glUniformMatrix4fv(projMatLoc, 1, GL_FALSE,  glm::value_ptr(projMat));
-
+        visitationMapShaderProgram.Use();
+        glUniformMatrix4fv(modelMatVMLoc, 1, GL_FALSE, glm::value_ptr(modelMat));
+        glUniformMatrix4fv(viewMatVMLoc, 1, GL_FALSE, glm::value_ptr(viewMat));
+        glUniformMatrix4fv(projMatVMLoc, 1, GL_FALSE, glm::value_ptr(projMat));
         box.Render();
+
+
+        fibersShaderProgram.Use();
+        glUniformMatrix4fv(modelMatFibLoc, 1, GL_FALSE, glm::value_ptr(modelMat));
+        glUniformMatrix4fv(viewMatFibLoc, 1, GL_FALSE, glm::value_ptr(viewMat));
+        glUniformMatrix4fv(projMatFibLoc, 1, GL_FALSE, glm::value_ptr(projMat));
         fiberRenderer.Render();
+
+
+
 
         window.display();
     }
 
-    delete vertexShader;
-    delete fragmentShader;
+    delete visitationMapVS;
+    delete visitationMapFS;
 
     return 0;
 }

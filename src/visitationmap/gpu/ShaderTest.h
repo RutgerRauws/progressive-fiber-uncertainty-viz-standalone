@@ -23,7 +23,6 @@ class ShaderTest
 //        };
 
         const std::string VERTEX_SHADER_PATH   = "./shaders/vertex.glsl";
-        const std::string GEOMETRY_SHADER_PATH = "./shaders/geometry.glsl";
         const std::string FRAGMENT_SHADER_PATH = "./shaders/fragment.glsl";
         const std::string COMPUTE_SHADER_PATH = "./shaders/compute.glsl";
 

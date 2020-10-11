@@ -239,10 +239,6 @@ void ShaderTest::initialize()
         readStringFromFile(VERTEX_SHADER_PATH).data()
     );
 
-    sp->SetGeometryShaderCode(
-        readStringFromFile(GEOMETRY_SHADER_PATH).data()
-    );
-
     sp->SetFragmentShaderCode(
         readStringFromFile(FRAGMENT_SHADER_PATH).data()
     );
