@@ -32,6 +32,8 @@
 
 int main()
 {
+    std::cout << "Application started..." << std::endl;
+
     FiberPublisher fiberPublisher(INPUT_FILE_NAME);
 //    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
 
@@ -148,6 +150,8 @@ int main()
     int modelMatVMLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "modelMat");
     int viewMatVMLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "viewMat");
     int projMatVMLoc = glGetUniformLocation(visitationMapShaderProgram.GetId(), "projMat");
+
+    box.SetUpUniforms(visitationMapShaderProgram.GetId());
 
     InteractionManager interactionManager;
     MovementHandler movementHandler(window, modelMat, viewMat, projMat);

@@ -11,6 +11,10 @@ class Box : public RenderElement
 {
     private:
         float xmin, xmax, ymin, ymax, zmin, zmax;
+        unsigned int width, height, depth;
+        float spacing = 2.0;
+
+        unsigned int* frequency_data;
 
         void createVertices();
         void initialize() override;
@@ -21,6 +25,8 @@ class Box : public RenderElement
         ~Box();
 
         void Render() override;
+
+        void SetUpUniforms(GLuint programId);
 
         unsigned int GetNumberOfVertices() override;
         unsigned int GetNumberOfBytes() override;
