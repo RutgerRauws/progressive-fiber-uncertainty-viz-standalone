@@ -18,14 +18,12 @@ vec3 lightDir = vec3(-0.5, -0.5, 0);
 // In- and outputs
 //
 in vec3 position;
-varying vec3 fragmentPosition;
-out vec3 eyePosition;
+varying vec3 fragmentPositionWC;
 
 void main()
 {
   gl_Position = projMat * viewMat * modelMat * vec4(position, 1.0);
-  fragmentPosition = position;
-  eyePosition = viewMat[3].xyz; //(viewMat * viewMat[3]).xyz;
+  fragmentPositionWC = (modelMat * vec4(position, 1.0f)).xyz;
 }
 
 //#ifndef GL_ES

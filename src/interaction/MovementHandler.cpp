@@ -6,6 +6,7 @@
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <iostream>
+#include <GL/glew.h>
 #include "MovementHandler.h"
 #include "../util/glm/ext.hpp"
 
@@ -13,9 +14,11 @@
 MovementHandler::MovementHandler(sf::Window& window,
                                  glm::mat4 &modelMatrix,
                                  glm::mat4 &viewMatrix,
-                                 glm::mat4 &projectionMatrix)
+                                 glm::mat4 &projectionMatrix,
+                                 GLuint program)
     : window(window), modelMatrix(modelMatrix), viewMatrix(viewMatrix), projectionMatrix(projectionMatrix),
-      cameraPos(0, 0, 0), cameraFront(0, 0, -1), cameraUp(0, 1, 0)
+      cameraPos(0, 0, 0), cameraFront(0, 0, -1), cameraUp(0, 1, 0),
+      program(program)
 {
     centerPos.x = window.getSize().x / 2;
     centerPos.y = window.getSize().y / 2;
@@ -75,10 +78,11 @@ void MovementHandler::update()
     }
 
     viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
-
 //    std::cout << "Pos: " << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << std::endl;
 //    std::cout << "Frt: " << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << std::endl;
 //    std::cout << "Up: " << cameraUp.x << ", " << cameraUp.y << ", " << cameraUp.z << std::endl;
+
+    updateUniforms();
 }
 
 sf::Vector2i MovementHandler::getMouseDeltaAndReset()
@@ -94,6 +98,14 @@ sf::Vector2i MovementHandler::getMouseDeltaAndReset()
     sf::Mouse::setPosition(centerPos, window);
 
     return delta;
+}
+
+void MovementHandler::updateUniforms()
+{
+    //Visitation Map Properties
+    GLint vmProp_loc;
+    vmProp_loc = glGetUniformLocation(program, "cameraPosition");
+    glProgramUniform3f(program, vmProp_loc, cameraPos.x, cameraPos.y, cameraPos.z);
 }
 
 void MovementHandler::SetCameraPosition(glm::vec3 position)

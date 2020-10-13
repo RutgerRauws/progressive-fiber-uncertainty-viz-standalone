@@ -5,8 +5,7 @@
 // Inputs and outputs
 //
 //
-in vec3 fragmentPosition;
-in vec3 eyePosition;
+in vec3 fragmentPositionWC;
 out vec4 outColor;
 
 //
@@ -14,7 +13,7 @@ out vec4 outColor;
 // Hardcoded
 //
 //
-const float stepSize = 1;
+const float stepSize = 0.1;
 const uint isovalueThreshold = 3;
 
 //
@@ -22,6 +21,12 @@ const uint isovalueThreshold = 3;
 // Uniforms
 //
 //
+uniform mat4 modelMat;
+uniform mat4 viewMat;
+uniform mat4 projMat;
+
+uniform vec3 cameraPosition;
+
 struct VisitationMapProperties
 {
     double xmin, xmax, ymin, ymax, zmin, zmax;
@@ -52,8 +57,6 @@ uint GetCellIndex(in uint x_index, in uint y_index, in uint z_index)
 
 void GetIndices(in vec3 point, out uint x_index, out uint y_index, out uint z_index)
 {
-    //TODO: Check if we want to set this as a uniform
-
     //Casting to uint automatically floors the float
     x_index = uint((point.x - vmp.xmin) / vmp.cellSize);
     y_index = uint((point.y - vmp.ymin) / vmp.cellSize);
@@ -74,21 +77,21 @@ bool InVolume(vec3 position)
 
 void main ()
 {
-    vec3 eyePosVec = fragmentPosition - eyePosition;
-    vec3 stepDir = -normalize(eyePosVec);
+
+
+    vec3 eyePosVec = fragmentPositionWC - cameraPosition;
+    vec3 stepDir = normalize(eyePosVec);
     vec3 stepVec = stepSize * stepDir;
 
     vec4 fragmentColor = vec4(0);
-    vec3 currentPosition = fragmentPosition + stepVec;
+    vec3 currentPosition = fragmentPositionWC + stepVec;
 
     bool test = false;
 
     while(fragmentColor.w < 1.0f)
     {
-        //if(InVolume(currentPosition))
-        if(length(currentPosition - fragmentPosition) > 20)
+        if(!InVolume(currentPosition))
         {
-            test = true;
             break;
         }
 
@@ -112,8 +115,9 @@ void main ()
 //    }
 //    else
 //    {
-//        outColor = fragmentColor;
+    outColor = fragmentColor;
 //    }
 
-    outColor = fragmentColor;
+//    outColor = vec4(normalize(eyePositionWC), 1);
+//    outColor = vec4(normalize(cameraPosition), 1);
 }

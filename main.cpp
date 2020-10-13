@@ -154,7 +154,7 @@ int main()
     box.SetUpUniforms(visitationMapShaderProgram.GetId());
 
     InteractionManager interactionManager;
-    MovementHandler movementHandler(window, modelMat, viewMat, projMat);
+    MovementHandler movementHandler(window, modelMat, viewMat, projMat, visitationMapShaderProgram.GetId());
     movementHandler.SetCameraPosition(CAMERA_POS);
     movementHandler.SetCameraFront(CAMERA_FRT);
 

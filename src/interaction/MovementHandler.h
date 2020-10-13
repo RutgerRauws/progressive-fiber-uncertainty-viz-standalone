@@ -27,14 +27,18 @@ class MovementHandler
         float yaw = -90.0f; //make sure camera points towards the negative z-axis by default
         float pitch = 0.0f;
 
+        GLuint program;
+
         sf::Vector2i getMouseDeltaAndReset();
+        void updateUniforms();
 
     public:
         MovementHandler(
             sf::Window& window,
             glm::mat4& modelMatrix,
             glm::mat4& viewMatrix,
-            glm::mat4& projectionMatrix
+            glm::mat4& projectionMatrix,
+            GLuint program
         );
 
         void update();
