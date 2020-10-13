@@ -86,12 +86,12 @@ void main ()
     vec4 fragmentColor = vec4(0);
     vec3 currentPosition = fragmentPositionWC + stepVec;
 
-    bool test = false;
-
     while(fragmentColor.w < 1.0f)
     {
+//        if(length(currentPosition - fragmentPositionWC) > 40)
         if(!InVolume(currentPosition))
         {
+//            fragmentColor += vec4(.5, 0, 0, .5);
             break;
         }
 
@@ -103,7 +103,7 @@ void main ()
 
         if(isovalue > isovalueThreshold)
         {
-            fragmentColor += vec4(0.1);
+            fragmentColor += vec4(0, 1, 0, 1);
         }
 
         currentPosition += stepVec;

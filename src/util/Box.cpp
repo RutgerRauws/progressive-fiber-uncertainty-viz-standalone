@@ -5,7 +5,10 @@
 #include <GL/glew.h>
 #include <cmath>
 #include <algorithm>
+#include <iostream>
 #include "Box.h"
+#include "glm/vec3.hpp"
+#include "glm/geometric.hpp"
 
 Box::Box(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
     : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax)
@@ -74,12 +77,84 @@ void Box::createVertices() {
     };
 }
 
+unsigned int Box::getCellIndex(unsigned int x_index, unsigned int y_index, unsigned int z_index)
+{
+    return x_index + width * (y_index + z_index * height);
+}
+
+void Box::getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index)
+{
+    //Casting to uint automatically floors the float
+    x_index = uint((point.x - xmin) / spacing);
+    y_index = uint((point.y - ymin) / spacing);
+    z_index = uint((point.z - zmin) / spacing);
+}
+
+void Box::makeSphere()
+{
+    glm::vec3 centerPointWC(
+        (xmin + xmax) / 2.0,
+        (ymin + ymax) / 2.0,
+        (zmin + zmax) / 2.0
+    );
+
+    unsigned int indices[3];
+
+    getIndices(centerPointWC, indices[0], indices[1], indices[2]);
+
+//    unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
+
+    int sideSize = 10;
+
+    for(int x = -sideSize; x < sideSize; x++)
+    {
+        for(int y = -sideSize; y < sideSize; y++)
+        {
+            for(int z = -sideSize; z < sideSize; z++)
+            {
+//                unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
+//
+//                unsigned int cellIndex =
+//                    getCellIndex(indices[0] + x, indices[1] + y, indices[2] + z);
+
+                glm::vec3 newPoint = centerPointWC + glm::vec3(x, y, z);
+                if(glm::distance(centerPointWC, newPoint) > sideSize)
+                {
+                    continue;
+                }
+
+                unsigned int cellIndex =
+                    getCellIndex(indices[0] + x, indices[1] + y, indices[2] + z);
+
+                if(cellIndex > width * height * depth)
+                {
+                    std::cerr << "Splat out of bounds!" << std::endl;
+                    continue;
+                }
+
+                frequency_data[cellIndex] = 9;
+            }
+        }
+    }
+
+//    std::cerr << indices[0] << ", " << indices[1] << ", " << indices[2] << std::endl;
+//    std::cerr << width << ", " << height << ", " << depth << std::endl;
+//    std::cerr << width * height * depth << std::endl;
+//    std::cerr << "Err: " << err << " vs " << sideSize * sideSize * sideSize << std::endl;
+
+
+//    std::cout << centerPointWC.x << ", " << centerPointWC.y << ", " << centerPointWC.z << std::endl;
+//    std:: cout << cellIndex << std::endl;
+}
+
 void Box::initialize()
 {
 
     //Visitation Map frequencies itself
     frequency_data = new unsigned int[width * height * depth];
-    std::fill_n(frequency_data, width * height * depth, 5);
+    std::fill_n(frequency_data, width * height * depth, 0);
+
+    makeSphere();
 
     GLuint frequency_map_ssbo;
     glGenBuffers(1, &frequency_map_ssbo);

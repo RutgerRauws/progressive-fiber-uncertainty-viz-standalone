@@ -6,6 +6,7 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_BOX_H
 
 #include "RenderElement.h"
+#include "glm/vec3.hpp"
 
 class Box : public RenderElement
 {
@@ -18,6 +19,10 @@ class Box : public RenderElement
 
         void createVertices();
         void initialize() override;
+
+        unsigned int getCellIndex(unsigned int x_index, unsigned int y_index, unsigned int z_index);
+        void getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index);
+        void makeSphere();
 
     public:
         Box(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
