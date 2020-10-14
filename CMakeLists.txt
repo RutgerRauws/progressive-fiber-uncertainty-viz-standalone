@@ -18,19 +18,14 @@ add_executable(${EXECUTABLE_NAME}
         src/util/FiberPublisher.cpp src/util/FiberPublisher.h
         src/util/Fiber.cpp src/util/Fiber.h
         src/util/Point.h
-        src/visitationmap/VisitationMap.cpp src/visitationmap/VisitationMap.h
-        src/visitationmap/Cell.cpp src/visitationmap/Cell.h
-        src/visitationmap/VisitationMapUpdater.cpp src/visitationmap/VisitationMapUpdater.h
-        src/visitationmap/VisitationMapDebugRenderer.cpp src/visitationmap/VisitationMapDebugRenderer.h
-        src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
         src/interaction/KeyPressObserver.h
         src/centerline/CenterlineRenderer.cpp src/centerline/CenterlineRenderer.h
         src/centerline/DistanceTable.cpp src/centerline/DistanceTable.h
-        src/visitationmap/gpu/ShaderTest.cpp src/visitationmap/gpu/ShaderTest.h
+        src/visitationmap/VisitationMapUpdater.cpp src/visitationmap/VisitationMapUpdater.h
         src/util/Shader.cpp src/util/Shader.h
         src/util/ShaderProgram.cpp src/util/ShaderProgram.h
         src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
-        src/util/Box.cpp src/util/Box.h
+        src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
 )
 
 #Find any version 2.X of SFML

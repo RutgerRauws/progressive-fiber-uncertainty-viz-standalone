@@ -1,52 +1,41 @@
 //
-// Created by rutger on 7/23/20.
+// Created by rutger on 10/8/20.
 //
 
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_RENDERER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_RENDERER_H
 
-
-#include "VisitationMap.h"
+#include "../util/RenderElement.h"
+#include "../util/glm/vec3.hpp"
 #include "../interaction/KeyPressObserver.h"
-#include "../util/FiberObserver.h"
-#include <vtkRenderer.h>
-#include <vtkPiecewiseFunction.h>
-#include <vtkContourValues.h>
 
-class VisitationMapRenderer : public KeyPressObserver, public FiberObserver
+class VisitationMapRenderer : public RenderElement
 {
     private:
-        static constexpr double SURFACE_TRANSPARENCY = 0.35f;
-        static constexpr float PERCENTAGE_DELTA = 0.01f;
+        float xmin, xmax, ymin, ymax, zmin, zmax;
+        unsigned int width, height, depth;
+        float spacing = 2.0;
 
-        VisitationMap& visitationMap;
+        unsigned int* frequency_data;
 
-        vtkSmartPointer<vtkRenderer> renderer;
-        vtkSmartPointer<vtkActor> actor;
+        void createVertices();
+        void initialize() override;
 
-        vtkSmartPointer<vtkPiecewiseFunction> opacity;
-        vtkSmartPointer<vtkContourValues> isoValues;
-        vtkSmartPointer<vtkVolumeProperty> volumeProperty;
-
-        float percentage;
-        unsigned int numberOfFibers;
-
-        bool isSmooth;
-
-        void initialize();
-        void updateIsovalue();
-
-        void setSmoothing(bool on);
+        unsigned int getCellIndex(unsigned int x_index, unsigned int y_index, unsigned int z_index);
+        void getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index);
+        void makeSphere();
 
     public:
-        VisitationMapRenderer(VisitationMap& visitationMap,
-                              vtkSmartPointer<vtkRenderer> renderer,
-                              int startIsovalue = 0,
-                              bool isSmooth = false);
+        VisitationMapRenderer(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+        explicit VisitationMapRenderer(float* bounds);
+        ~VisitationMapRenderer();
 
-        void KeyPressed(const sf::Keyboard::Key& key) override;
+        void Render() override;
 
-        void NewFiber(Fiber* fiber) override;
+        void SetUpUniforms(GLuint programId);
+
+        unsigned int GetNumberOfVertices() override;
+        unsigned int GetNumberOfBytes() override;
 };
 
 

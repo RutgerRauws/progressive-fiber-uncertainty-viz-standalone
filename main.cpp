@@ -4,21 +4,11 @@
 //#include <iostream>
 //#include <X11/Xlib.h>
 
-//#include <vtkSmartPointer.h>
-//#include <vtkRenderWindow.h>
-//#include <vtkRenderer.h>
-//#include <vtkCamera.h>
-//#include <vtkRenderWindowInteractor.h>
-//#include <vtkCallbackCommand.h>
-
 #include "src/interaction/InteractionManager.h"
 #include "src/util/FiberPublisher.h"
 #include "src/util/FiberRenderer.h"
-#include "src/visitationmap/VisitationMap.h"
-#include "src/visitationmap/VisitationMapUpdater.h"
-#include "src/visitationmap/VisitationMapRenderer.h"
 #include "src/centerline/CenterlineRenderer.h"
-#include "src/visitationmap/gpu/ShaderTest.h"
+#include "src/visitationmap/VisitationMapUpdater.h"
 #include "src/util/ShaderProgram.h"
 
 #include <SFML/Window.hpp>
@@ -28,7 +18,7 @@
 #include "src/util/glm/gtc/matrix_transform.hpp"
 #include "src/util/glm/gtc/type_ptr.hpp"
 #include "src/interaction/MovementHandler.h"
-#include "src/util/Box.h"
+#include "src/visitationmap/VisitationMapRenderer.h"
 
 int main()
 {
@@ -117,7 +107,7 @@ int main()
 
 //    Box box(-0.5,0.5,-0.5,0.5,-0.5,0.5);
 //    Box box(fiberPublisher.GetBounds());
-    Box box(DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX);
+    VisitationMapRenderer box(DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX);
     FiberRenderer fiberRenderer;
 
     fiberPublisher.RegisterObserver(fiberRenderer);
@@ -232,7 +222,7 @@ int main()
 //    CenterlineRenderer centerlineRenderer(renderer);
 //    FiberRenderer fiberRenderer(renderer);
 //
-//    ShaderTest shaderTest(renderer, fiberPublisher.GetBounds(), 2.0f);
+//    VisitationMapUpdater shaderTest(renderer, fiberPublisher.GetBounds(), 2.0f);
 //
 //    keypressHandler->AddObserver("f", &fiberRenderer); //Toggle rendering of fibers.
 //    keypressHandler->AddObserver("p", &fiberRenderer); //Toggle rendering of points of fibers.

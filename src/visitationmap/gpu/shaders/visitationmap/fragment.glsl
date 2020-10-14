@@ -13,7 +13,7 @@ out vec4 outColor;
 // Hardcoded
 //
 //
-const float stepSize = 0.1;
+const float stepSize = 1;
 const uint isovalueThreshold = 3;
 
 //
