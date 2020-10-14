@@ -2,7 +2,6 @@
 // Created by rutger on 10/8/20.
 //
 
-#include <SFML/Window.hpp>
 #include <SFML/Window/Keyboard.hpp>
 #include <SFML/Window/Mouse.hpp>
 #include <iostream>
@@ -14,11 +13,14 @@
 MovementHandler::MovementHandler(sf::Window& window,
                                  glm::mat4 &modelMatrix,
                                  glm::mat4 &viewMatrix,
-                                 glm::mat4 &projectionMatrix,
-                                 GLuint program)
-    : window(window), modelMatrix(modelMatrix), viewMatrix(viewMatrix), projectionMatrix(projectionMatrix),
-      cameraPos(0, 0, 0), cameraFront(0, 0, -1), cameraUp(0, 1, 0),
-      program(program)
+                                 glm::mat4 &projectionMatrix)
+    : window(window),
+      cameraState(
+      modelMatrix, viewMatrix, projectionMatrix,
+      glm::vec3(0, 0, 0),
+      glm::vec3(0, 0, -1),
+      glm::vec3(0, 1, 0)
+      )
 {
     centerPos.x = window.getSize().x / 2;
     centerPos.y = window.getSize().y / 2;
@@ -35,22 +37,22 @@ void MovementHandler::update()
 {
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Left) || sf::Keyboard::isKeyPressed(sf::Keyboard::A))
     {
-        cameraPos -= MOVEMENT_SPEED * glm::normalize(glm::cross(cameraFront, cameraUp));
+        cameraState.cameraPos -= MOVEMENT_SPEED * glm::normalize(glm::cross(cameraState.cameraFront, cameraState.cameraUp));
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Right) || sf::Keyboard::isKeyPressed(sf::Keyboard::D))
     {
-        cameraPos += MOVEMENT_SPEED * glm::normalize(glm::cross(cameraFront, cameraUp));
+        cameraState.cameraPos += MOVEMENT_SPEED * glm::normalize(glm::cross(cameraState.cameraFront, cameraState.cameraUp));
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Up) || sf::Keyboard::isKeyPressed(sf::Keyboard::W))
     {
-        cameraPos += MOVEMENT_SPEED * cameraFront;
+        cameraState.cameraPos += MOVEMENT_SPEED * cameraState.cameraFront;
     }
 
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Down) || sf::Keyboard::isKeyPressed(sf::Keyboard::S))
     {
-        cameraPos -= MOVEMENT_SPEED * cameraFront;
+        cameraState.cameraPos -= MOVEMENT_SPEED * cameraState.cameraFront;
     }
 
     // -x is left +x is right. -y is up +y is down
@@ -58,31 +60,32 @@ void MovementHandler::update()
 
     if(mouseDelta.x != 0 || mouseDelta.y != 0)
     {
-        yaw   += ROTATE_SPEED * mouseDelta.x;
-        pitch -= ROTATE_SPEED * mouseDelta.y;
+        cameraState.yaw   += ROTATE_SPEED * mouseDelta.x;
+        cameraState.pitch -= ROTATE_SPEED * mouseDelta.y;
 
-        if(pitch > 89.0f) {
-            pitch = 89.0f;
+        if(cameraState.pitch > 89.0f) {
+            cameraState.pitch = 89.0f;
         }
 
-        if(pitch < -89.0f) {
-            pitch = -89.0f;
+        if(cameraState.pitch < -89.0f) {
+            cameraState.pitch = -89.0f;
         }
 
         glm::vec3 direction;
-        direction.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-        direction.y = sin(glm::radians(pitch));
-        direction.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
+        direction.x = cos(glm::radians(cameraState.yaw)) * cos(glm::radians(cameraState.pitch));
+        direction.y = sin(glm::radians(cameraState.pitch));
+        direction.z = sin(glm::radians(cameraState.yaw)) * cos(glm::radians(cameraState.pitch));
 
-        cameraFront = glm::normalize(direction);
+        cameraState.cameraFront = glm::normalize(direction);
     }
 
-    viewMatrix = glm::lookAt(cameraPos, cameraPos + cameraFront, cameraUp);
+    cameraState.viewMatrix = glm::lookAt(cameraState.cameraPos,
+                                         cameraState.cameraPos + cameraState.cameraFront,
+                                         cameraState.cameraUp
+    );
 //    std::cout << "Pos: " << cameraPos.x << ", " << cameraPos.y << ", " << cameraPos.z << std::endl;
 //    std::cout << "Frt: " << cameraFront.x << ", " << cameraFront.y << ", " << cameraFront.z << std::endl;
 //    std::cout << "Up: " << cameraUp.x << ", " << cameraUp.y << ", " << cameraUp.z << std::endl;
-
-    updateUniforms();
 }
 
 sf::Vector2i MovementHandler::getMouseDeltaAndReset()
@@ -100,20 +103,16 @@ sf::Vector2i MovementHandler::getMouseDeltaAndReset()
     return delta;
 }
 
-void MovementHandler::updateUniforms()
-{
-    //Visitation Map Properties
-    GLint vmProp_loc;
-    vmProp_loc = glGetUniformLocation(program, "cameraPosition");
-    glProgramUniform3f(program, vmProp_loc, cameraPos.x, cameraPos.y, cameraPos.z);
-}
-
 void MovementHandler::SetCameraPosition(glm::vec3 position)
 {
-    cameraPos = position;
+    cameraState.cameraPos = position;
 }
 
 void MovementHandler::SetCameraFront(glm::vec3 direction)
 {
-    cameraFront = direction;
+    cameraState.cameraFront = direction;
+}
+
+const CameraState &MovementHandler::GetCameraState() {
+    return cameraState;
 }

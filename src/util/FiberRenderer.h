@@ -8,26 +8,30 @@
 #include "FiberObserver.h"
 #include "../interaction/KeyPressObserver.h"
 #include "RenderElement.h"
-#include "glm/vec3.hpp"
 
 class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderElement
 {
     private:
+        #define VERTEX_SHADER_PATH   "./shaders/fibers/vertex.glsl"
+        #define FRAGMENT_SHADER_PATH "./shaders/fibers/fragment.glsl"
+
+        //Fiber storage
         std::vector<float> verticesVector;
         std::vector<int> firstVertexOfEachFiber;
         unsigned int numberOfFibers;
 
         std::vector<int> numberOfVerticesPerFiber;
 
+        //Options
         bool fibersShown, pointsShown;
 
         void initialize() override;
         void updateData();
 
     public:
-        explicit FiberRenderer();
-        void NewFiber(Fiber* fiber) override;
+        explicit FiberRenderer(const CameraState& cameraState);
 
+        void NewFiber(Fiber* fiber) override;
         void Render() override;
 
         unsigned int GetNumberOfVertices() override;

@@ -9,20 +9,23 @@
 #include "VisitationMapRenderer.h"
 #include "../util/glm/vec3.hpp"
 #include "../util/glm/geometric.hpp"
+#include "../util/glm/ext.hpp"
 
-VisitationMapRenderer::VisitationMapRenderer(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
-    : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax)
+VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState,
+                                             float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
+      xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax)
 {
     width =  std::ceil( std::abs(xmin - xmax) / spacing);
     height = std::ceil(std::abs(ymin - ymax) / spacing);
     depth =  std::ceil(std::abs(zmin - zmax) / spacing);
 
     createVertices();
-    VisitationMapRenderer::initialize();
+    initialize();
 }
 
-VisitationMapRenderer::VisitationMapRenderer(float *bounds)
-    : VisitationMapRenderer(bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
+VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState, float* bounds)
+    : VisitationMapRenderer(cameraState, bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
 {}
 
 VisitationMapRenderer::~VisitationMapRenderer()
@@ -140,7 +143,6 @@ void VisitationMapRenderer::makeSphere()
 
 void VisitationMapRenderer::initialize()
 {
-
     //Visitation Map frequencies itself
     frequency_data = new unsigned int[width * height * depth];
     std::fill_n(frequency_data, width * height * depth, 0);
@@ -152,14 +154,6 @@ void VisitationMapRenderer::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * width * height * depth, frequency_data, GL_DYNAMIC_DRAW);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-
-
-
-
-
-
-
-
 
 
     glGenVertexArrays(1, &vao);
@@ -174,11 +168,56 @@ void VisitationMapRenderer::initialize()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
+
+    //todo: use shaderProgram->Use()?
+
+    //Get uniform locations
+    modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
+    viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
+    projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
+
+    //Visitation Map Properties
+    GLint programId = shaderProgram->GetId();
+
+    GLint vmProp_loc;
+    vmProp_loc = glGetUniformLocation(programId, "vmp.xmin");
+    glProgramUniform1d(programId, vmProp_loc, xmin);
+    vmProp_loc = glGetUniformLocation(programId, "vmp.xmax");
+    glProgramUniform1d(programId, vmProp_loc, xmax);
+    vmProp_loc = glGetUniformLocation(programId, "vmp.ymin");
+    glProgramUniform1d(programId, vmProp_loc, ymin);
+    vmProp_loc = glGetUniformLocation(programId, "vmp.ymax");
+    glProgramUniform1d(programId, vmProp_loc, ymax);
+    vmProp_loc = glGetUniformLocation(programId, "vmp.zmin");
+    glProgramUniform1d(programId, vmProp_loc, zmin);
+    vmProp_loc = glGetUniformLocation(programId, "vmp.zmax");
+    glProgramUniform1d(programId, vmProp_loc, zmax);
+
+    vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
+    glProgramUniform1d(programId, vmProp_loc, spacing);
+
+    vmProp_loc = glGetUniformLocation(programId, "vmp.width");
+    glProgramUniform1ui(programId, vmProp_loc, width);
+    vmProp_loc = glGetUniformLocation(programId, "vmp.height");
+    glProgramUniform1ui(programId, vmProp_loc, height);
+    vmProp_loc = glGetUniformLocation(programId, "vmp.depth");
+    glProgramUniform1ui(programId, vmProp_loc, depth);
+
+    cameraPos_loc = glGetUniformLocation(programId, "cameraPosition");
 }
 
 void VisitationMapRenderer::Render()
 {
+    shaderProgram->Use();
+
     glBindVertexArray(vao);
+
+    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
+    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.viewMatrix));
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
+
+    glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
+
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
 }
 
@@ -190,32 +229,4 @@ unsigned int VisitationMapRenderer::GetNumberOfVertices()
 unsigned int VisitationMapRenderer::GetNumberOfBytes()
 {
     return GetNumberOfVertices() * 5 * sizeof(float);
-}
-
-void VisitationMapRenderer::SetUpUniforms(GLuint program)
-{
-    //Visitation Map Properties
-    GLint vmProp_loc;
-    vmProp_loc = glGetUniformLocation(program, "vmp.xmin");
-    glProgramUniform1d(program, vmProp_loc, xmin);
-    vmProp_loc = glGetUniformLocation(program, "vmp.xmax");
-    glProgramUniform1d(program, vmProp_loc, xmax);
-    vmProp_loc = glGetUniformLocation(program, "vmp.ymin");
-    glProgramUniform1d(program, vmProp_loc, ymin);
-    vmProp_loc = glGetUniformLocation(program, "vmp.ymax");
-    glProgramUniform1d(program, vmProp_loc, ymax);
-    vmProp_loc = glGetUniformLocation(program, "vmp.zmin");
-    glProgramUniform1d(program, vmProp_loc, zmin);
-    vmProp_loc = glGetUniformLocation(program, "vmp.zmax");
-    glProgramUniform1d(program, vmProp_loc, zmax);
-
-    vmProp_loc = glGetUniformLocation(program, "vmp.cellSize");
-    glProgramUniform1d(program, vmProp_loc, spacing);
-
-    vmProp_loc = glGetUniformLocation(program, "vmp.width");
-    glProgramUniform1ui(program, vmProp_loc, width);
-    vmProp_loc = glGetUniformLocation(program, "vmp.height");
-    glProgramUniform1ui(program, vmProp_loc, height);
-    vmProp_loc = glGetUniformLocation(program, "vmp.depth");
-    glProgramUniform1ui(program, vmProp_loc, depth);
 }

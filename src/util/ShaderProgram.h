@@ -9,6 +9,7 @@ class ShaderProgram
         GLuint id;
 
     public:
+        ShaderProgram() = delete;
         ShaderProgram (Shader** shaders, GLuint num);
         ~ShaderProgram();
 

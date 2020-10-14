@@ -3,63 +3,27 @@
 //
 
 #include <GL/glew.h>
-#include <cstring>
 #include "FiberRenderer.h"
+#include "glm/ext.hpp"
 
-FiberRenderer::FiberRenderer()
-    : fibersShown(true), pointsShown(false), numberOfFibers(0)
+FiberRenderer::FiberRenderer(const CameraState& cameraState)
+    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
+      numberOfFibers(0), fibersShown(true), pointsShown(false)
 {
-    FiberRenderer::initialize();
+    initialize();
 }
 
 void FiberRenderer::initialize()
 {
-    vertices = nullptr;
-
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
+    //todo: use shaderProgram->Use()?
 
-//    const float DTI_XMAX =  112;
-//    const float DTI_YMAX =  112;
-//    const float DTI_ZMAX =  70;
-//
-//
-//    Fiber fiber(0);
-//    fiber.AddPoint(0, 0, 0);
-//    fiber.AddPoint(DTI_XMAX, DTI_YMAX, DTI_ZMAX);
-//    fiber.AddPoint(DTI_XMAX, 2*DTI_YMAX, DTI_ZMAX);
-//    fiber.AddPoint(2*DTI_XMAX, 2*DTI_YMAX, DTI_ZMAX);
-//
-//    const std::vector<Point>& fiberPoints = fiber.GetPoints();
-//
-//    unsigned int incomingNumberOfPoints = fiberPoints.size();
-//    unsigned int currentNumberOfPoints = GetNumberOfVertices();
-//
-//    unsigned int newNumberOfPoints = currentNumberOfPoints + incomingNumberOfPoints;
-//
-//    float* newVertices = new float[newNumberOfPoints * 3];
-//
-//    if(currentNumberOfPoints > 0)
-//    {
-//        memcpy(newVertices, vertices, currentNumberOfPoints * 3);
-//    }
-//
-//    for(unsigned int i = 0; i < fiberPoints.size(); i++)
-//    {
-//        const Point& point = fiberPoints[i];
-//
-//        newVertices[(currentNumberOfPoints + i) * 3 + 0] = point.X;
-//        newVertices[(currentNumberOfPoints + i) * 3 + 1] = point.Y;
-//        newVertices[(currentNumberOfPoints + i) * 3 + 2] = point.Z;
-//
-////        std::cout << point.X << ", " << point.Y << ", " << point.Z << std::endl;
-//    }
-//
-//    vertices = newVertices;
-//    numberOfVertices += incomingNumberOfPoints;
-//    numberOfFibers++;
-//    updateData();
+    //Get uniform locations
+    modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
+    viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
+    projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
 }
 
 void FiberRenderer::updateData()
@@ -103,11 +67,15 @@ void FiberRenderer::NewFiber(Fiber* fiber)
 
 void FiberRenderer::Render()
 {
+    shaderProgram->Use();
+
     updateData();
     glBindVertexArray(vao);
-//    glDrawArrays(GL_LINES, 0, GetNumberOfVertices());
-//    glDrawArrays(GL_LINE_STRIP, 0, GetNumberOfVertices());
-//    glDrawArrays()
+
+    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
+    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.viewMatrix));
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
+
     glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
 }
 

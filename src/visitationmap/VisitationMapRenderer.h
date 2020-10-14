@@ -12,11 +12,16 @@
 class VisitationMapRenderer : public RenderElement
 {
     private:
+        #define VERTEX_SHADER_PATH   "./shaders/visitationmap/vertex.glsl"
+        #define FRAGMENT_SHADER_PATH "./shaders/visitationmap/fragment.glsl"
+
         float xmin, xmax, ymin, ymax, zmin, zmax;
         unsigned int width, height, depth;
         float spacing = 2.0;
 
         unsigned int* frequency_data;
+
+        GLint cameraPos_loc = -1;
 
         void createVertices();
         void initialize() override;
@@ -26,8 +31,9 @@ class VisitationMapRenderer : public RenderElement
         void makeSphere();
 
     public:
-        VisitationMapRenderer(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-        explicit VisitationMapRenderer(float* bounds);
+        VisitationMapRenderer(const CameraState& cameraState,
+                              float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
+        VisitationMapRenderer(const CameraState& cameraState, float* bounds);
         ~VisitationMapRenderer();
 
         void Render() override;

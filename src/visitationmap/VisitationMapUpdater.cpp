@@ -6,56 +6,16 @@
 
 #include <utility>
 #include <sstream>
+#include <cmath>
+#include <iostream>
+#include <cstring>
+#include <fstream>
 
-#include <vtkPolyData.h>
-#include <vtkPolyLine.h>
-#include <vtkProperty.h>
-#include <vtkShaderProperty.h>
-#include <vtkCommand.h>
-#include <vtkShaderProgram.h>
-#include <vtkCellData.h>
-#include <vtkOpenGLUniforms.h>
-#include <vtkOpenGLPolyDataMapper.h>
-#include <vtkOpenGLImageAlgorithmHelper.h>
-#include <vtkOpenGLGPUVolumeRayCastMapper.h>
-#include <vtkColorTransferFunction.h>
-#include <vtkVolumeProperty.h>
-#include <vtkImageData.h>
-#include <vtkContourValues.h>
-
-//------------------------------------------------------------------------------
-// Update a uniform in the shader for each render. We do this with a
-// callback for the UpdateShaderEvent
-class vtkShaderCallback : public vtkCommand
-{
-public:
-    static vtkShaderCallback* New() { return new vtkShaderCallback; }
-
-    vtkRenderer* Renderer;
-
-    void Execute(vtkObject*, unsigned long, void* calldata) override
-    {
-        vtkShaderProgram* program = reinterpret_cast<vtkShaderProgram*>(calldata);
-
-        float diffuseColor[3];
-
-        diffuseColor[0] = 0.4;
-        diffuseColor[1] = 0.7;
-        diffuseColor[2] = 0.6;
-        program->SetUniform3f("diffuseColorUniform", diffuseColor);
-    }
-
-    vtkShaderCallback() { this->Renderer = nullptr; }
-};
-
-
-VisitationMapUpdater::VisitationMapUpdater(vtkSmartPointer<vtkRenderer> renderer, double* bounds, double spacing)
-    : renderer(std::move(renderer)),
-      xmin(bounds[0]), xmax(bounds[1]),
+VisitationMapUpdater::VisitationMapUpdater(double* bounds, double spacing)
+    : xmin(bounds[0]), xmax(bounds[1]),
       ymin(bounds[2]), ymax(bounds[3]),
       zmin(bounds[4]), zmax(bounds[5]),
-      spacing(spacing),
-      actor(vtkSmartPointer<vtkActor>::New())
+      spacing(spacing)
 {
     //TODO: Look into fixing double to int conversion.
     width =  std::ceil( std::abs(xmin - xmax) / spacing);
@@ -169,7 +129,7 @@ void VisitationMapUpdater::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
     GLuint* ptr = (GLuint*) glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
 
-    memcpy(frequency_data, ptr, sizeof(unsigned int) * width * height * depth);
+    std::memcpy(frequency_data, ptr, sizeof(unsigned int) * width * height * depth);
 
     glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
 
@@ -183,70 +143,6 @@ void VisitationMapUpdater::initialize()
     }
 
 //    std::cout << "Counted " << count << " items of the " << width * height * depth << " total." << std::endl;
-
-
-    /***
-     *
-     * Rendering
-     *
-     */
-    vtkNew<vtkOpenGLPolyDataMapper> mapper;
-
-    renderer->AddActor(actor.Get());
-    renderer->GradientBackgroundOn();
-
-    vtkNew<vtkPolyLine> line;
-    line->GetPoints()->InsertPoint(0, 1, 0, 0);
-    line->GetPoints()->InsertPoint(1, 1, 1, 0);
-    line->GetPoints()->InsertPoint(2, 0, 0, 1);
-    line->GetPoints()->InsertPoint(3, 0, 1, 0);
-    line->GetPoints()->InsertPoint(4, 1, 0, 1);
-
-    line->GetPointIds()->SetNumberOfIds(5);
-    line->GetPointIds()->SetId(0, 0);
-    line->GetPointIds()->SetId(1, 1);
-    line->GetPointIds()->SetId(2, 2);
-    line->GetPointIds()->SetId(3, 3);
-    line->GetPointIds()->SetId(4, 4);
-
-    vtkNew<vtkCellArray> polyLines;
-    polyLines->InsertNextCell(line);
-
-    vtkNew<vtkPolyData> polyData;
-    polyData->SetPoints(line->GetPoints());
-    polyData->SetLines(polyLines);
-
-    mapper->SetInputData(polyData);
-
-    actor->SetMapper(mapper.Get());
-    actor->GetProperty()->SetAmbientColor(0.2, 0.2, 1.0);
-    actor->GetProperty()->SetDiffuseColor(1.0, 0.65, 0.7);
-    actor->GetProperty()->SetSpecularColor(1.0, 1.0, 1.0);
-    actor->GetProperty()->SetSpecular(0.5);
-    actor->GetProperty()->SetDiffuse(0.7);
-    actor->GetProperty()->SetAmbient(0.5);
-    actor->GetProperty()->SetSpecularPower(20.0);
-    actor->GetProperty()->SetOpacity(1.0);
-
-    vtkShaderProperty* sp = actor->GetShaderProperty();
-    // Clear all custom shader tag replacements
-    sp->ClearAllVertexShaderReplacements();
-    sp->ClearAllFragmentShaderReplacements();
-    sp->ClearAllGeometryShaderReplacements();
-    sp->ClearAllShaderReplacements();
-
-    sp->SetVertexShaderCode(
-        readStringFromFile(VERTEX_SHADER_PATH).data()
-    );
-
-    sp->SetFragmentShaderCode(
-        readStringFromFile(FRAGMENT_SHADER_PATH).data()
-    );
-
-    // Setup a callback to change some uniforms
-    vtkNew<vtkShaderCallback> myCallback;
-    myCallback->Renderer = renderer;
-    mapper->AddObserver(vtkCommand::UpdateShaderEvent, myCallback);
 }
 
 

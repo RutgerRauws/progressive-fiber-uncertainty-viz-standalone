@@ -6,6 +6,9 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_RENDER_ELEMENT_H
 
 #include <GL/gl.h>
+#include "glm/mat4x4.hpp"
+#include "ShaderProgram.h"
+#include "../interaction/MovementHandler.h"
 
 class RenderElement
 {
@@ -15,14 +18,65 @@ class RenderElement
     protected:
         float* vertices;
 
+        //Shader variables
+        Shader* vertexShader = nullptr;
+        Shader* fragmentShader = nullptr;
+        ShaderProgram* shaderProgram = nullptr;
+
         GLuint vao;
         GLuint vbo;
 
-    public:
-        RenderElement()
-            : vertices(nullptr),
+        const CameraState& cameraState;
+        int modelMatLoc = -1;
+        int viewMatLoc = -1;
+        int projMatLoc = -1;
+
+public:
+        RenderElement(const std::string& vertexShaderPath,
+                      const std::string& fragmentShaderPath,
+                      const CameraState& cameraState
+        )
+            : cameraState(cameraState),
+              vertices(nullptr),
               vao(), vbo()
-        {}
+        {
+            //Compile shaders and initialize shader program
+            try
+            {
+                vertexShader = Shader::LoadFromFile(vertexShaderPath, GL_VERTEX_SHADER);
+                vertexShader->Compile();
+            }
+            catch(const ShaderError& e)
+            {
+                std::cerr << "Could not compile vertex shader: " << e.what() << std::endl;
+                throw e;
+            }
+
+            try
+            {
+                fragmentShader = Shader::LoadFromFile(fragmentShaderPath, GL_FRAGMENT_SHADER);
+                fragmentShader->Compile();
+            }
+            catch(const ShaderError& e)
+            {
+                std::cerr << "Could not compile fragment shader: " << e.what() << std::endl;
+                throw e;
+            }
+
+            Shader* shaders[2] = {vertexShader, fragmentShader};
+            shaderProgram = new ShaderProgram(shaders, 2);
+
+            //Setup buffers
+            vertices = nullptr;
+        }
+
+        ~RenderElement()
+        {
+            delete shaderProgram;
+
+            delete vertexShader;
+            delete fragmentShader;
+        }
 
         virtual void Render() = 0;
 

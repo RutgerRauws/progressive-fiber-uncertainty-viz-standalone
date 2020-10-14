@@ -5,9 +5,8 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_UPDATER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_UPDATER_H
 
-#include <vtkSmartPointer.h>
-#include <vtkRenderer.h>
-#include <vtk_glew.h>
+#include <string>
+#include <GL/glew.h>
 
 class VisitationMapUpdater
 {
@@ -22,8 +21,6 @@ class VisitationMapUpdater
 //            float cellSize;
 //        };
 
-        const std::string VERTEX_SHADER_PATH   = "./shaders/vertex.glsl";
-        const std::string FRAGMENT_SHADER_PATH = "./shaders/fragment.glsl";
         const std::string COMPUTE_SHADER_PATH = "./shaders/compute.glsl";
 
         //DTI/DWI volume dimensions from example data set
@@ -39,16 +36,13 @@ class VisitationMapUpdater
         unsigned int height;
         unsigned int depth;
 
-        vtkSmartPointer<vtkRenderer> renderer;
-        vtkSmartPointer<vtkActor> actor;
-
         void initialize();
 
         static std::string readStringFromFile(const std::string& path);
         static void checkForErrors(GLuint shader);
 
     public:
-        VisitationMapUpdater(vtkSmartPointer<vtkRenderer> renderer, double* bounds, double spacing);
+        VisitationMapUpdater(double* bounds, double spacing);
 };
 
 
