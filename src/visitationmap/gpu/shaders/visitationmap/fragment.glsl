@@ -160,8 +160,6 @@ vec3 computeNormal(in vec3 position)
 
 void main ()
 {
-
-
     vec3 eyePosVec = fragmentPositionWC - cameraPosition;
     vec3 stepDir = normalize(eyePosVec);
     vec3 stepVec = stepSize * stepDir;
@@ -171,7 +169,6 @@ void main ()
 
     while(fragmentColor.w < 1.0f)
     {
-//        if(length(currentPosition - fragmentPositionWC) > 40)
         if(!InVolume(currentPosition))
         {
 //            fragmentColor += vec4(.5, 0, 0, .5);
@@ -187,15 +184,5 @@ void main ()
         currentPosition += stepVec;
     }
 
-//    if(test)
-//    {
-//        outColor = vec4(1, 0, 0, 1);
-//    }
-//    else
-//    {
     outColor = fragmentColor;
-//    }
-
-//    outColor = vec4(normalize(eyePositionWC), 1);
-//    outColor = vec4(normalize(cameraPosition), 1);
 }
