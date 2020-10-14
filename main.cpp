@@ -13,6 +13,7 @@
 #include "src/util/glm/gtc/matrix_transform.hpp"
 #include "src/interaction/MovementHandler.h"
 #include "src/visitationmap/VisitationMapRenderer.h"
+#include "src/visitationmap/VisitationMapUpdater.h"
 
 int main()
 {
@@ -64,7 +65,7 @@ int main()
 
 //    VisitationMapRenderer visitationMapRenderer(fiberPublisher.GetBounds());
     VisitationMapRenderer visitationMapRenderer(movementHandler.GetCameraState(),
-                                                DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX);
+                                                DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, DTI_SPACING);
 
     FiberRenderer fiberRenderer(movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(fiberRenderer);

@@ -7,14 +7,14 @@
 #include <algorithm>
 #include <iostream>
 #include "VisitationMapRenderer.h"
-#include "../util/glm/vec3.hpp"
-#include "../util/glm/geometric.hpp"
 #include "../util/glm/ext.hpp"
 
 VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState,
-                                             float xmin, float xmax, float ymin, float ymax, float zmin, float zmax)
+                                             float xmin, float xmax, float ymin, float ymax, float zmin, float zmax,
+                                             float spacing)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
-      xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax)
+      xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax),
+      spacing(spacing)
 {
     width =  std::ceil( std::abs(xmin - xmax) / spacing);
     height = std::ceil(std::abs(ymin - ymax) / spacing);
@@ -24,8 +24,8 @@ VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState,
     initialize();
 }
 
-VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState, float* bounds)
-    : VisitationMapRenderer(cameraState, bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5])
+VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState, float* bounds, float spacing)
+    : VisitationMapRenderer(cameraState, bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], spacing)
 {}
 
 VisitationMapRenderer::~VisitationMapRenderer()
@@ -107,13 +107,14 @@ void VisitationMapRenderer::makeSphere()
 
 //    unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
 
-    int sideSize = 30;
+    //int sideSize = 30;
+    float sideSize = std::min(width, std::min(height, depth)) / 2.0;
 
-    for(int x = -sideSize; x < sideSize; x++)
+    for(float x = -sideSize; x < sideSize; x++)
     {
-        for(int y = -sideSize; y < sideSize; y++)
+        for(float y = -sideSize; y < sideSize; y++)
         {
-            for(int z = -sideSize; z < sideSize; z++)
+            for(float z = -sideSize; z < sideSize; z++)
             {
 //                unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
 //

@@ -17,7 +17,7 @@ class VisitationMapRenderer : public RenderElement
 
         float xmin, xmax, ymin, ymax, zmin, zmax;
         unsigned int width, height, depth;
-        float spacing = 2.0;
+        float spacing;
 
         unsigned int* frequency_data;
 
@@ -32,8 +32,9 @@ class VisitationMapRenderer : public RenderElement
 
     public:
         VisitationMapRenderer(const CameraState& cameraState,
-                              float xmin, float xmax, float ymin, float ymax, float zmin, float zmax);
-        VisitationMapRenderer(const CameraState& cameraState, float* bounds);
+                              float xmin, float xmax, float ymin, float ymax, float zmin, float zmax,
+                              float spacing);
+        VisitationMapRenderer(const CameraState& cameraState, float* bounds, float spacing);
         ~VisitationMapRenderer();
 
         void Render() override;
