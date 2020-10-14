@@ -63,6 +63,14 @@ void GetIndices(in vec3 point, out uint x_index, out uint y_index, out uint z_in
     z_index = uint((point.z - vmp.zmin) / vmp.cellSize);
 }
 
+uint GetCellIndex(in vec3 positionWC)
+{
+    uint x_index, y_index, z_index;
+    GetIndices(positionWC, x_index, y_index, z_index);
+
+    return GetCellIndex(x_index, y_index, z_index);
+}
+
 bool InVolume(vec3 position)
 {
     return (
@@ -74,6 +82,81 @@ bool InVolume(vec3 position)
         && position.z <= vmp.zmax
     );
 }
+
+
+bool isVoxelInIsosurface(in uint cellIndex)
+{
+    //Out of bounds checking
+    if(cellIndex > vmp.width * vmp.height * vmp.depth)
+    {
+        return false;
+    }
+
+    uint isovalue = frequency_map[cellIndex];
+    return isovalue > isovalueThreshold;
+}
+
+//bool isVoxelInIsosurface(in uint x_index, in uint y_index, in uint z_index)
+//{
+//    uint cellIndex = GetCellIndex(x_index, y_index, z_index);
+//    return isVoxelInIsosurface(cellIndex);
+//}
+
+bool isVoxelInIsosurface(in vec3 position)
+{
+    uint cellIndex = GetCellIndex(position);
+    return isVoxelInIsosurface(cellIndex);
+}
+
+
+bool isVoxelVisible(in vec3 position)
+{
+    vec3 voxelStep_x = vec3(vmp.cellSize, 0, 0);
+    vec3 voxelStep_y = vec3(0, vmp.cellSize, 0);
+    vec3 voxelStep_z = vec3(0, 0, vmp.cellSize);
+
+    return (
+        !isVoxelInIsosurface(position - voxelStep_x)
+    ||  !isVoxelInIsosurface(position - voxelStep_y)
+    ||  !isVoxelInIsosurface(position - voxelStep_z)
+    ||  !isVoxelInIsosurface(position + voxelStep_x)
+    ||  !isVoxelInIsosurface(position + voxelStep_y)
+    ||  !isVoxelInIsosurface(position + voxelStep_z)
+    );
+}
+
+bool isVoxelVisible(in uint cellIndex)
+{
+    return false;
+}
+
+vec3 computeNormal(in vec3 position)
+{
+    vec3 normal = vec3(0);
+    float rad = 5;
+
+    for(float x = position.x - rad; x < position.x + rad; x++)
+    {
+        for(float y = position.y - rad; y < position.y + rad; y++)
+        {
+            for(float z = position.z - rad; z < position.z + rad; z++)
+            {
+                vec3 nextVoxel = vec3(x, y, z);
+
+                if(isVoxelVisible(nextVoxel)) {        // voxelVisible() just checks if the voxel in question is exposed on the surface (not covered up)
+                    normal += nextVoxel - position;
+                }
+            }
+        }
+    }
+
+    return -normalize(normal);
+}
+
+//vec3 computeLighting(in vec3 position)
+//{
+//
+//}
 
 void main ()
 {
@@ -95,15 +178,10 @@ void main ()
             break;
         }
 
-        uint x_index, y_index, z_index;
-        GetIndices(currentPosition, x_index, y_index, z_index);
-        uint cellIndex = GetCellIndex(x_index, y_index, z_index);
-
-        uint isovalue = frequency_map[cellIndex];
-
-        if(isovalue > isovalueThreshold)
+        if(isVoxelInIsosurface(currentPosition))
         {
-            fragmentColor += vec4(0, 1, 0, 1);
+            fragmentColor = vec4(computeNormal(currentPosition), 1);
+//            fragmentColor += vec4(0, 1, 0, 1);
         }
 
         currentPosition += stepVec;
