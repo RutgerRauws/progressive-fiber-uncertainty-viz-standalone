@@ -4,24 +4,14 @@
 
 #include "VisitationMapUpdater.h"
 
-#include <utility>
 #include <sstream>
-#include <cmath>
 #include <iostream>
 #include <cstring>
 #include <fstream>
 
-VisitationMapUpdater::VisitationMapUpdater(double* bounds, double spacing)
-    : xmin(bounds[0]), xmax(bounds[1]),
-      ymin(bounds[2]), ymax(bounds[3]),
-      zmin(bounds[4]), zmax(bounds[5]),
-      spacing(spacing)
+VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
+   : visitationMap(visitationMap)
 {
-    //TODO: Look into fixing double to int conversion.
-    width =  std::ceil( std::abs(xmin - xmax) / spacing);
-    height = std::ceil(std::abs(ymin - ymax) / spacing);
-    depth =  std::ceil(std::abs(zmin - zmax) / spacing);
-
     initialize();
 }
 
@@ -80,39 +70,39 @@ void VisitationMapUpdater::initialize()
     //Visitation Map Properties
     GLint vmProp_loc;
     vmProp_loc = glGetUniformLocation(program, "vmp.xmin");
-    glProgramUniform1d(program, vmProp_loc, xmin);
+    glProgramUniform1d(program, vmProp_loc, visitationMap.GetXmin());
     vmProp_loc = glGetUniformLocation(program, "vmp.xmax");
-    glProgramUniform1d(program, vmProp_loc, xmax);
+    glProgramUniform1d(program, vmProp_loc, visitationMap.GetXmax());
     vmProp_loc = glGetUniformLocation(program, "vmp.ymin");
-    glProgramUniform1d(program, vmProp_loc, ymin);
+    glProgramUniform1d(program, vmProp_loc, visitationMap.GetYmin());
     vmProp_loc = glGetUniformLocation(program, "vmp.ymax");
-    glProgramUniform1d(program, vmProp_loc, ymax);
+    glProgramUniform1d(program, vmProp_loc, visitationMap.GetYmax());
     vmProp_loc = glGetUniformLocation(program, "vmp.zmin");
-    glProgramUniform1d(program, vmProp_loc, zmin);
+    glProgramUniform1d(program, vmProp_loc, visitationMap.GetZmin());
     vmProp_loc = glGetUniformLocation(program, "vmp.zmax");
-    glProgramUniform1d(program, vmProp_loc, zmax);
+    glProgramUniform1d(program, vmProp_loc, visitationMap.GetZmax());
 
     vmProp_loc = glGetUniformLocation(program, "vmp.cellSize");
-    glProgramUniform1d(program, vmProp_loc, spacing);
+    glProgramUniform1d(program, vmProp_loc, visitationMap.GetSpacing());
 
     vmProp_loc = glGetUniformLocation(program, "vmp.width");
-    glProgramUniform1ui(program, vmProp_loc, width);
+    glProgramUniform1ui(program, vmProp_loc, visitationMap.GetWidth());
     vmProp_loc = glGetUniformLocation(program, "vmp.height");
-    glProgramUniform1ui(program, vmProp_loc, height);
+    glProgramUniform1ui(program, vmProp_loc, visitationMap.GetHeight());
     vmProp_loc = glGetUniformLocation(program, "vmp.depth");
-    glProgramUniform1ui(program, vmProp_loc, depth);
+    glProgramUniform1ui(program, vmProp_loc, visitationMap.GetDepth());
 
     //Visitation Map frequencies itself
-    unsigned int frequency_data[width * height * depth];
-    std::fill_n(frequency_data, width * height * depth, 0);
+    GLuint frequency_map_ssbo = visitationMap.GetSSBOId();
 
-    GLuint frequency_map_ssbo;
-    glGenBuffers(1, &frequency_map_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * width * height * depth, &frequency_data, GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * visitationMap.GetWidth() * visitationMap.GetHeight() * visitationMap.GetDepth(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
+//    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
+
 //    glDispatchCompute(1, 1, 1); //(nr-of-segments / local-group-size, 1, 1)
     glDispatchCompute(10, 1, 1);
 
@@ -126,21 +116,21 @@ void VisitationMapUpdater::initialize()
      * Preparing outputs
      *
      */
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
-    GLuint* ptr = (GLuint*) glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-
-    std::memcpy(frequency_data, ptr, sizeof(unsigned int) * width * height * depth);
-
-    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-
-    unsigned int count = 0;
-    for(unsigned int i = 0; i < width * height * depth; i++)
-    {
-        if(frequency_data[i] > 1) {
-            std::cout << frequency_data[i] << std::endl;
-            count++;
-        }
-    }
+//    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
+//    GLuint* ptr = (GLuint*) glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
+//
+//    std::memcpy(frequency_data, ptr, sizeof(unsigned int) * width * height * depth);
+//
+//    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
+//
+//    unsigned int count = 0;
+//    for(unsigned int i = 0; i < width * height * depth; i++)
+//    {
+//        if(frequency_data[i] > 1) {
+//            std::cout << frequency_data[i] << std::endl;
+//            count++;
+//        }
+//    }
 
 //    std::cout << "Counted " << count << " items of the " << width * height * depth << " total." << std::endl;
 }

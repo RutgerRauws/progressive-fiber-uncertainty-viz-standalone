@@ -8,6 +8,7 @@
 #include "../util/RenderElement.h"
 #include "../util/glm/vec3.hpp"
 #include "../interaction/KeyPressObserver.h"
+#include "VisitationMap.h"
 
 class VisitationMapRenderer : public RenderElement
 {
@@ -15,31 +16,18 @@ class VisitationMapRenderer : public RenderElement
         #define VERTEX_SHADER_PATH   "./shaders/visitationmap/vertex.glsl"
         #define FRAGMENT_SHADER_PATH "./shaders/visitationmap/fragment.glsl"
 
-        float xmin, xmax, ymin, ymax, zmin, zmax;
-        unsigned int width, height, depth;
-        float spacing;
-
-        unsigned int* frequency_data;
+        VisitationMap& visitationMap;
 
         GLint cameraPos_loc = -1;
 
         void createVertices();
         void initialize() override;
 
-        unsigned int getCellIndex(unsigned int x_index, unsigned int y_index, unsigned int z_index);
-        void getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index);
-        void makeSphere();
-
     public:
-        VisitationMapRenderer(const CameraState& cameraState,
-                              float xmin, float xmax, float ymin, float ymax, float zmin, float zmax,
-                              float spacing);
-        VisitationMapRenderer(const CameraState& cameraState, float* bounds, float spacing);
+        VisitationMapRenderer(VisitationMap& visitationMap, const CameraState& cameraState);
         ~VisitationMapRenderer();
 
         void Render() override;
-
-        void SetUpUniforms(GLuint programId);
 
         unsigned int GetNumberOfVertices() override;
         unsigned int GetNumberOfBytes() override;

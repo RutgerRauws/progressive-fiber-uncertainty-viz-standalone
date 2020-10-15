@@ -3,38 +3,31 @@
 //
 
 #include <GL/glew.h>
-#include <cmath>
 #include <algorithm>
-#include <iostream>
 #include "VisitationMapRenderer.h"
 #include "../util/glm/ext.hpp"
 
-VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState,
-                                             float xmin, float xmax, float ymin, float ymax, float zmin, float zmax,
-                                             float spacing)
+VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap, const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
-      xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax),
-      spacing(spacing)
+      visitationMap(visitationMap)
 {
-    width =  std::ceil( std::abs(xmin - xmax) / spacing);
-    height = std::ceil(std::abs(ymin - ymax) / spacing);
-    depth =  std::ceil(std::abs(zmin - zmax) / spacing);
-
     createVertices();
     initialize();
 }
 
-VisitationMapRenderer::VisitationMapRenderer(const CameraState& cameraState, float* bounds, float spacing)
-    : VisitationMapRenderer(cameraState, bounds[0], bounds[1], bounds[2], bounds[3], bounds[4], bounds[5], spacing)
-{}
-
 VisitationMapRenderer::~VisitationMapRenderer()
 {
     delete[] vertices;
-    delete[] frequency_data;
 }
 
 void VisitationMapRenderer::createVertices() {
+    float xmin = visitationMap.GetXmin();
+    float ymin = visitationMap.GetYmin();
+    float zmin = visitationMap.GetZmin();
+    float xmax = visitationMap.GetXmax();
+    float ymax = visitationMap.GetYmax();
+    float zmax = visitationMap.GetZmax();
+
     vertices = new float[36 * 5] {
         xmin, ymin, zmin,  0.0f, 0.0f,
         xmax, ymin, zmin,  1.0f, 0.0f,
@@ -80,80 +73,15 @@ void VisitationMapRenderer::createVertices() {
     };
 }
 
-unsigned int VisitationMapRenderer::getCellIndex(unsigned int x_index, unsigned int y_index, unsigned int z_index)
-{
-    return x_index + width * (y_index + z_index * height);
-}
-
-void VisitationMapRenderer::getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index)
-{
-    //Casting to uint automatically floors the float
-    x_index = uint((point.x - xmin) / spacing);
-    y_index = uint((point.y - ymin) / spacing);
-    z_index = uint((point.z - zmin) / spacing);
-}
-
-void VisitationMapRenderer::makeSphere()
-{
-    glm::vec3 centerPointWC(
-        (xmin + xmax) / 2.0,
-        (ymin + ymax) / 2.0,
-        (zmin + zmax) / 2.0
-    );
-
-    unsigned int indices[3];
-
-    getIndices(centerPointWC, indices[0], indices[1], indices[2]);
-
-//    unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
-
-    //int sideSize = 30;
-    float sideSize = std::min(width, std::min(height, depth)) / 2.0;
-
-    for(float x = -sideSize; x < sideSize; x++)
-    {
-        for(float y = -sideSize; y < sideSize; y++)
-        {
-            for(float z = -sideSize; z < sideSize; z++)
-            {
-//                unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
-//
-//                unsigned int cellIndex =
-//                    getCellIndex(indices[0] + x, indices[1] + y, indices[2] + z);
-
-                glm::vec3 newPoint = centerPointWC + glm::vec3(x, y, z);
-                if(glm::distance(centerPointWC, newPoint) > sideSize)
-                {
-                    continue;
-                }
-
-                unsigned int cellIndex =
-                    getCellIndex(indices[0] + x, indices[1] + y, indices[2] + z);
-
-                if(cellIndex > width * height * depth)
-                {
-                    std::cerr << "Splat out of bounds!" << std::endl;
-                    continue;
-                }
-
-                frequency_data[cellIndex] = 9;
-            }
-        }
-    }
-}
-
 void VisitationMapRenderer::initialize()
 {
-    //Visitation Map frequencies itself
-    frequency_data = new unsigned int[width * height * depth];
-    std::fill_n(frequency_data, width * height * depth, 0);
+    GLuint frequency_map_ssbo = visitationMap.GetSSBOId();
 
-    makeSphere();
-
-    GLuint frequency_map_ssbo;
-    glGenBuffers(1, &frequency_map_ssbo);
+//    GLuint frequency_map_ssbo;
+//    glGenBuffers(1, &frequency_map_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * width * height * depth, frequency_data, GL_DYNAMIC_DRAW);
+//    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * visitationMap.GetWidth() * visitationMap.GetHeight() * visitationMap.GetDepth(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
 
@@ -165,7 +93,7 @@ void VisitationMapRenderer::initialize()
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_STATIC_DRAW);
 
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
@@ -182,27 +110,27 @@ void VisitationMapRenderer::initialize()
 
     GLint vmProp_loc;
     vmProp_loc = glGetUniformLocation(programId, "vmp.xmin");
-    glProgramUniform1d(programId, vmProp_loc, xmin);
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.xmax");
-    glProgramUniform1d(programId, vmProp_loc, xmax);
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmax());
     vmProp_loc = glGetUniformLocation(programId, "vmp.ymin");
-    glProgramUniform1d(programId, vmProp_loc, ymin);
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.ymax");
-    glProgramUniform1d(programId, vmProp_loc, ymax);
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmax());
     vmProp_loc = glGetUniformLocation(programId, "vmp.zmin");
-    glProgramUniform1d(programId, vmProp_loc, zmin);
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.zmax");
-    glProgramUniform1d(programId, vmProp_loc, zmax);
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmax());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
-    glProgramUniform1d(programId, vmProp_loc, spacing);
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetSpacing());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.width");
-    glProgramUniform1ui(programId, vmProp_loc, width);
+    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetWidth());
     vmProp_loc = glGetUniformLocation(programId, "vmp.height");
-    glProgramUniform1ui(programId, vmProp_loc, height);
+    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetHeight());
     vmProp_loc = glGetUniformLocation(programId, "vmp.depth");
-    glProgramUniform1ui(programId, vmProp_loc, depth);
+    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
 
     cameraPos_loc = glGetUniformLocation(programId, "cameraPosition");
 }

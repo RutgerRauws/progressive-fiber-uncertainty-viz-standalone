@@ -21,11 +21,12 @@ add_executable(${EXECUTABLE_NAME}
         src/interaction/KeyPressObserver.h
         src/centerline/CenterlineRenderer.cpp src/centerline/CenterlineRenderer.h
         src/centerline/DistanceTable.cpp src/centerline/DistanceTable.h
+        src/visitationmap/VisitationMap.cpp src/visitationmap/VisitationMap.h
         src/visitationmap/VisitationMapUpdater.cpp src/visitationmap/VisitationMapUpdater.h
+        src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
         src/util/Shader.cpp src/util/Shader.h
         src/util/ShaderProgram.cpp src/util/ShaderProgram.h
         src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
-        src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
 )
 
 #Find any version 2.X of SFML

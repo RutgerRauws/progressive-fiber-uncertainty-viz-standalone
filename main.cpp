@@ -63,14 +63,15 @@ int main()
     movementHandler.SetCameraPosition(CAMERA_POS);
     movementHandler.SetCameraFront(CAMERA_FRT);
 
+    VisitationMap visitationMap = VisitationMap::CreateTest();
+
+    VisitationMapUpdater visitationMapUpdater(visitationMap);
+
 //    VisitationMapRenderer visitationMapRenderer(fiberPublisher.GetBounds());
-    VisitationMapRenderer visitationMapRenderer(movementHandler.GetCameraState(),
-                                                DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, DTI_SPACING);
+    VisitationMapRenderer visitationMapRenderer(visitationMap, movementHandler.GetCameraState());
 
     FiberRenderer fiberRenderer(movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(fiberRenderer);
-
-//    VisitationMapUpdater visitationMapUpdater(renderer, fiberPublisher.GetBounds(), 2.0f);
 
     glEnable(GL_DEPTH_TEST);
 

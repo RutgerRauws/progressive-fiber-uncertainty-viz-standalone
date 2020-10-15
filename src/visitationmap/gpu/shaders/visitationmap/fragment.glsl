@@ -13,6 +13,8 @@ out vec4 outColor;
 // Hardcoded
 //
 //
+//Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
+//https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
 const float stepSize = 1;
 const uint isovalueThreshold = 3;
 
@@ -115,6 +117,9 @@ bool isVoxelVisible(in vec3 position)
     vec3 voxelStep_y = vec3(0, vmp.cellSize, 0);
     vec3 voxelStep_z = vec3(0, 0, vmp.cellSize);
 
+    //TODO: Fix this function, as right now the empty voxels behind the voxel in question will also allow the voxel
+    //      in question to be considered 'visible'.
+
     return (
         !isVoxelInIsosurface(position - voxelStep_x)
     ||  !isVoxelInIsosurface(position - voxelStep_y)
@@ -123,11 +128,6 @@ bool isVoxelVisible(in vec3 position)
     ||  !isVoxelInIsosurface(position + voxelStep_y)
     ||  !isVoxelInIsosurface(position + voxelStep_z)
     );
-}
-
-bool isVoxelVisible(in uint cellIndex)
-{
-    return false;
 }
 
 vec3 computeNormal(in vec3 position)
@@ -158,6 +158,11 @@ vec3 computeNormal(in vec3 position)
 //
 //}
 
+//
+//
+// Main loop
+//
+//
 void main ()
 {
     vec3 eyePosVec = fragmentPositionWC - cameraPosition;

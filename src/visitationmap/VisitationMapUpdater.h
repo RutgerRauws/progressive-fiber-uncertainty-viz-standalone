@@ -7,6 +7,7 @@
 
 #include <string>
 #include <GL/glew.h>
+#include "VisitationMap.h"
 
 class VisitationMapUpdater
 {
@@ -21,20 +22,9 @@ class VisitationMapUpdater
 //            float cellSize;
 //        };
 
-        const std::string COMPUTE_SHADER_PATH = "./shaders/compute.glsl";
+        const std::string COMPUTE_SHADER_PATH = "./shaders/visitationmap/compute.glsl";
 
-        //DTI/DWI volume dimensions from example data set
-//        const unsigned int width  = 112;
-//        const unsigned int height = 112;
-//        const unsigned int depth  = 70;
-//        const float spacing = 2;
-
-        double xmin, xmax, ymin, ymax, zmin, zmax;
-        double spacing;
-
-        unsigned int width;
-        unsigned int height;
-        unsigned int depth;
+        VisitationMap& visitationMap;
 
         void initialize();
 
@@ -42,7 +32,7 @@ class VisitationMapUpdater
         static void checkForErrors(GLuint shader);
 
     public:
-        VisitationMapUpdater(double* bounds, double spacing);
+        VisitationMapUpdater(VisitationMap& visitationMap);
 };
 
 

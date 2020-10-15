@@ -6,6 +6,7 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_RENDER_ELEMENT_H
 
 #include <GL/gl.h>
+#include <iostream>
 #include "glm/mat4x4.hpp"
 #include "ShaderProgram.h"
 #include "../interaction/MovementHandler.h"

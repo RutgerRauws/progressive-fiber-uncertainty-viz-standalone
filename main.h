@@ -32,14 +32,6 @@ const std::vector<std::string> INPUT_FILE_NAMES = {
     "./data/for-each-seedpoint/6.vtk"
 };
 
-const float DTI_XMIN = -112;
-const float DTI_XMAX =  112;
-const float DTI_YMIN = -112;
-const float DTI_YMAX =  112;
-const float DTI_ZMIN = -70;
-const float DTI_ZMAX =  70;
-const float DTI_SPACING = 2; //mm
-
 /*
  * RENDERING
  */
