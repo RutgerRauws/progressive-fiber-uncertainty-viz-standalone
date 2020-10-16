@@ -17,50 +17,21 @@ VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
 
 void VisitationMapUpdater::initialize()
 {
-    /***
-     *
-     * Setting up OpenGL
-     *
-     */
-    GLenum err = glewInit();
-    if(err != GLEW_OK)
+    try
     {
-        /* Problem: glewInit failed, something is seriously wrong. */
-        throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(err)));
+        computeShader = Shader::LoadFromFile(COMPUTE_SHADER_PATH, GL_COMPUTE_SHADER);
+        computeShader->Compile();
+    }
+    catch(const ShaderError& e)
+    {
+        std::cerr << "Could not compile compute shader: " << e.what() << std::endl;
+        throw e;
     }
 
-    std::cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
+    Shader* shaders[1] = {computeShader};
+    shaderProgram = new ShaderProgram(shaders, 1);
 
-    if(!GLEW_VERSION_4_3)
-    {
-        throw std::runtime_error("OpenGL version 4.3 is not supported.");
-    }
-
-    if(!GLEW_ARB_shader_storage_buffer_object)
-    {
-        /* Problem: we cannot use SSBOs, which is necessary to keep our algorithm performant. */
-        throw std::runtime_error("SSBOs are not supported for this graphics card (missing ARB_shader_storage_buffer_object).");
-    }
-
-    GLuint shader = glCreateShader(GL_COMPUTE_SHADER);
-    std::string source = readStringFromFile(COMPUTE_SHADER_PATH);
-    const char* source_ptr = source.c_str();
-    glShaderSource(shader,
-                   1,
-                   &source_ptr,
-                   NULL
-    );
-    glCompileShader(shader);
-
-    checkForErrors(shader); //Check for compilation errors
-
-    GLuint program = glCreateProgram();
-    glAttachShader(program, shader);
-    glLinkProgram(program);
-
-    checkForErrors(shader); //Check for linking errors and validate program
-
-    glUseProgram(program);
+    shaderProgram->Use();
 
     /***
      *
@@ -69,28 +40,30 @@ void VisitationMapUpdater::initialize()
      */
     //Visitation Map Properties
     GLint vmProp_loc;
-    vmProp_loc = glGetUniformLocation(program, "vmp.xmin");
-    glProgramUniform1d(program, vmProp_loc, visitationMap.GetXmin());
-    vmProp_loc = glGetUniformLocation(program, "vmp.xmax");
-    glProgramUniform1d(program, vmProp_loc, visitationMap.GetXmax());
-    vmProp_loc = glGetUniformLocation(program, "vmp.ymin");
-    glProgramUniform1d(program, vmProp_loc, visitationMap.GetYmin());
-    vmProp_loc = glGetUniformLocation(program, "vmp.ymax");
-    glProgramUniform1d(program, vmProp_loc, visitationMap.GetYmax());
-    vmProp_loc = glGetUniformLocation(program, "vmp.zmin");
-    glProgramUniform1d(program, vmProp_loc, visitationMap.GetZmin());
-    vmProp_loc = glGetUniformLocation(program, "vmp.zmax");
-    glProgramUniform1d(program, vmProp_loc, visitationMap.GetZmax());
+    GLuint programId = shaderProgram->GetId();
 
-    vmProp_loc = glGetUniformLocation(program, "vmp.cellSize");
-    glProgramUniform1d(program, vmProp_loc, visitationMap.GetSpacing());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.xmin");
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.xmax");
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.ymin");
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.ymax");
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.zmin");
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.zmax");
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmax());
 
-    vmProp_loc = glGetUniformLocation(program, "vmp.width");
-    glProgramUniform1ui(program, vmProp_loc, visitationMap.GetWidth());
-    vmProp_loc = glGetUniformLocation(program, "vmp.height");
-    glProgramUniform1ui(program, vmProp_loc, visitationMap.GetHeight());
-    vmProp_loc = glGetUniformLocation(program, "vmp.depth");
-    glProgramUniform1ui(program, vmProp_loc, visitationMap.GetDepth());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
+    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetSpacing());
+
+    vmProp_loc = glGetUniformLocation(programId, "vmp.width");
+    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetWidth());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.height");
+    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetHeight());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.depth");
+    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
 
     //Visitation Map frequencies itself
     GLuint frequency_map_ssbo = visitationMap.GetSSBOId();
@@ -103,8 +76,10 @@ void VisitationMapUpdater::initialize()
 //    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
 
+    int numberOfPoints = 20;
+    int numberOfEdges = numberOfPoints - 1;
 //    glDispatchCompute(1, 1, 1); //(nr-of-segments / local-group-size, 1, 1)
-    glDispatchCompute(10, 1, 1);
+    glDispatchCompute(numberOfEdges, 1, 1);
 
     //Sync here to make writes visible
     //glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
@@ -133,36 +108,4 @@ void VisitationMapUpdater::initialize()
 //    }
 
 //    std::cout << "Counted " << count << " items of the " << width * height * depth << " total." << std::endl;
-}
-
-
-std::string VisitationMapUpdater::readStringFromFile(const std::string& path)
-{
-    std::ifstream t(path);
-    std::stringstream buffer;
-    buffer << t.rdbuf();
-
-    return buffer.str();
-}
-
-void VisitationMapUpdater::checkForErrors(GLuint shader)
-{
-    GLint success = 0;
-    glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-
-    if(success == GL_FALSE)
-    {
-        GLint maxLength = 0;
-        glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &maxLength);
-
-        // The maxLength includes the NULL character
-        GLchar errorLog[maxLength];
-        glGetShaderInfoLog(shader, maxLength, &maxLength, &errorLog[0]);
-
-        // Provide the infolog in whatever manor you deem best.
-        // Exit with failure.
-        glDeleteShader(shader); // Don't leak the shader.
-
-        throw std::runtime_error(std::string("Shader failed to compile/link:\n") + std::string(errorLog));
-    }
 }

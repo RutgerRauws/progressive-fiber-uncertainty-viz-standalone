@@ -42,7 +42,26 @@ int main()
     window.setFramerateLimit(60);
 
     glewExperimental = GL_TRUE;
-    glewInit();
+
+    GLenum err = glewInit();
+    if(err != GLEW_OK)
+    {
+        /* Problem: glewInit failed, something is seriously wrong. */
+        throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(err)));
+    }
+    std::cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
+
+    if(!GLEW_VERSION_4_3)
+    {
+        throw std::runtime_error("OpenGL version 4.3 is not supported.");
+    }
+
+    if(!GLEW_ARB_shader_storage_buffer_object)
+    {
+        /* Problem: we cannot use SSBOs, which is necessary to keep our algorithm performant. */
+        throw std::runtime_error("SSBOs are not supported for this graphics card (missing ARB_shader_storage_buffer_object).");
+    }
+
     window.display();
 
     glm::mat4 modelMat = glm::mat4(1.0f);

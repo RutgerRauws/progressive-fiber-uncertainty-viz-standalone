@@ -8,6 +8,8 @@
 #include <string>
 #include <GL/glew.h>
 #include "VisitationMap.h"
+#include "../util/Shader.h"
+#include "../util/ShaderProgram.h"
 
 class VisitationMapUpdater
 {
@@ -24,12 +26,12 @@ class VisitationMapUpdater
 
         const std::string COMPUTE_SHADER_PATH = "./shaders/visitationmap/compute.glsl";
 
+        Shader* computeShader = nullptr;
+        ShaderProgram* shaderProgram = nullptr;
+
         VisitationMap& visitationMap;
 
         void initialize();
-
-        static std::string readStringFromFile(const std::string& path);
-        static void checkForErrors(GLuint shader);
 
     public:
         VisitationMapUpdater(VisitationMap& visitationMap);

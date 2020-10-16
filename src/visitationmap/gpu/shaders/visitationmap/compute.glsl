@@ -2,6 +2,9 @@
 layout(local_size_x = 1) in;
 //layout(rgba32f, binding = 0) uniform image2D img_output;
 
+//#extension GL_ARB_compute_shader : enable
+//#extension GL_ARB_compute_variable_group_size : enable
+
 //
 //
 // Uniforms
@@ -25,10 +28,12 @@ layout(std430, binding = 0) buffer frequencyMap
     uint frequency_map[];
 };
 
-//layout(std430, binding = 1) buffer FiberSample
-//{
-//    vec4 vertices[]; //vertex is a vec3 with an empty float for required padding
-//};
+layout(std430, binding = 1) buffer FiberSample
+{
+    uint numberOfVertices;
+    vec4 vertices[]; //vertex is a vec3 with an empty float for required padding
+};
+
 //struct Cell
 //{
 //    int fiberList[];
@@ -87,7 +92,7 @@ void makeSphere()
             {
                 vec3 newPoint = centerPointWC + vec3(x, y, z);
 
-                if(distance(vec3(0,0,0), newPoint) > sideIndexOffset)
+                if(distance(vec3(0, 0, 0), newPoint) > sideIndexOffset)
                 {
                     continue;
                 }
@@ -99,7 +104,7 @@ void makeSphere()
                     continue;
                 }
 
-                atomicAdd(frequency_map[cellIndex], 9);
+                atomicAdd(frequency_map[cellIndex], 1);
             }
         }
     }
