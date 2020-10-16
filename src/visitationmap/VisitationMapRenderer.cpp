@@ -75,15 +75,12 @@ void VisitationMapRenderer::createVertices() {
 
 void VisitationMapRenderer::initialize()
 {
-    GLuint frequency_map_ssbo = visitationMap.GetSSBOId();
+    shaderProgram->Use();
 
-//    GLuint frequency_map_ssbo;
-//    glGenBuffers(1, &frequency_map_ssbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
 //    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * visitationMap.GetWidth() * visitationMap.GetHeight() * visitationMap.GetDepth(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
@@ -92,8 +89,6 @@ void VisitationMapRenderer::initialize()
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_STATIC_DRAW);
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
@@ -146,6 +141,8 @@ void VisitationMapRenderer::Render()
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
 
     glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
 
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
 }

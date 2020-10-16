@@ -74,38 +74,26 @@ void VisitationMapUpdater::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
 //    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
+//    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
 
-    int numberOfPoints = 20;
-    int numberOfEdges = numberOfPoints - 1;
+
 //    glDispatchCompute(1, 1, 1); //(nr-of-segments / local-group-size, 1, 1)
-    glDispatchCompute(numberOfEdges, 1, 1);
 
     //Sync here to make writes visible
     //glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
     //glMemoryBarrier(GL_COMPUTE_SHADER_BIT);
+    NewFiber(nullptr);
+}
+
+void VisitationMapUpdater::NewFiber(Fiber* fiber)
+{
+    shaderProgram->Use();
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
+
+    int numberOfPoints = 20;
+    int numberOfEdges = numberOfPoints - 1;
+
+    glDispatchCompute(numberOfEdges, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-    /***
-     *
-     * Preparing outputs
-     *
-     */
-//    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
-//    GLuint* ptr = (GLuint*) glMapBuffer(GL_SHADER_STORAGE_BUFFER, GL_READ_ONLY);
-//
-//    std::memcpy(frequency_data, ptr, sizeof(unsigned int) * width * height * depth);
-//
-//    glUnmapBuffer(GL_SHADER_STORAGE_BUFFER);
-//
-//    unsigned int count = 0;
-//    for(unsigned int i = 0; i < width * height * depth; i++)
-//    {
-//        if(frequency_data[i] > 1) {
-//            std::cout << frequency_data[i] << std::endl;
-//            count++;
-//        }
-//    }
-
-//    std::cout << "Counted " << count << " items of the " << width * height * depth << " total." << std::endl;
 }

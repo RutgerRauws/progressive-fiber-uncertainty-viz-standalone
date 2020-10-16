@@ -85,8 +85,8 @@ int main()
     VisitationMap visitationMap = VisitationMap::CreateTest();
 
     VisitationMapUpdater visitationMapUpdater(visitationMap);
+    fiberPublisher.RegisterObserver(visitationMapUpdater);
 
-//    VisitationMapRenderer visitationMapRenderer(fiberPublisher.GetBounds());
     VisitationMapRenderer visitationMapRenderer(visitationMap, movementHandler.GetCameraState());
 
     FiberRenderer fiberRenderer(movementHandler.GetCameraState());

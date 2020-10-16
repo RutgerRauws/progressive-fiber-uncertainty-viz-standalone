@@ -10,8 +10,9 @@
 #include "VisitationMap.h"
 #include "../util/Shader.h"
 #include "../util/ShaderProgram.h"
+#include "../util/FiberObserver.h"
 
-class VisitationMapUpdater
+class VisitationMapUpdater : public FiberObserver
 {
     private:
 //        struct VisitationMapProperties
@@ -34,7 +35,9 @@ class VisitationMapUpdater
         void initialize();
 
     public:
-        VisitationMapUpdater(VisitationMap& visitationMap);
+        explicit VisitationMapUpdater(VisitationMap& visitationMap);
+
+        void NewFiber(Fiber* fiber) override;
 };
 
 
