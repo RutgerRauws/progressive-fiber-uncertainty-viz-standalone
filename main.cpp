@@ -15,6 +15,21 @@
 #include "src/visitationmap/VisitationMapRenderer.h"
 #include "src/visitationmap/VisitationMapUpdater.h"
 
+
+void GLAPIENTRY
+MessageCallback( GLenum source,
+                 GLenum type,
+                 GLuint id,
+                 GLenum severity,
+                 GLsizei length,
+                 const GLchar* message,
+                 const void* userParam )
+{
+    fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
+             ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
+             type, severity, message );
+}
+
 int main()
 {
     std::cout << "Application started..." << std::endl;
@@ -61,6 +76,12 @@ int main()
         /* Problem: we cannot use SSBOs, which is necessary to keep our algorithm performant. */
         throw std::runtime_error("SSBOs are not supported for this graphics card (missing ARB_shader_storage_buffer_object).");
     }
+
+    #ifdef DEBUG
+    // During init, enable debug output
+    glEnable              ( GL_DEBUG_OUTPUT );
+    glDebugMessageCallback( MessageCallback, 0 );
+    #endif
 
     window.display();
 
