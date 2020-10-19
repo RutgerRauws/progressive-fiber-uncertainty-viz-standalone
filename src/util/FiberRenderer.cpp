@@ -45,18 +45,18 @@ void FiberRenderer::updateData()
 
 void FiberRenderer::NewFiber(Fiber* fiber)
 {
-    const std::vector<Point>& fiberPoints = fiber->GetPoints();
+    const std::vector<glm::vec4>& fiberPoints = fiber->GetPoints();
 
     unsigned int incomingNumberOfPoints = fiberPoints.size();
     unsigned int currentNumberOfPoints = GetNumberOfVertices();
 
     for(unsigned int i = 0; i < incomingNumberOfPoints; i++)
     {
-        const Point& point = fiberPoints[i];
+        const glm::vec4& point = fiberPoints[i];
 
-        verticesVector.push_back(point.X);
-        verticesVector.push_back(point.Y);
-        verticesVector.push_back(point.Z);
+        verticesVector.push_back(point.x);
+        verticesVector.push_back(point.y);
+        verticesVector.push_back(point.z);
     }
 
     firstVertexOfEachFiber.push_back(currentNumberOfPoints);

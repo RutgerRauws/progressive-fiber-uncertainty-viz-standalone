@@ -17,7 +17,6 @@ add_executable(${EXECUTABLE_NAME}
         src/util/FiberRenderer.cpp src/util/FiberRenderer.h
         src/util/FiberPublisher.cpp src/util/FiberPublisher.h
         src/util/Fiber.cpp src/util/Fiber.h
-        src/util/Point.h
         src/interaction/KeyPressObserver.h
         src/centerline/CenterlineRenderer.cpp src/centerline/CenterlineRenderer.h
         src/centerline/DistanceTable.cpp src/centerline/DistanceTable.h

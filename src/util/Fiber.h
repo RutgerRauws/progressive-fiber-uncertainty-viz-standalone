@@ -7,7 +7,7 @@
 
 #include <vector>
 #include "vtkSmartPointer.h"
-#include "Point.h"
+#include "glm/ext.hpp"
 
 class Fiber
 {
@@ -17,7 +17,7 @@ class Fiber
     private:
         const unsigned int id;
         const unsigned int seedPointId;
-        std::vector<Point> points;
+        std::vector<glm::vec4> points; //it's a 4D-vector because this is required for padding in the shader
         
     public:
         Fiber(unsigned int seedPointId);
@@ -26,7 +26,7 @@ class Fiber
         Fiber& operator=(const Fiber&) = delete;
 
         void AddPoint(double x, double y, double z);
-        const std::vector<Point>& GetPoints() const;
+        const std::vector<glm::vec4>& GetPoints() const;
 
         unsigned int GetId() const;
         unsigned int GetSeedPointId() const;

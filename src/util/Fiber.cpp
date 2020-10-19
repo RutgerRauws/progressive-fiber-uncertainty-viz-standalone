@@ -13,10 +13,10 @@ Fiber::Fiber(unsigned int seedPointId)
 
 void Fiber::AddPoint(double x, double y, double z)
 {
-    points.emplace_back(x, y, z);
+    points.emplace_back(glm::vec4(x, y, z, 1));
 }
 
-const std::vector<Point>& Fiber::GetPoints() const
+const std::vector<glm::vec4>& Fiber::GetPoints() const
 {
     return points;
 }
@@ -37,7 +37,7 @@ double Fiber::CalculateLength() const
 
     for(unsigned int i = 0; i < points.size() - 1; i++)
     {
-        length += points[i].distance(points[i + 1]);
+        length += glm::distance(points[i], points[i + 1]);
     }
 
     return length;
