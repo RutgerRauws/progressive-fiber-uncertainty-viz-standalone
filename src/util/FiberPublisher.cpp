@@ -43,46 +43,12 @@ FiberPublisher::~FiberPublisher()
 void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData, unsigned int seedPointId)
 {
     std::cout << "Started fiber publisher thread!" << std::endl;
-    
+
     fiberPolyData->GetLines()->InitTraversal();
     vtkSmartPointer<vtkIdList> idList = vtkSmartPointer<vtkIdList>::New();
 
     while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers)
     {
-//        auto* fiber = new Fiber(0);
-//        fibers.emplace_back(fiber);
-//
-//        fiber->AddPoint(0, 0, 0);
-//        fiber->AddPoint(112, 112, 70);
-//        fiber->AddPoint(30, 30, 70);
-//        fiber->AddPoint(30, 0, 10);
-//
-//        for(FiberObserver& o : observers)
-//        {
-//            o.NewFiber(fiber);
-//        }
-//
-//        auto* fiber2 = new Fiber(1);
-//        fibers.emplace_back(fiber2);
-//
-////        fiber->AddPoint(-112, -112, -70);
-////        fiber->AddPoint(-30, -30, -70);
-////        fiber->AddPoint(-30, 0, -10);
-////        fiber->AddPoint(-30, -100, -10);
-//
-//        fiber2->AddPoint(20, 20, 20);
-//        fiber2->AddPoint(90, 90, 35);
-//        fiber2->AddPoint(15, 15, 35);
-//        fiber2->AddPoint(15, 0, 5);
-//
-//        for(FiberObserver& o : observers)
-//        {
-//            o.NewFiber(fiber2);
-//        }
-//
-//
-//
-//        break;
 
         auto* fiber = new Fiber(seedPointId);
         fibers.emplace_back(fiber);

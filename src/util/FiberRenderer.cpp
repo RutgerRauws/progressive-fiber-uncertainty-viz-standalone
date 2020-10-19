@@ -15,6 +15,8 @@ FiberRenderer::FiberRenderer(const CameraState& cameraState)
 
 void FiberRenderer::initialize()
 {
+    shaderProgram->Use();
+
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 

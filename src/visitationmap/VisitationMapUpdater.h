@@ -32,12 +32,15 @@ class VisitationMapUpdater : public FiberObserver
 
         VisitationMap& visitationMap;
 
+        std::vector<Fiber*> fiberQueue;
+
         void initialize();
 
     public:
         explicit VisitationMapUpdater(VisitationMap& visitationMap);
 
         void NewFiber(Fiber* fiber) override;
+        void Update();
 };
 
 

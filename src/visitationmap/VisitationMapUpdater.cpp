@@ -82,11 +82,21 @@ void VisitationMapUpdater::initialize()
     //Sync here to make writes visible
     //glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
     //glMemoryBarrier(GL_COMPUTE_SHADER_BIT);
-    NewFiber(nullptr);
+//    NewFiber(nullptr);
 }
 
 void VisitationMapUpdater::NewFiber(Fiber* fiber)
 {
+    fiberQueue.push_back(fiber);
+}
+
+void VisitationMapUpdater::Update()
+{
+    if(fiberQueue.empty())
+    {
+        return;
+    }
+
     shaderProgram->Use();
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
@@ -94,6 +104,8 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
     int numberOfPoints = 20;
     int numberOfEdges = numberOfPoints - 1;
 
-    glDispatchCompute(numberOfEdges, 1, 1);
+    glDispatchCompute(1, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+    fiberQueue.clear();
 }
