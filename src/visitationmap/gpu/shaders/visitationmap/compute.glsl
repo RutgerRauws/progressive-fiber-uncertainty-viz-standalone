@@ -28,9 +28,9 @@ layout(std430, binding = 0) buffer frequencyMap
     uint frequency_map[];
 };
 
-layout(std430, binding = 1) buffer FiberSample
+layout(std430, binding = 1) buffer FiberSegments
 {
-    uint numberOfVertices;
+//    uint numberOfVertices; //let's use vertices.length for now
     vec4 vertices[]; //vertex is a vec3 with an empty float for required padding
 };
 
@@ -110,6 +110,15 @@ void makeSphere()
     }
 }
 
+void splatLineSegment(in vec3 p1, in vec3 p2)
+{
+    uint cellIndex1 = GetCellIndex(p1);
+    uint cellIndex2 = GetCellIndex(p2);
+
+    atomicAdd(frequency_map[cellIndex1], 1);
+    atomicAdd(frequency_map[cellIndex2], 1);
+}
+
 //
 //
 // Main loop
@@ -117,7 +126,15 @@ void makeSphere()
 //
 void main()
 {
-    makeSphere();
+//    makeSphere();
+    for(int i = 0; i < vertices.length() - 1; i += 1)
+    {
+        vec3 currentPoint = vertices[i].xyz;
+        vec3 nextPoint = vertices[i + 1].xyz;
+
+        splatLineSegment(currentPoint, nextPoint);
+    }
+
 //    for(int x = 0; x < 100; x++)
 //    {
 //        for(int y = 0; y < 20; y++)

@@ -15,7 +15,7 @@ out vec4 outColor;
 //
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
-const float stepSize = 1;
+const float stepSize = .5;
 const uint isovalueThreshold = 3;
 
 //
@@ -133,13 +133,13 @@ bool isVoxelVisible(in vec3 position)
 vec3 computeNormal(in vec3 position)
 {
     vec3 normal = vec3(0);
-    float rad = 5;
+    double rad = 5;
 
-    for(float x = position.x - rad; x < position.x + rad; x++)
+    for(double x = position.x - rad; x < position.x + rad; x += vmp.cellSize)
     {
-        for(float y = position.y - rad; y < position.y + rad; y++)
+        for(double y = position.y - rad; y < position.y + rad; y += vmp.cellSize)
         {
-            for(float z = position.z - rad; z < position.z + rad; z++)
+            for(double z = position.z - rad; z < position.z + rad; z += vmp.cellSize)
             {
                 vec3 nextVoxel = vec3(x, y, z);
 
@@ -170,13 +170,22 @@ void main ()
     vec3 stepVec = stepSize * stepDir;
 
     vec4 fragmentColor = vec4(0);
-    vec3 currentPosition = fragmentPositionWC + stepVec;
+    vec3 currentPosition;
+
+    if(InVolume(cameraPosition))
+    {
+        currentPosition = cameraPosition;
+    }
+    else
+    {
+        currentPosition = fragmentPositionWC;
+    }
 
     while(fragmentColor.w < 1.0f)
     {
         if(!InVolume(currentPosition))
         {
-//            fragmentColor += vec4(.5, 0, 0, .5);
+//            fragmentColor += vec4(1, 0, 0, 1);
             break;
         }
 

@@ -33,8 +33,10 @@ class VisitationMapUpdater : public FiberObserver
         VisitationMap& visitationMap;
 
         std::vector<Fiber*> fiberQueue;
+        GLuint fiber_segments_ssbo_id;
 
         void initialize();
+        void fiberQueueToSegmentVertices(std::vector<glm::vec4>& outVertices);
 
     public:
         explicit VisitationMapUpdater(VisitationMap& visitationMap);

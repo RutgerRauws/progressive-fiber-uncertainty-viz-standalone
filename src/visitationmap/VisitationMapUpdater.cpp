@@ -66,15 +66,21 @@ void VisitationMapUpdater::initialize()
     glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
 
     //Visitation Map frequencies itself
-    GLuint frequency_map_ssbo = visitationMap.GetSSBOId();
+    GLuint frequency_map_ssbo_id = visitationMap.GetSSBOId();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * visitationMap.GetWidth() * visitationMap.GetHeight() * visitationMap.GetDepth(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-//    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
-//    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
+    glGenBuffers(1, &fiber_segments_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
+//    glBufferData(GL_SHADER_STORAGE_BUFFER, 0, 0, )
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fiber_segments_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+//    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
+//    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
 
 
 //    glDispatchCompute(1, 1, 1); //(nr-of-segments / local-group-size, 1, 1)
@@ -97,7 +103,15 @@ void VisitationMapUpdater::Update()
         return;
     }
 
+    std::vector<glm::vec4> segmentsVertices;
+    fiberQueueToSegmentVertices(segmentsVertices);
+
     shaderProgram->Use();
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * segmentsVertices.size(), segmentsVertices.data(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fiber_segments_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
 
@@ -106,6 +120,16 @@ void VisitationMapUpdater::Update()
 
     glDispatchCompute(1, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+}
 
+void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<glm::vec4>& outVertices)
+{
+    std::vector<Fiber*> fibersCopy(fiberQueue);
     fiberQueue.clear();
+
+    for(Fiber* fiber : fibersCopy)
+    {
+        const std::vector<glm::vec4>& fiberPoints = fiber->GetPoints();
+        outVertices.insert(outVertices.end(), fiberPoints.begin(), fiberPoints.end());
+    }
 }
