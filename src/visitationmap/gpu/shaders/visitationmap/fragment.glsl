@@ -15,7 +15,7 @@ out vec4 outColor;
 //
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
-const float stepSize = .5;
+const float stepSize = .3;
 const uint isovalueThreshold = 3;
 
 //
@@ -113,21 +113,28 @@ bool isVoxelInIsosurface(in vec3 position)
 
 bool isVoxelVisible(in vec3 position)
 {
-    vec3 voxelStep_x = vec3(vmp.cellSize, 0, 0);
-    vec3 voxelStep_y = vec3(0, vmp.cellSize, 0);
-    vec3 voxelStep_z = vec3(0, 0, vmp.cellSize);
+    vec3 eyePosVec = normalize(cameraPosition - fragmentPositionWC);
 
-    //TODO: Fix this function, as right now the empty voxels behind the voxel in question will also allow the voxel
-    //      in question to be considered 'visible'.
+    vec3 voxelStep = float(vmp.cellSize) * eyePosVec;
 
-    return (
-        !isVoxelInIsosurface(position - voxelStep_x)
-    ||  !isVoxelInIsosurface(position - voxelStep_y)
-    ||  !isVoxelInIsosurface(position - voxelStep_z)
-    ||  !isVoxelInIsosurface(position + voxelStep_x)
-    ||  !isVoxelInIsosurface(position + voxelStep_y)
-    ||  !isVoxelInIsosurface(position + voxelStep_z)
-    );
+    return !isVoxelInIsosurface(position + voxelStep);
+
+//
+//    vec3 voxelStep_x = vec3(vmp.cellSize, 0, 0);
+//    vec3 voxelStep_y = vec3(0, vmp.cellSize, 0);
+//    vec3 voxelStep_z = vec3(0, 0, vmp.cellSize);
+//
+//    //TODO: Fix this function, as right now the empty voxels behind the voxel in question will also allow the voxel
+//    //      in question to be considered 'visible'.
+//
+//    return (
+//        !isVoxelInIsosurface(position - voxelStep_x)
+//    ||  !isVoxelInIsosurface(position - voxelStep_y)
+//    ||  !isVoxelInIsosurface(position - voxelStep_z)
+//    ||  !isVoxelInIsosurface(position + voxelStep_x)
+//    ||  !isVoxelInIsosurface(position + voxelStep_y)
+//    ||  !isVoxelInIsosurface(position + voxelStep_z)
+//    );
 }
 
 vec3 computeNormal(in vec3 position)
@@ -144,7 +151,10 @@ vec3 computeNormal(in vec3 position)
                 vec3 nextVoxel = vec3(x, y, z);
 
                 if(isVoxelVisible(nextVoxel)) {        // voxelVisible() just checks if the voxel in question is exposed on the surface (not covered up)
-                    normal += nextVoxel - position;
+//                    uint cellIndex = GetCellIndex(nextVoxel);
+//                    uint value = frequency_map[cellIndex];
+//                    normal += value * normalize(nextVoxel - position);
+                    normal += normalize(nextVoxel - position);
                 }
             }
         }
@@ -191,8 +201,8 @@ void main ()
 
         if(isVoxelInIsosurface(currentPosition))
         {
-            fragmentColor = vec4(computeNormal(currentPosition), 1);
-//            fragmentColor += vec4(0, 1, 0, 1);
+            vec3 normal = computeNormal(currentPosition);
+            fragmentColor = vec4(normal, 1);
         }
 
         currentPosition += stepVec;
