@@ -7,10 +7,9 @@
 #include <cmath>
 #include <iostream>
 #include "VisitationMap.h"
-#include "../util/glm/vec3.hpp"
 #include "../util/glm/glm.hpp"
 
-VisitationMap::VisitationMap(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax, float spacing)
+VisitationMap::VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing)
     : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax), spacing(spacing)
 {
     initialize();
@@ -25,7 +24,7 @@ void VisitationMap::initialize()
     depth =  std::ceil(std::abs(zmin - zmax) / spacing);
 
     //Visitation Map frequencies itself
-    frequency_data = new unsigned int[width * height * depth];
+    frequency_data = new GLuint[width * height * depth];
     std::fill_n(frequency_data, width * height * depth, 0);
 
     glGenBuffers(1, &frequency_map_ssbo);
@@ -108,6 +107,8 @@ VisitationMap VisitationMap::CreateTest()
     const float DTI_ZMAX =  70;
     const float DTI_SPACING = 2; //mm
 
+    const float MAX_FIBER_LENGTH = 190; //mm? ~186.861mm
+    const glm::vec3 SEED_POINT(10.254, -6.92531, 0.630174); //estimate
 //    DTI/DWI volume dimensions from example data set
 //    const unsigned int width  = 112;
 //    const unsigned int height = 112;
@@ -115,6 +116,20 @@ VisitationMap VisitationMap::CreateTest()
 //    const float spacing = 2;
     VisitationMap visitationMap(DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, DTI_SPACING);
 //    visitationMap.makeSphere();
+//    VisitationMap visitationMap = CreateVisitationMap(SEED_POINT, MAX_FIBER_LENGTH);
 
     return visitationMap;
+}
+
+VisitationMap VisitationMap::CreateVisitationMap(const glm::vec3& seedPoint, float cutoffLength)
+{
+    return VisitationMap(
+            seedPoint.x - cutoffLength,
+            seedPoint.x + cutoffLength,
+            seedPoint.y - cutoffLength,
+            seedPoint.y + cutoffLength,
+            seedPoint.z - cutoffLength,
+            seedPoint.z + cutoffLength,
+            2
+    );
 }

@@ -15,6 +15,8 @@
 class VisitationMapUpdater : public FiberObserver
 {
     private:
+
+
 //        struct VisitationMapProperties
 //        {
 //            VisitationMapProperties(int width, int height, int depth, float cellSize)

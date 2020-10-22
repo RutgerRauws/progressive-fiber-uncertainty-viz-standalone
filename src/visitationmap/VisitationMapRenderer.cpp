@@ -104,21 +104,21 @@ void VisitationMapRenderer::initialize()
     GLint programId = shaderProgram->GetId();
 
     GLint vmProp_loc;
-    vmProp_loc = glGetUniformLocation(programId, "vmp.xmin");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.xmax");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmax());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.ymin");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.ymax");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmax());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.zmin");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.zmax");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmax");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymin");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymax");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmin");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmax");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmax());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetSpacing());
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetSpacing());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.width");
     glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetWidth());

@@ -42,21 +42,21 @@ void VisitationMapUpdater::initialize()
     GLint vmProp_loc;
     GLuint programId = shaderProgram->GetId();
 
-    vmProp_loc = glGetUniformLocation(programId, "vmp.xmin");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.xmax");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetXmax());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.ymin");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.ymax");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetYmax());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.zmin");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.zmax");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetZmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmax");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymin");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymax");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmax());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmin");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmin());
+    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmax");
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmax());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
-    glProgramUniform1d(programId, vmProp_loc, visitationMap.GetSpacing());
+    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetSpacing());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.width");
     glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetWidth());
@@ -69,7 +69,10 @@ void VisitationMapUpdater::initialize()
     GLuint frequency_map_ssbo_id = visitationMap.GetSSBOId();
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * visitationMap.GetWidth() * visitationMap.GetHeight() * visitationMap.GetDepth(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()) + visitationMap.GetNumberOfBytes(), 0, GL_DYNAMIC_DRAW);
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (float*)&visitationMap.GetAABB());
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()), visitationMap.GetNumberOfBytes(), visitationMap.GetData());
+//    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 

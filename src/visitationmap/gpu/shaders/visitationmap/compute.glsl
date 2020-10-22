@@ -7,15 +7,26 @@ layout(local_size_x = 1) in;
 
 //
 //
+// Structs
+//
+//
+struct AxisAlignedBoundingBox
+{
+    float xmin, xmax, ymin, ymax, zmin, zmax;
+};
+
+struct VisitationMapProperties
+{
+    AxisAlignedBoundingBox dataset_aabb; //this AABB is set once and defines the bounds of the DWI/DTI dataset
+    float cellSize;
+    uint width, height, depth;
+};
+
+//
+//
 // Uniforms
 //
 //
-struct VisitationMapProperties
-{
-    double xmin, xmax, ymin, ymax, zmin, zmax;
-    double cellSize;
-    uint width, height, depth;
-};
 uniform VisitationMapProperties vmp; //visitationMapProp
 
 //
@@ -23,8 +34,9 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 // SSBOs
 //
 //
-layout(std430, binding = 0) buffer frequencyMap
+layout(std430, binding = 0) buffer visitationMap
 {
+    AxisAlignedBoundingBox roi_aabb; //this AABBB will continuously change during execution, when new fibers are added
     uint frequency_map[];
 };
 
@@ -57,9 +69,9 @@ uint GetCellIndex(in uint x_index, in uint y_index, in uint z_index)
 void GetIndices(in vec3 point, out uint x_index, out uint y_index, out uint z_index)
 {
     //Casting to uint automatically floors the float
-    x_index = uint((point.x - vmp.xmin) / vmp.cellSize);
-    y_index = uint((point.y - vmp.ymin) / vmp.cellSize);
-    z_index = uint((point.z - vmp.zmin) / vmp.cellSize);
+    x_index = uint((point.x - vmp.dataset_aabb.xmin) / vmp.cellSize);
+    y_index = uint((point.y - vmp.dataset_aabb.ymin) / vmp.cellSize);
+    z_index = uint((point.z - vmp.dataset_aabb.zmin) / vmp.cellSize);
 }
 
 uint GetCellIndex(in vec3 positionWC)
@@ -70,13 +82,35 @@ uint GetCellIndex(in vec3 positionWC)
     return GetCellIndex(x_index, y_index, z_index);
 }
 
+//todo: change aabb to different variable name than global aabb
+//bool InAABB(in AxisAlignedBoundingBox aabb, in vec3 position)
+//{
+//    return (
+//        position.x >= aabb.xmin
+//        && position.x <= aabb.xmax
+//        && position.y >= aabb.ymin
+//        && position.y <= aabb.ymax
+//        && position.z >= aabb.zmin
+//        && position.z <= aabb.zmax
+//    );
+//}
+
+void updateROIAABB(in vec3 position)
+{
+    roi_aabb.xmin = min(roi_aabb.xmin, position.x);
+    roi_aabb.xmax = max(roi_aabb.xmax, position.x);
+    roi_aabb.ymin = min(roi_aabb.ymin, position.y);
+    roi_aabb.ymax = max(roi_aabb.ymax, position.y);
+    roi_aabb.zmin = min(roi_aabb.zmin, position.z);
+    roi_aabb.zmax = max(roi_aabb.zmax, position.z);
+}
 
 void makeSphere()
 {
     vec3 centerPointWC = vec3(
-        (vmp.xmin + vmp.xmax) / 2.0,
-        (vmp.ymin + vmp.ymax) / 2.0,
-        (vmp.zmin + vmp.zmax) / 2.0
+        (vmp.dataset_aabb.xmin + vmp.dataset_aabb.xmax) / 2.0,
+        (vmp.dataset_aabb.ymin + vmp.dataset_aabb.ymax) / 2.0,
+        (vmp.dataset_aabb.zmin + vmp.dataset_aabb.zmax) / 2.0
     );
 
     uint indices[3];
@@ -126,11 +160,16 @@ void splatLineSegment(in vec3 p1, in vec3 p2)
 //
 void main()
 {
+    if(vertices.length() < 1) { return; }
 //    makeSphere();
+    updateROIAABB(vertices[0].xyz);
+
     for(int i = 0; i < vertices.length() - 1; i += 1)
     {
         vec3 currentPoint = vertices[i].xyz;
         vec3 nextPoint = vertices[i + 1].xyz;
+
+        updateROIAABB(nextPoint);
 
         splatLineSegment(currentPoint, nextPoint);
     }

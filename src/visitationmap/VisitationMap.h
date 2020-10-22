@@ -10,11 +10,23 @@
 class VisitationMap
 {
 private:
-    float xmin, xmax, ymin, ymax, zmin, zmax;
-    float spacing;
-    unsigned int width, height, depth;
+    struct AxisAlignedBoundingBox
+    {
+        GLfloat xmin = std::numeric_limits<GLfloat>::max();
+        GLfloat xmax = std::numeric_limits<GLfloat>::min();
+        GLfloat ymin = std::numeric_limits<GLfloat>::max();
+        GLfloat ymax = std::numeric_limits<GLfloat>::min();
+        GLfloat zmin = std::numeric_limits<GLfloat>::max();
+        GLfloat zmax = std::numeric_limits<GLfloat>::min();
+    };
 
-    unsigned int* frequency_data;
+    //properties
+    GLfloat xmin, xmax, ymin, ymax, zmin, zmax;
+    GLfloat spacing;
+    GLuint width, height, depth;
+
+    GLuint* frequency_data;
+    const AxisAlignedBoundingBox aabb_structure;
 
     GLuint frequency_map_ssbo;
 
@@ -26,23 +38,27 @@ private:
     void makeSphere();
 
 public:
-    VisitationMap(float xmin, float xmax, float ymin, float ymax, float zmin, float zmax, float spacing);
+    VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing);
 
     static VisitationMap CreateTest();
+    static VisitationMap CreateVisitationMap(const glm::vec3& seedPoint, float cutoffLength);
 
-    float GetXmin() const { return xmin; }
-    float GetYmin() const { return ymin; }
-    float GetZmin() const { return zmin; }
-    float GetXmax() const { return xmax; }
-    float GetYmax() const { return ymax; }
-    float GetZmax() const { return zmax; }
-    float GetSpacing() const {return spacing; }
+    GLfloat GetXmin() const { return xmin; }
+    GLfloat GetYmin() const { return ymin; }
+    GLfloat GetZmin() const { return zmin; }
+    GLfloat GetXmax() const { return xmax; }
+    GLfloat GetYmax() const { return ymax; }
+    GLfloat GetZmax() const { return zmax; }
+    GLfloat GetSpacing() const {return spacing; }
 
-    unsigned int GetWidth() const { return width; }
-    unsigned int GetHeight() const { return height; }
-    unsigned int GetDepth() const { return depth; }
+    GLuint GetWidth() const { return width; }
+    GLuint GetHeight() const { return height; }
+    GLuint GetDepth() const { return depth; }
 
-    unsigned int* GetData() const { return frequency_data; }
+    GLuint* GetData() const { return frequency_data; }
+
+    const AxisAlignedBoundingBox& GetAABB() const { return aabb_structure; }
+    unsigned int GetNumberOfBytes() const { return sizeof(unsigned int) * GetWidth() * GetHeight() * GetDepth();}
 
     GLuint GetSSBOId() const { return frequency_map_ssbo; }
 };
