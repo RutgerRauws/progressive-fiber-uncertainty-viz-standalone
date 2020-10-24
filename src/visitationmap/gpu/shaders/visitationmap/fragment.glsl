@@ -109,7 +109,6 @@ bool InAABB(in AxisAlignedBoundingBox aabb, in vec3 position)
     );
 }
 
-
 bool isVoxelInIsosurface(in uint cellIndex)
 {
     //Out of bounds checking
@@ -122,12 +121,6 @@ bool isVoxelInIsosurface(in uint cellIndex)
     return isovalue > isovalueThreshold;
 }
 
-//bool isVoxelInIsosurface(in uint x_index, in uint y_index, in uint z_index)
-//{
-//    uint cellIndex = GetCellIndex(x_index, y_index, z_index);
-//    return isVoxelInIsosurface(cellIndex);
-//}
-
 bool isVoxelInIsosurface(in vec3 position)
 {
     uint cellIndex = GetCellIndex(position);
@@ -137,28 +130,12 @@ bool isVoxelInIsosurface(in vec3 position)
 
 bool isVoxelVisible(in vec3 position)
 {
+    //todo: verify that this is correct
     vec3 eyePosVec = normalize(cameraPosition - fragmentPositionWC);
 
     vec3 voxelStep = float(vmp.cellSize) * eyePosVec;
 
     return !isVoxelInIsosurface(position + voxelStep);
-
-//
-//    vec3 voxelStep_x = vec3(vmp.cellSize, 0, 0);
-//    vec3 voxelStep_y = vec3(0, vmp.cellSize, 0);
-//    vec3 voxelStep_z = vec3(0, 0, vmp.cellSize);
-//
-//    //TODO: Fix this function, as right now the empty voxels behind the voxel in question will also allow the voxel
-//    //      in question to be considered 'visible'.
-//
-//    return (
-//        !isVoxelInIsosurface(position - voxelStep_x)
-//    ||  !isVoxelInIsosurface(position - voxelStep_y)
-//    ||  !isVoxelInIsosurface(position - voxelStep_z)
-//    ||  !isVoxelInIsosurface(position + voxelStep_x)
-//    ||  !isVoxelInIsosurface(position + voxelStep_y)
-//    ||  !isVoxelInIsosurface(position + voxelStep_z)
-//    );
 }
 
 vec3 computeNormal(in vec3 position)
@@ -236,12 +213,6 @@ void main ()
     //Start ray traversal
     while(fragmentColor.w < 1.0f)
     {
-//        if(!InAABB(roi_aabb, currentPosition))
-//        {
-//            fragmentColor += vec4(1, 0, 0, 1);
-//            break;
-//        }
-
         if(s > tFar)
         {
             //We exit the ROI, so we stop the raycasting.

@@ -3,11 +3,7 @@
 //
 
 #include "VisitationMapUpdater.h"
-
-#include <sstream>
 #include <iostream>
-#include <cstring>
-#include <fstream>
 
 VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
    : visitationMap(visitationMap)
@@ -72,28 +68,16 @@ void VisitationMapUpdater::initialize()
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()) + visitationMap.GetNumberOfBytes(), 0, GL_DYNAMIC_DRAW);
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (GLint*)&visitationMap.GetAABB());
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()), visitationMap.GetNumberOfBytes(), visitationMap.GetData());
-//    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glGenBuffers(1, &fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
-//    glBufferData(GL_SHADER_STORAGE_BUFFER, 0, 0, )
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-//    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
-//    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
-
     //Get the limitations on the number of work groups the GPU supports
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNrOfWorkGroups);
-
-//    glDispatchCompute(1, 1, 1); //(nr-of-segments / local-group-size, 1, 1)
-
-    //Sync here to make writes visible
-    //glMemoryBarrier(GL_BUFFER_UPDATE_BARRIER_BIT);
-    //glMemoryBarrier(GL_COMPUTE_SHADER_BIT);
-//    NewFiber(nullptr);
 }
 
 void VisitationMapUpdater::NewFiber(Fiber* fiber)

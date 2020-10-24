@@ -1,9 +1,5 @@
 #version 430 core
 layout(local_size_x = 1) in;
-//layout(rgba32f, binding = 0) uniform image2D img_output;
-
-//#extension GL_ARB_compute_shader : enable
-//#extension GL_ARB_compute_variable_group_size : enable
 
 //
 //
@@ -42,7 +38,6 @@ layout(std430, binding = 0) buffer visitationMap
 
 layout(std430, binding = 1) buffer FiberSegments
 {
-//    uint numberOfVertices; //let's use vertices.length for now
     vec4 vertices[]; //vertex is a vec3 with an empty float for required padding
 };
 
@@ -82,18 +77,18 @@ uint GetCellIndex(in vec3 positionWC)
     return GetCellIndex(x_index, y_index, z_index);
 }
 
-//todo: change aabb to different variable name than global aabb
-//bool InAABB(in AxisAlignedBoundingBox aabb, in vec3 position)
-//{
-//    return (
-//        position.x >= aabb.xmin
-//        && position.x <= aabb.xmax
-//        && position.y >= aabb.ymin
-//        && position.y <= aabb.ymax
-//        && position.z >= aabb.zmin
-//        && position.z <= aabb.zmax
-//    );
-//}
+//todo: not used
+bool InAABB(in AxisAlignedBoundingBox aabb, in vec3 position)
+{
+    return (
+    position.x >= aabb.xmin * vmp.cellSize
+    && position.x <= aabb.xmax * vmp.cellSize
+    && position.y >= aabb.ymin * vmp.cellSize
+    && position.y <= aabb.ymax * vmp.cellSize
+    && position.z >= aabb.zmin * vmp.cellSize
+    && position.z <= aabb.zmax * vmp.cellSize
+    );
+}
 
 void updateROIAABB(in vec3 position)
 {
@@ -103,12 +98,6 @@ void updateROIAABB(in vec3 position)
     atomicMax(roi_aabb.ymax, int(ceil( position.y / vmp.cellSize)));
     atomicMin(roi_aabb.zmin, int(floor(position.z / vmp.cellSize)));
     atomicMax(roi_aabb.zmax, int(ceil( position.z / vmp.cellSize)));
-//    roi_aabb.xmin = min(roi_aabb.xmin, position.x);
-//    roi_aabb.xmax = max(roi_aabb.xmax, position.x);
-//    roi_aabb.ymin = min(roi_aabb.ymin, position.y);
-//    roi_aabb.ymax = max(roi_aabb.ymax, position.y);
-//    roi_aabb.zmin = min(roi_aabb.zmin, position.z);
-//    roi_aabb.zmax = max(roi_aabb.zmax, position.z);
 }
 
 void makeSphere()
@@ -163,11 +152,6 @@ void splatLineSegment(in vec3 p1, in vec3 p2)
 
         atomicAdd(frequency_map[cellIndex], 10);
     }
-//    uint cellIndex1 = GetCellIndex(p1);
-//    uint cellIndex2 = GetCellIndex(p2);
-//
-//    atomicAdd(frequency_map[cellIndex1], 1);
-//    atomicAdd(frequency_map[cellIndex2], 1);
 }
 
 //
@@ -180,46 +164,14 @@ void main()
     if(vertices.length() < 1) { return; }
 //    makeSphere();
 
-//    uint numberOfEdges = vertices.length() - 1;
-//    uint numberOfSegmentsToCompute = numberOfEdges / gl_NumWorkGroups.x;
-
     uint numberOfLineSegments = gl_NumWorkGroups.x;
     uint segmentId = gl_WorkGroupID.x; //the segment id is the vertex number for the 'start vertex'
 
     vec3 currentPoint = vertices[2*segmentId].xyz;
     vec3 nextPoint = vertices[2*segmentId + 1].xyz; //we will not index out of bounds, as the numberOfEdges is always #points-1
 
-//    updateROIAABB(currentPoint);
+    updateROIAABB(currentPoint);
     updateROIAABB(nextPoint);
 
     splatLineSegment(currentPoint, nextPoint);
-
-//    for(int i = 0; i < vertices.length() - 1; i += 1)
-//    {
-//        vec3 currentPoint = vertices[i].xyz;
-//        vec3 nextPoint = vertices[i + 1].xyz;
-//
-//        updateROIAABB(nextPoint);
-//
-//        splatLineSegment(currentPoint, nextPoint);
-//    }
-
-//    for(int x = 0; x < 100; x++)
-//    {
-//        for(int y = 0; y < 20; y++)
-//        {
-//            vec3 position = vec3(vmp.zmin + x, vmp.ymin + y, vmp.zmin + 3);
-//            uint cellIndex = GetCellIndex(position);
-//
-//            atomicAdd(frequency_map[cellIndex], 1);
-//        }
-//    }
-
-    //atomicAdd(frequency_map[gl_GlobalInvocationID.x], 1);
-
-//    for(int i = 0; i < visitationMapProp.width * visitationMapProp.height * visitationMapProp.depth; i++)
-//    {
-//        atomicAdd(frequency_map[i], 1);
-////        frequency_map[i] = 3;//frequency_map[i] + 1;;
-//    }
 }
