@@ -15,18 +15,6 @@
 class VisitationMapUpdater : public FiberObserver
 {
     private:
-
-
-//        struct VisitationMapProperties
-//        {
-//            VisitationMapProperties(int width, int height, int depth, float cellSize)
-//                : width(width), height(height), depth(depth), cellSize(cellSize)
-//            {}
-//
-//            int width, height, depth;
-//            float cellSize;
-//        };
-
         const std::string COMPUTE_SHADER_PATH = "./shaders/visitationmap/compute.glsl";
 
         Shader* computeShader = nullptr;
@@ -36,6 +24,7 @@ class VisitationMapUpdater : public FiberObserver
 
         std::vector<Fiber*> fiberQueue;
         GLuint fiber_segments_ssbo_id;
+        GLint maxNrOfWorkGroups;
 
         void initialize();
         void fiberQueueToSegmentVertices(std::vector<glm::vec4>& outVertices);

@@ -53,12 +53,18 @@ void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData,
         auto* fiber = new Fiber(seedPointId);
         fibers.emplace_back(fiber);
 
-        for(vtkIdType id = 0; id < idList->GetNumberOfIds(); id++)
+        for(vtkIdType id = 0; id < idList->GetNumberOfIds() - 1; id++)
         {
-            double point[3];
-            fiberPolyData->GetPoint(idList->GetId(id), point);
+            double p1[3];
+            fiberPolyData->GetPoint(idList->GetId(id), p1);
 
-            fiber->AddPoint(point[0], point[1], point[2]);
+            double p2[3];
+            fiberPolyData->GetPoint(idList->GetId(id + 1), p2);
+
+            fiber->AddSegment(
+                glm::vec3(p1[0], p1[1], p1[2]),
+                glm::vec3(p2[0], p2[1], p2[2])
+            );
         }
 
         for(FiberObserver& o : observers)

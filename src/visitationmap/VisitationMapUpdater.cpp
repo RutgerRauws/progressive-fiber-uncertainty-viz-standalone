@@ -43,17 +43,17 @@ void VisitationMapUpdater::initialize()
     GLuint programId = shaderProgram->GetId();
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmin());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmax");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmax());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmax());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymin");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmin());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymax");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmax());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmax());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmin");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmin());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmax");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmax());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmax());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
     glProgramUniform1f(programId, vmProp_loc, visitationMap.GetSpacing());
@@ -70,7 +70,7 @@ void VisitationMapUpdater::initialize()
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()) + visitationMap.GetNumberOfBytes(), 0, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (float*)&visitationMap.GetAABB());
+    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (GLint*)&visitationMap.GetAABB());
     glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()), visitationMap.GetNumberOfBytes(), visitationMap.GetData());
 //    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
@@ -85,6 +85,8 @@ void VisitationMapUpdater::initialize()
 //    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
 //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
 
+    //Get the limitations on the number of work groups the GPU supports
+    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNrOfWorkGroups);
 
 //    glDispatchCompute(1, 1, 1); //(nr-of-segments / local-group-size, 1, 1)
 
@@ -118,10 +120,13 @@ void VisitationMapUpdater::Update()
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
 
-    int numberOfPoints = 20;
-    int numberOfEdges = numberOfPoints - 1;
+    int numberOfPoints = segmentsVertices.size();
+    int numberOfLineSegments = numberOfPoints / 2;;
 
-    glDispatchCompute(1, 1, 1);
+    int numberOfWorkGroups = numberOfLineSegments; // std::min(numberOfEdges, maxNrOfWorkGroups); //we do not want to dispatch more workgroups than the GPU supports
+    //minimum supported is 65535
+
+    glDispatchCompute(numberOfWorkGroups, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
@@ -132,7 +137,7 @@ void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<glm::vec4>& o
 
     for(Fiber* fiber : fibersCopy)
     {
-        const std::vector<glm::vec4>& fiberPoints = fiber->GetPoints();
-        outVertices.insert(outVertices.end(), fiberPoints.begin(), fiberPoints.end());
+        const std::vector<glm::vec4>& fiberVertices = fiber->GetLineSegmentsAsPoints();
+        outVertices.insert(outVertices.end(), fiberVertices.begin(), fiberVertices.end());
     }
 }

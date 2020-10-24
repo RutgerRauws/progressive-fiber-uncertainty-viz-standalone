@@ -10,7 +10,13 @@
 #include "../util/glm/glm.hpp"
 
 VisitationMap::VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing)
-    : xmin(xmin), xmax(xmax), ymin(ymin), ymax(ymax), zmin(zmin), zmax(zmax), spacing(spacing)
+    : xmin(std::floor(xmin / spacing)),
+      xmax(std::ceil(xmax / spacing)),
+      ymin(std::floor(ymin / spacing)),
+      ymax(std::ceil(ymax / spacing)),
+      zmin(std::floor(zmin / spacing)),
+      zmax(std::ceil(zmax / spacing)),
+      spacing(spacing)
 {
     initialize();
 }
@@ -19,9 +25,9 @@ VisitationMap::VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat y
 void VisitationMap::initialize()
 {
     //TODO: Look into fixing double to int conversion.
-    width =  std::ceil( std::abs(xmin - xmax) / spacing);
-    height = std::ceil(std::abs(ymin - ymax) / spacing);
-    depth =  std::ceil(std::abs(zmin - zmax) / spacing);
+    width =  std::abs(xmin - xmax);
+    height = std::abs(ymin - ymax);
+    depth =  std::abs(zmin - zmax);
 
     //Visitation Map frequencies itself
     frequency_data = new GLuint[width * height * depth];
@@ -43,17 +49,17 @@ unsigned int VisitationMap::getCellIndex(unsigned int x_index, unsigned int y_in
 void VisitationMap::getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index) const
 {
     //Casting to uint automatically floors the float
-    x_index = uint((point.x - xmin) / spacing);
-    y_index = uint((point.y - ymin) / spacing);
-    z_index = uint((point.z - zmin) / spacing);
+    x_index = uint((point.x - xmin * spacing) / spacing);
+    y_index = uint((point.y - ymin * spacing) / spacing);
+    z_index = uint((point.z - zmin * spacing) / spacing);
 }
 
 void VisitationMap::makeSphere()
 {
     glm::vec3 centerPointWC(
-            (xmin + xmax) / 2.0,
-            (ymin + ymax) / 2.0,
-            (zmin + zmax) / 2.0
+        ((xmin + xmax) * spacing) / 2.0,
+        ((ymin + ymax) * spacing) / 2.0,
+        ((zmin + zmax) * spacing) / 2.0
     );
 
     unsigned int indices[3];
@@ -105,7 +111,7 @@ VisitationMap VisitationMap::CreateTest()
     const float DTI_YMAX =  112;
     const float DTI_ZMIN = -70;
     const float DTI_ZMAX =  70;
-    const float DTI_SPACING = 2; //mm
+    const float DTI_SPACING = 1; //mm
 
     const float MAX_FIBER_LENGTH = 190; //mm? ~186.861mm
     const glm::vec3 SEED_POINT(10.254, -6.92531, 0.630174); //estimate

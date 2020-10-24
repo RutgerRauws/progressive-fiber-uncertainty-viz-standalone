@@ -21,12 +21,12 @@ VisitationMapRenderer::~VisitationMapRenderer()
 }
 
 void VisitationMapRenderer::createVertices() {
-    float xmin = visitationMap.GetXmin();
-    float ymin = visitationMap.GetYmin();
-    float zmin = visitationMap.GetZmin();
-    float xmax = visitationMap.GetXmax();
-    float ymax = visitationMap.GetYmax();
-    float zmax = visitationMap.GetZmax();
+    float xmin = visitationMap.GetXmin() * visitationMap.GetSpacing();
+    float ymin = visitationMap.GetYmin() * visitationMap.GetSpacing();
+    float zmin = visitationMap.GetZmin() * visitationMap.GetSpacing();
+    float xmax = visitationMap.GetXmax() * visitationMap.GetSpacing();
+    float ymax = visitationMap.GetYmax() * visitationMap.GetSpacing();
+    float zmax = visitationMap.GetZmax() * visitationMap.GetSpacing();
 
     vertices = new float[36 * 5] {
         xmin, ymin, zmin,  0.0f, 0.0f,
@@ -105,17 +105,17 @@ void VisitationMapRenderer::initialize()
 
     GLint vmProp_loc;
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmin());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmax");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetXmax());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmax());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymin");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmin());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymax");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetYmax());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmax());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmin");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmin());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmin());
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmax");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetZmax());
+    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmax());
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
     glProgramUniform1f(programId, vmProp_loc, visitationMap.GetSpacing());

@@ -45,7 +45,7 @@ void FiberRenderer::updateData()
 
 void FiberRenderer::NewFiber(Fiber* fiber)
 {
-    const std::vector<glm::vec4>& fiberPoints = fiber->GetPoints();
+    const std::vector<glm::vec4>& fiberPoints = fiber->GetUniquePoints();
 
     unsigned int incomingNumberOfPoints = fiberPoints.size();
     unsigned int currentNumberOfPoints = GetNumberOfVertices();

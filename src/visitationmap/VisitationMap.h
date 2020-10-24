@@ -12,16 +12,16 @@ class VisitationMap
 private:
     struct AxisAlignedBoundingBox
     {
-        GLfloat xmin = std::numeric_limits<GLfloat>::max();
-        GLfloat xmax = std::numeric_limits<GLfloat>::min();
-        GLfloat ymin = std::numeric_limits<GLfloat>::max();
-        GLfloat ymax = std::numeric_limits<GLfloat>::min();
-        GLfloat zmin = std::numeric_limits<GLfloat>::max();
-        GLfloat zmax = std::numeric_limits<GLfloat>::min();
+        GLint xmin = std::numeric_limits<GLint>::max();
+        GLint xmax = std::numeric_limits<GLint>::min();
+        GLint ymin = std::numeric_limits<GLint>::max();
+        GLint ymax = std::numeric_limits<GLint>::min();
+        GLint zmin = std::numeric_limits<GLint>::max();
+        GLint zmax = std::numeric_limits<GLint>::min();
     };
 
     //properties
-    GLfloat xmin, xmax, ymin, ymax, zmin, zmax;
+    GLint xmin, xmax, ymin, ymax, zmin, zmax;
     GLfloat spacing;
     GLuint width, height, depth;
 
@@ -43,13 +43,13 @@ public:
     static VisitationMap CreateTest();
     static VisitationMap CreateVisitationMap(const glm::vec3& seedPoint, float cutoffLength);
 
-    GLfloat GetXmin() const { return xmin; }
-    GLfloat GetYmin() const { return ymin; }
-    GLfloat GetZmin() const { return zmin; }
-    GLfloat GetXmax() const { return xmax; }
-    GLfloat GetYmax() const { return ymax; }
-    GLfloat GetZmax() const { return zmax; }
-    GLfloat GetSpacing() const {return spacing; }
+    GLint GetXmin() const { return xmin; }
+    GLint GetYmin() const { return ymin; }
+    GLint GetZmin() const { return zmin; }
+    GLint GetXmax() const { return xmax; }
+    GLint GetYmax() const { return ymax; }
+    GLint GetZmax() const { return zmax; }
+    GLfloat GetSpacing() const { return spacing; }
 
     GLuint GetWidth() const { return width; }
     GLuint GetHeight() const { return height; }

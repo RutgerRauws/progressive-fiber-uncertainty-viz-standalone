@@ -57,7 +57,7 @@ void CenterlineRenderer::render()
     vtkNew<vtkPoints> points;
     vtkNew<vtkCellArray> lines;
 
-    const std::vector<glm::vec4>& newPoints = distanceTable.GetCenterline().GetPoints();
+    const std::vector<glm::vec4>& newPoints = distanceTable.GetCenterline().GetUniquePoints();
     points->SetNumberOfPoints(newPoints.size());
 
     vtkNew<vtkPolyLine> polyLine;

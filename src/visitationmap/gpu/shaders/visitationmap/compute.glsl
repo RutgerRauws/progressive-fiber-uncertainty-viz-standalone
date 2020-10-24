@@ -12,7 +12,7 @@ layout(local_size_x = 1) in;
 //
 struct AxisAlignedBoundingBox
 {
-    float xmin, xmax, ymin, ymax, zmin, zmax;
+    int xmin, xmax, ymin, ymax, zmin, zmax;
 };
 
 struct VisitationMapProperties
@@ -69,9 +69,9 @@ uint GetCellIndex(in uint x_index, in uint y_index, in uint z_index)
 void GetIndices(in vec3 point, out uint x_index, out uint y_index, out uint z_index)
 {
     //Casting to uint automatically floors the float
-    x_index = uint((point.x - vmp.dataset_aabb.xmin) / vmp.cellSize);
-    y_index = uint((point.y - vmp.dataset_aabb.ymin) / vmp.cellSize);
-    z_index = uint((point.z - vmp.dataset_aabb.zmin) / vmp.cellSize);
+    x_index = uint((point.x - vmp.dataset_aabb.xmin * vmp.cellSize) / vmp.cellSize);
+    y_index = uint((point.y - vmp.dataset_aabb.ymin * vmp.cellSize) / vmp.cellSize);
+    z_index = uint((point.z - vmp.dataset_aabb.zmin * vmp.cellSize) / vmp.cellSize);
 }
 
 uint GetCellIndex(in vec3 positionWC)
@@ -97,20 +97,26 @@ uint GetCellIndex(in vec3 positionWC)
 
 void updateROIAABB(in vec3 position)
 {
-    roi_aabb.xmin = min(roi_aabb.xmin, position.x);
-    roi_aabb.xmax = max(roi_aabb.xmax, position.x);
-    roi_aabb.ymin = min(roi_aabb.ymin, position.y);
-    roi_aabb.ymax = max(roi_aabb.ymax, position.y);
-    roi_aabb.zmin = min(roi_aabb.zmin, position.z);
-    roi_aabb.zmax = max(roi_aabb.zmax, position.z);
+    atomicMin(roi_aabb.xmin, int(floor(position.x / vmp.cellSize)));
+    atomicMax(roi_aabb.xmax, int(ceil( position.x / vmp.cellSize)));
+    atomicMin(roi_aabb.ymin, int(floor(position.y / vmp.cellSize)));
+    atomicMax(roi_aabb.ymax, int(ceil( position.y / vmp.cellSize)));
+    atomicMin(roi_aabb.zmin, int(floor(position.z / vmp.cellSize)));
+    atomicMax(roi_aabb.zmax, int(ceil( position.z / vmp.cellSize)));
+//    roi_aabb.xmin = min(roi_aabb.xmin, position.x);
+//    roi_aabb.xmax = max(roi_aabb.xmax, position.x);
+//    roi_aabb.ymin = min(roi_aabb.ymin, position.y);
+//    roi_aabb.ymax = max(roi_aabb.ymax, position.y);
+//    roi_aabb.zmin = min(roi_aabb.zmin, position.z);
+//    roi_aabb.zmax = max(roi_aabb.zmax, position.z);
 }
 
 void makeSphere()
 {
     vec3 centerPointWC = vec3(
-        (vmp.dataset_aabb.xmin + vmp.dataset_aabb.xmax) / 2.0,
-        (vmp.dataset_aabb.ymin + vmp.dataset_aabb.ymax) / 2.0,
-        (vmp.dataset_aabb.zmin + vmp.dataset_aabb.zmax) / 2.0
+        ((vmp.dataset_aabb.xmin + vmp.dataset_aabb.xmax) * vmp.cellSize) / 2.0,
+        ((vmp.dataset_aabb.ymin + vmp.dataset_aabb.ymax) * vmp.cellSize) / 2.0,
+        ((vmp.dataset_aabb.zmin + vmp.dataset_aabb.zmax) * vmp.cellSize) / 2.0
     );
 
     uint indices[3];
@@ -144,13 +150,24 @@ void makeSphere()
     }
 }
 
+//Todo: do proper convolution-based splatting
 void splatLineSegment(in vec3 p1, in vec3 p2)
 {
-    uint cellIndex1 = GetCellIndex(p1);
-    uint cellIndex2 = GetCellIndex(p2);
+    vec3 directionVec = normalize(p2 - p1);
+    float length = distance(p1, p2);
 
-    atomicAdd(frequency_map[cellIndex1], 1);
-    atomicAdd(frequency_map[cellIndex2], 1);
+    for(float s = 0; s < length; s += vmp.cellSize)
+    {
+        vec3 currentPos = p1 + s * directionVec;
+        uint cellIndex = GetCellIndex(currentPos);
+
+        atomicAdd(frequency_map[cellIndex], 10);
+    }
+//    uint cellIndex1 = GetCellIndex(p1);
+//    uint cellIndex2 = GetCellIndex(p2);
+//
+//    atomicAdd(frequency_map[cellIndex1], 1);
+//    atomicAdd(frequency_map[cellIndex2], 1);
 }
 
 //
@@ -162,17 +179,30 @@ void main()
 {
     if(vertices.length() < 1) { return; }
 //    makeSphere();
-    updateROIAABB(vertices[0].xyz);
 
-    for(int i = 0; i < vertices.length() - 1; i += 1)
-    {
-        vec3 currentPoint = vertices[i].xyz;
-        vec3 nextPoint = vertices[i + 1].xyz;
+//    uint numberOfEdges = vertices.length() - 1;
+//    uint numberOfSegmentsToCompute = numberOfEdges / gl_NumWorkGroups.x;
 
-        updateROIAABB(nextPoint);
+    uint numberOfLineSegments = gl_NumWorkGroups.x;
+    uint segmentId = gl_WorkGroupID.x; //the segment id is the vertex number for the 'start vertex'
 
-        splatLineSegment(currentPoint, nextPoint);
-    }
+    vec3 currentPoint = vertices[2*segmentId].xyz;
+    vec3 nextPoint = vertices[2*segmentId + 1].xyz; //we will not index out of bounds, as the numberOfEdges is always #points-1
+
+//    updateROIAABB(currentPoint);
+    updateROIAABB(nextPoint);
+
+    splatLineSegment(currentPoint, nextPoint);
+
+//    for(int i = 0; i < vertices.length() - 1; i += 1)
+//    {
+//        vec3 currentPoint = vertices[i].xyz;
+//        vec3 nextPoint = vertices[i + 1].xyz;
+//
+//        updateROIAABB(nextPoint);
+//
+//        splatLineSegment(currentPoint, nextPoint);
+//    }
 
 //    for(int x = 0; x < 100; x++)
 //    {
