@@ -14,6 +14,7 @@
 #include "src/interaction/MovementHandler.h"
 #include "src/visitationmap/VisitationMapRenderer.h"
 #include "src/visitationmap/VisitationMapUpdater.h"
+#include "src/interaction/WindowHandler.h"
 
 
 void GLAPIENTRY
@@ -98,7 +99,10 @@ int main()
             10000.0f
     );
 
+    WindowHandler windowHandler(window);
     InteractionManager interactionManager;
+    interactionManager.AddObserver(sf::Keyboard::Q, &windowHandler);
+
     MovementHandler movementHandler(window, modelMat, viewMat, projMat);
     movementHandler.SetCameraPosition(CAMERA_POS);
     movementHandler.SetCameraFront(CAMERA_FRT);
@@ -130,9 +134,6 @@ int main()
             {
                 case sf::Event::Closed:
                     window.close();
-                    break;
-                case sf::Event::KeyPressed:
-                    //window.close();
                     break;
                 default:
                     break;
