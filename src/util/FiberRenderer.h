@@ -5,6 +5,7 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_FIBER_RENDERER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_FIBER_RENDERER_H
 
+#include <mutex>
 #include "FiberObserver.h"
 #include "../interaction/KeyPressObserver.h"
 #include "RenderElement.h"
@@ -21,6 +22,8 @@ class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderEleme
         unsigned int numberOfFibers;
 
         std::vector<int> numberOfVerticesPerFiber;
+
+        std::mutex mtx; // mutex for critical section, NewFiber() is called from various threads
 
         //Options
         bool fibersShown, pointsShown;

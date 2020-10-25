@@ -38,13 +38,15 @@ void FiberRenderer::updateData()
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW);
+    glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW); //TODO: there was a segfault here before, but not sure why
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
 }
 
 void FiberRenderer::NewFiber(Fiber* fiber)
 {
+    mtx.lock();
+
     const std::vector<glm::vec4>& fiberPoints = fiber->GetUniquePoints();
 
     unsigned int incomingNumberOfPoints = fiberPoints.size();
@@ -65,6 +67,8 @@ void FiberRenderer::NewFiber(Fiber* fiber)
     vertices = &verticesVector.front();
     numberOfFibers++;
     updateData();
+
+    mtx.unlock();
 }
 
 void FiberRenderer::Render()

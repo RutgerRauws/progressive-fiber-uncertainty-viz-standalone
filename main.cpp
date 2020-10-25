@@ -35,8 +35,8 @@ int main()
 {
     std::cout << "Application started..." << std::endl;
 
-    FiberPublisher fiberPublisher(INPUT_FILE_NAME);
-//    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
+//    FiberPublisher fiberPublisher(INPUT_FILE_NAME);
+    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
 
     sf::ContextSettings settings;
     settings.depthBits = 24;
