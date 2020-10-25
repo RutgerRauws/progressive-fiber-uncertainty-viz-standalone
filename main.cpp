@@ -151,5 +151,7 @@ int main()
         window.display();
     }
 
+    fiberPublisher.Stop();
+
     return 0;
 }

@@ -34,7 +34,8 @@ class Fiber
 
         
     public:
-        Fiber(unsigned int seedPointId);
+        explicit Fiber(unsigned int seedPointId);
+        ~Fiber() = default;
 
         Fiber(const Fiber&) = delete;
         Fiber& operator=(const Fiber&) = delete;

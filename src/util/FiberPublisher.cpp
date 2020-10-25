@@ -51,7 +51,7 @@ void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData,
     {
 
         auto* fiber = new Fiber(seedPointId);
-        fibers.emplace_back(fiber);
+        fibers.emplace_back(fiber); //Todo: we need a mutex here still
 
         for(vtkIdType id = 0; id < idList->GetNumberOfIds() - 1; id++)
         {

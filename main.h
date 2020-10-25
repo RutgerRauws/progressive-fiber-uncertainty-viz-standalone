@@ -23,13 +23,26 @@ const std::string INPUT_FILE_NAME = "./data/cst-20.vtk";
 //const std::string INPUT_FILE_NAME = "./data/cc-5.vtk";
 //const std::string INPUT_FILE_NAME = "./data/for-each-seedpoint/1.vtk";
 
+//const std::vector<std::string> INPUT_FILE_NAMES = {
+//    "./data/cc-6/1.vtk",
+//    "./data/cc-6/2.vtk",
+//    "./data/cc-6/3.vtk",
+//    "./data/cc-6/4.vtk",
+//    "./data/cc-6/5.vtk",
+//    "./data/cc-6/6.vtk"
+//};
+
 const std::vector<std::string> INPUT_FILE_NAMES = {
-    "./data/for-each-seedpoint/1.vtk",
-    "./data/for-each-seedpoint/2.vtk",
-    "./data/for-each-seedpoint/3.vtk",
-    "./data/for-each-seedpoint/4.vtk",
-    "./data/for-each-seedpoint/5.vtk",
-    "./data/for-each-seedpoint/6.vtk"
+        "./data/cst-10/1.vtk",
+        "./data/cst-10/2.vtk",
+        "./data/cst-10/3.vtk",
+        "./data/cst-10/4.vtk",
+        "./data/cst-10/5.vtk",
+        "./data/cst-10/6.vtk",
+        "./data/cst-10/7.vtk",
+        "./data/cst-10/8.vtk",
+        "./data/cst-10/9.vtk",
+        "./data/cst-10/10.vtk",
 };
 
 /*
