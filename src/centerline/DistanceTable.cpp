@@ -20,10 +20,10 @@ double DistanceTable::calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fi
 {
     double sum = 0;
 
-    for(const glm::vec4& p_r : Fi.GetUniquePoints())
+    for(const glm::vec3& p_r : Fi.GetUniquePoints())
     {
         auto min_distance = VTK_DOUBLE_MAX;
-        for(const glm::vec4& p_s : Fj.GetUniquePoints())
+        for(const glm::vec3& p_s : Fj.GetUniquePoints())
         {
             double distance = glm::distance(p_r, p_s);
             if(distance < min_distance)

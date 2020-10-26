@@ -18,6 +18,14 @@ struct VisitationMapProperties
     uint width, height, depth;
 };
 
+struct FiberSegment
+{
+    vec4 p1; //4 * 4   = 16 bytes
+    vec4 p2; //4 * 4   = 16 bytes
+    uint seedPointId; // 4 bytes
+    uint padding1, padding2, padding3; //12 bytes
+};
+
 //
 //
 // Uniforms
@@ -32,13 +40,18 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 //
 layout(std430, binding = 0) buffer visitationMap
 {
-    AxisAlignedBoundingBox roi_aabb; //this AABBB will continuously change during execution, when new fibers are added
     uint frequency_map[];
 };
 
-layout(std430, binding = 1) buffer FiberSegments
+layout(std430, binding = 1) buffer regionsOfInterest
 {
-    vec4 vertices[]; //vertex is a vec3 with an empty float for required padding
+    AxisAlignedBoundingBox ROIs[]; //these AABBBs will continuously change during execution, when new fibers are added
+};
+
+layout(std430, binding = 2) buffer FiberSegments
+{
+//    vec4 vertices[]; //vertex is a vec3 with an empty float for required padding
+    FiberSegment segments[];
 };
 
 //struct Cell
@@ -81,23 +94,23 @@ uint GetCellIndex(in vec3 positionWC)
 bool InAABB(in AxisAlignedBoundingBox aabb, in vec3 position)
 {
     return (
-    position.x >= aabb.xmin * vmp.cellSize
-    && position.x <= aabb.xmax * vmp.cellSize
-    && position.y >= aabb.ymin * vmp.cellSize
-    && position.y <= aabb.ymax * vmp.cellSize
-    && position.z >= aabb.zmin * vmp.cellSize
-    && position.z <= aabb.zmax * vmp.cellSize
+        position.x >= aabb.xmin * vmp.cellSize
+        && position.x <= aabb.xmax * vmp.cellSize
+        && position.y >= aabb.ymin * vmp.cellSize
+        && position.y <= aabb.ymax * vmp.cellSize
+        && position.z >= aabb.zmin * vmp.cellSize
+        && position.z <= aabb.zmax * vmp.cellSize
     );
 }
 
-void updateROIAABB(in vec3 position)
+void updateROIAABB(in uint seedPointId, in vec3 position)
 {
-    atomicMin(roi_aabb.xmin, int(floor(position.x / vmp.cellSize)));
-    atomicMax(roi_aabb.xmax, int(ceil( position.x / vmp.cellSize)));
-    atomicMin(roi_aabb.ymin, int(floor(position.y / vmp.cellSize)));
-    atomicMax(roi_aabb.ymax, int(ceil( position.y / vmp.cellSize)));
-    atomicMin(roi_aabb.zmin, int(floor(position.z / vmp.cellSize)));
-    atomicMax(roi_aabb.zmax, int(ceil( position.z / vmp.cellSize)));
+    atomicMin(ROIs[seedPointId].xmin, int(floor(position.x / vmp.cellSize)));
+    atomicMax(ROIs[seedPointId].xmax, int(ceil( position.x / vmp.cellSize)));
+    atomicMin(ROIs[seedPointId].ymin, int(floor(position.y / vmp.cellSize)));
+    atomicMax(ROIs[seedPointId].ymax, int(ceil( position.y / vmp.cellSize)));
+    atomicMin(ROIs[seedPointId].zmin, int(floor(position.z / vmp.cellSize)));
+    atomicMax(ROIs[seedPointId].zmax, int(ceil( position.z / vmp.cellSize)));
 }
 
 void makeSphere()
@@ -145,13 +158,19 @@ void splatLineSegment(in vec3 p1, in vec3 p2)
     vec3 directionVec = normalize(p2 - p1);
     float length = distance(p1, p2);
 
-    for(float s = 0; s < length; s += vmp.cellSize)
+    for(float s = 0; s < length; s += vmp.cellSize / 2.0)
     {
         vec3 currentPos = p1 + s * directionVec;
         uint cellIndex = GetCellIndex(currentPos);
 
         atomicAdd(frequency_map[cellIndex], 10);
     }
+
+//    uint cellIndex = GetCellIndex(p1);
+//    atomicAdd(frequency_map[cellIndex], 10);
+//
+//    cellIndex = GetCellIndex(p2);
+//    atomicAdd(frequency_map[cellIndex], 10);
 }
 
 //
@@ -161,17 +180,21 @@ void splatLineSegment(in vec3 p1, in vec3 p2)
 //
 void main()
 {
-    if(vertices.length() < 1) { return; }
+    if(segments.length() < 1) { return; }
 //    makeSphere();
 
     uint numberOfLineSegments = gl_NumWorkGroups.x;
     uint segmentId = gl_WorkGroupID.x; //the segment id is the vertex number for the 'start vertex'
 
-    vec3 currentPoint = vertices[2*segmentId].xyz;
-    vec3 nextPoint = vertices[2*segmentId + 1].xyz; //we will not index out of bounds, as the numberOfEdges is always #points-1
+    FiberSegment segment = segments[segmentId];
 
-    updateROIAABB(currentPoint);
-    updateROIAABB(nextPoint);
+    vec3 currentPoint = segment.p1.xyz;
+    vec3 nextPoint = segment.p2.xyz;
+
+    updateROIAABB(segment.seedPointId, currentPoint);
+    updateROIAABB(segment.seedPointId, nextPoint);
+//    updateROIAABB(0, currentPoint);
+//    updateROIAABB(0, nextPoint);
 
     splatLineSegment(currentPoint, nextPoint);
 }

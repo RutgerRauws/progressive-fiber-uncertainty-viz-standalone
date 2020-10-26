@@ -34,10 +34,12 @@ FiberPublisher::~FiberPublisher()
 {
     Stop();
 
+    lock.lock();
     for(Fiber* fiber : fibers)
     {
         delete fiber;
     }
+    lock.unlock();
 }
 
 void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData, unsigned int seedPointId)
@@ -51,7 +53,10 @@ void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData,
     {
 
         auto* fiber = new Fiber(seedPointId);
+
+        lock.lock();
         fibers.emplace_back(fiber); //Todo: we need a mutex here still
+        lock.unlock();
 
         for(vtkIdType id = 0; id < idList->GetNumberOfIds() - 1; id++)
         {
@@ -90,8 +95,8 @@ void FiberPublisher::Start()
 
     for(vtkSmartPointer<vtkPolyData> fiberPolyData : fiberPolyDatas)
     {
-        unsigned int seedPointId = maxSeedPointId++; //TODO: Shouldn't this variable be passed to the thread?
-        publishThreads.emplace_back(std::thread(&FiberPublisher::publishFibers_t, this, fiberPolyData, maxSeedPointId));
+        unsigned int seedPointId = maxSeedPointId++;
+        publishThreads.emplace_back(std::thread(&FiberPublisher::publishFibers_t, this, fiberPolyData, seedPointId));
     }
 }
 
@@ -161,7 +166,7 @@ std::vector<vtkSmartPointer<vtkPolyData>> FiberPublisher::loadFromFiles(const st
     for(const std::string& path : paths)
     {
         _fiberPolyDatas.emplace_back(
-                FiberPublisher::loadFromFile(path)
+            FiberPublisher::loadFromFile(path)
         );
     }
 

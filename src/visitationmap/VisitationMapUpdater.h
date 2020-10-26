@@ -21,16 +21,17 @@ class VisitationMapUpdater : public FiberObserver
         ShaderProgram* shaderProgram = nullptr;
 
         VisitationMap& visitationMap;
+        RegionsOfInterest& regionsOfInterest;
 
         std::vector<Fiber*> fiberQueue;
         GLuint fiber_segments_ssbo_id;
         GLint maxNrOfWorkGroups;
 
         void initialize();
-        void fiberQueueToSegmentVertices(std::vector<glm::vec4>& outVertices);
+        void fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments);
 
     public:
-        explicit VisitationMapUpdater(VisitationMap& visitationMap);
+        VisitationMapUpdater(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest);
 
         void NewFiber(Fiber* fiber) override;
         void Update();

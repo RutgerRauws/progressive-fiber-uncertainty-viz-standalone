@@ -24,7 +24,7 @@ void Shader::Compile()
 
     if (log_length > 1)
     {
-        char* error_log = new char[log_length];
+        char error_log[log_length];
         glGetShaderInfoLog(id, log_length, NULL, error_log);
 
         throw ShaderError(error_log);

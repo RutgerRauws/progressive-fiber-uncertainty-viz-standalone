@@ -5,8 +5,8 @@
 #include "VisitationMapUpdater.h"
 #include <iostream>
 
-VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap)
-   : visitationMap(visitationMap)
+VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest)
+   : visitationMap(visitationMap), regionsOfInterest(regionsOfInterest)
 {
     initialize();
 }
@@ -62,18 +62,21 @@ void VisitationMapUpdater::initialize()
     glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
 
     //Visitation Map frequencies itself
-    GLuint frequency_map_ssbo_id = visitationMap.GetSSBOId();
+    GLuint frequency_map_ssbo_id = visitationMap.GetFrequencyMapSSBOId();
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()) + visitationMap.GetNumberOfBytes(), 0, GL_DYNAMIC_DRAW);
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (GLint*)&visitationMap.GetAABB());
-    glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()), visitationMap.GetNumberOfBytes(), visitationMap.GetData());
+//    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), 0, GL_DYNAMIC_DRAW);
+//    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (GLint*)&visitationMap.GetAABB());
+//    glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()), visitationMap.GetNumberOfBytes(), visitationMap.GetData());
+    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
+    regionsOfInterest.Initialize();
+
     glGenBuffers(1, &fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fiber_segments_ssbo_id);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     //Get the limitations on the number of work groups the GPU supports
@@ -92,36 +95,36 @@ void VisitationMapUpdater::Update()
         return;
     }
 
-    std::vector<glm::vec4> segmentsVertices;
-    fiberQueueToSegmentVertices(segmentsVertices);
+    std::vector<Fiber::LineSegment> segments;
+    fiberQueueToSegmentVertices(segments);
 
     shaderProgram->Use();
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(glm::vec4) * segmentsVertices.size(), segmentsVertices.data(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, fiber_segments_ssbo_id);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Fiber::LineSegment) * segments.size(), segments.data(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
 
-    int numberOfPoints = segmentsVertices.size();
-    int numberOfLineSegments = numberOfPoints / 2;;
-
-    int numberOfWorkGroups = numberOfLineSegments; // std::min(numberOfEdges, maxNrOfWorkGroups); //we do not want to dispatch more workgroups than the GPU supports
+    int numberOfLineSegments = segments.size();
+    int numberOfWorkGroups = numberOfLineSegments;
+    //int numberOfWorkGroups = std::min(numberOfEdges, maxNrOfWorkGroups); //TODO: we do not want to dispatch more workgroups than the GPU supports
     //minimum supported is 65535
 
     glDispatchCompute(numberOfWorkGroups, 1, 1);
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
-void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<glm::vec4>& outVertices)
+void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments)
 {
     std::vector<Fiber*> fibersCopy(fiberQueue);
     fiberQueue.clear();
 
     for(Fiber* fiber : fibersCopy)
     {
-        const std::vector<glm::vec4>& fiberVertices = fiber->GetLineSegmentsAsPoints();
-        outVertices.insert(outVertices.end(), fiberVertices.begin(), fiberVertices.end());
+        const std::vector<Fiber::LineSegment>& lineSegments = fiber->GetLineSegments();
+        outSegments.insert(outSegments.end(), lineSegments.begin(), lineSegments.end());
     }
 }

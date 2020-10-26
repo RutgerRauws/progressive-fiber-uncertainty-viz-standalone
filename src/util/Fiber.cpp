@@ -13,21 +13,18 @@ Fiber::Fiber(unsigned int seedPointId)
 
 void Fiber::AddSegment(const glm::vec3& p1, const glm::vec3& p2)
 {
-    glm::vec4 p1_w = glm::vec4(p1, 1);
-    glm::vec4 p2_w = glm::vec4(p2, 1);
-
     if(uniquePoints.empty()) {
-        uniquePoints.emplace_back(p1_w);
+        uniquePoints.emplace_back(p1);
     }
 
-    uniquePoints.emplace_back(p2_w);
+    uniquePoints.emplace_back(p2);
 
     lineSegments.emplace_back(
-        LineSegment(p1_w, p2_w)
+        LineSegment(seedPointId, p1, p2)
     );
 
-    lineSegmentPoints.emplace_back(p1_w);
-    lineSegmentPoints.emplace_back(p2_w);
+    lineSegmentPoints.emplace_back(p1);
+    lineSegmentPoints.emplace_back(p2);
 }
 
 const std::vector<Fiber::LineSegment>& Fiber::GetLineSegments() const
@@ -35,12 +32,12 @@ const std::vector<Fiber::LineSegment>& Fiber::GetLineSegments() const
     return lineSegments;
 }
 
-const std::vector<glm::vec4> &Fiber::GetLineSegmentsAsPoints() const
+const std::vector<glm::vec3> &Fiber::GetLineSegmentsAsPoints() const
 {
     return lineSegmentPoints;
 }
 
-const std::vector<glm::vec4> &Fiber::GetUniquePoints() const
+const std::vector<glm::vec3> &Fiber::GetUniquePoints() const
 {
     return uniquePoints;
 }

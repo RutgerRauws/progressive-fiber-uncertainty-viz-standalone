@@ -47,14 +47,14 @@ void FiberRenderer::NewFiber(Fiber* fiber)
 {
     mtx.lock();
 
-    const std::vector<glm::vec4>& fiberPoints = fiber->GetUniquePoints();
+    const std::vector<glm::vec3>& fiberPoints = fiber->GetUniquePoints();
 
     unsigned int incomingNumberOfPoints = fiberPoints.size();
     unsigned int currentNumberOfPoints = GetNumberOfVertices();
 
     for(unsigned int i = 0; i < incomingNumberOfPoints; i++)
     {
-        const glm::vec4& point = fiberPoints[i];
+        const glm::vec3& point = fiberPoints[i];
 
         verticesVector.push_back(point.x);
         verticesVector.push_back(point.y);

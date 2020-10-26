@@ -8,13 +8,15 @@
 #include <vector>
 #include <thread>
 #include <vtkPolyData.h>
+#include <mutex>
 #include "FiberObserver.h"
 
 class FiberPublisher
 {
 private:
+    std::mutex lock;
 
-    const int PROGRESSIVE_INTERVAL_MS = 100;
+    const int PROGRESSIVE_INTERVAL_MS = 500;
     bool keepAddingFibers;
 
     std::vector<vtkSmartPointer<vtkPolyData>> fiberPolyDatas;
@@ -40,6 +42,7 @@ public:
     void RegisterObserver(FiberObserver& o);
 
     double* GetBounds() const;
+    unsigned int GetNumberOfSeedPoints() { return fiberPolyDatas.size(); }
 };
 
 

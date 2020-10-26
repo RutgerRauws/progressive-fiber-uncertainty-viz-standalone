@@ -32,8 +32,11 @@ out vec4 outColor;
 //
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
-const float stepSize = .3;
+const float stepSize = .05;
 const uint isovalueThreshold = 1;
+
+const float INF_POS =  1. / 0.;
+const float INF_NEG = -1. / 0.;
 
 //
 //
@@ -55,8 +58,12 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 //
 layout(std430, binding = 0) buffer visitationMap
 {
-    AxisAlignedBoundingBox roi_aabb; //this AABBB will continuously change during execution, when new fibers are added
     uint frequency_map[];
+};
+
+layout(std430, binding = 1) buffer regionsOfInterest
+{
+    AxisAlignedBoundingBox ROIs[]; //these AABBBs will continuously change during execution, when new fibers are added
 };
 
 //
@@ -97,6 +104,32 @@ vec2 intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
     return vec2(tNear, tFar);
 }
 
+vec2 intersectAABBs(vec3 rayOrigin, vec3 rayDir)
+{
+    vec2 t = vec2(INF_POS, INF_NEG);
+                                                                                            //todo: HIER VERDER KIJKEN, AABBs zijn nog niet goed geinitieerd voor intersect()??
+    for(uint i = 0; i < ROIs.length(); i++)
+    {
+        AxisAlignedBoundingBox aabb = ROIs[i];
+
+        vec2 t_local = intersectAABB(
+            rayOrigin,
+            rayDir,
+            vec3(aabb.xmin * vmp.cellSize, aabb.ymin * vmp.cellSize, aabb.zmin * vmp.cellSize),
+            vec3(aabb.xmax * vmp.cellSize, aabb.ymax * vmp.cellSize, aabb.zmax * vmp.cellSize)
+        );
+
+        float tNear = t_local.x;
+        float tFar = t_local.y;
+        if(tNear > tFar || (tNear < 0 && tFar < 0)) { continue; }
+
+        t.x = min(t.x, t_local.x);
+        t.y = max(t.y, t_local.y);
+    }
+
+    return t;
+}
+
 bool InAABB(in AxisAlignedBoundingBox aabb, in vec3 position)
 {
     return (
@@ -107,6 +140,20 @@ bool InAABB(in AxisAlignedBoundingBox aabb, in vec3 position)
         && position.z >= aabb.zmin * vmp.cellSize
         && position.z <= aabb.zmax * vmp.cellSize
     );
+}
+
+bool InAABBs(in vec3 position)
+{
+    for(uint i = 0; i < ROIs.length(); i++)
+    {
+        AxisAlignedBoundingBox aabb = ROIs[i];
+
+        bool result = InAABB(aabb, position);
+
+        if(result) { return true; }
+    }
+
+    return false;
 }
 
 bool isVoxelInIsosurface(in uint cellIndex)
@@ -183,11 +230,9 @@ void main ()
     vec4 fragmentColor = vec4(0);
 
     //Find start point
-    vec2 t = intersectAABB(
+    vec2 t = intersectAABBs(
         cameraPosition,
-        stepDir,
-        vec3(roi_aabb.xmin * vmp.cellSize, roi_aabb.ymin * vmp.cellSize, roi_aabb.zmin * vmp.cellSize),
-        vec3(roi_aabb.xmax * vmp.cellSize, roi_aabb.ymax * vmp.cellSize, roi_aabb.zmax * vmp.cellSize)
+        stepDir
     );
 
     float tNear = t.x;
@@ -199,7 +244,8 @@ void main ()
 
     vec3 currentPosition;
 
-    if(InAABB(roi_aabb, cameraPosition))
+    //Todo: do we need this still?
+    if(InAABBs(cameraPosition))
     {
         currentPosition = cameraPosition;
     }
@@ -221,9 +267,9 @@ void main ()
 
         if(isVoxelInIsosurface(currentPosition))
         {
-            vec3 normal = computeNormal(currentPosition);
+//            vec3 normal = computeNormal(currentPosition);
 //            fragmentColor = vec4(normal, 1);
-            fragmentColor += vec4(1);
+            fragmentColor += vec4(1, 0, 0, 1);
         }
 
         currentPosition += stepVec;

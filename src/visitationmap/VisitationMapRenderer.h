@@ -17,6 +17,7 @@ class VisitationMapRenderer : public RenderElement
         #define FRAGMENT_SHADER_PATH "./shaders/visitationmap/fragment.glsl"
 
         VisitationMap& visitationMap;
+        RegionsOfInterest& regionsOfInterest;
 
         GLint cameraPos_loc = -1;
 
@@ -24,7 +25,7 @@ class VisitationMapRenderer : public RenderElement
         void initialize() override;
 
     public:
-        VisitationMapRenderer(VisitationMap& visitationMap, const CameraState& cameraState);
+        VisitationMapRenderer(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest, const CameraState& cameraState);
         ~VisitationMapRenderer();
 
         void Render() override;

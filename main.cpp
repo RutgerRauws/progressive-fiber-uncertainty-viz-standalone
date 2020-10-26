@@ -84,8 +84,6 @@ int main()
     glDebugMessageCallback( MessageCallback, 0 );
     #endif
 
-    window.display();
-
     glm::mat4 modelMat = glm::mat4(1.0f);
 
     glm::mat4 viewMat = glm::mat4(1.0f);
@@ -109,10 +107,12 @@ int main()
 
     VisitationMap visitationMap = VisitationMap::CreateTest();
 
-    VisitationMapUpdater visitationMapUpdater(visitationMap);
+    RegionsOfInterest regionsOfInterest(fiberPublisher.GetNumberOfSeedPoints());
+
+    VisitationMapUpdater visitationMapUpdater(visitationMap, regionsOfInterest);
     fiberPublisher.RegisterObserver(visitationMapUpdater);
 
-    VisitationMapRenderer visitationMapRenderer(visitationMap, movementHandler.GetCameraState());
+    VisitationMapRenderer visitationMapRenderer(visitationMap, regionsOfInterest, movementHandler.GetCameraState());
 
     FiberRenderer fiberRenderer(movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(fiberRenderer);
@@ -120,6 +120,8 @@ int main()
     glEnable(GL_DEPTH_TEST);
 
     fiberPublisher.Start();
+
+    window.display();
 
     while (window.isOpen())
     {

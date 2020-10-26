@@ -7,9 +7,12 @@
 #include "VisitationMapRenderer.h"
 #include "../util/glm/ext.hpp"
 
-VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap, const CameraState& cameraState)
+VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
+                                             RegionsOfInterest& regionsOfInterest,
+                                             const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
-      visitationMap(visitationMap)
+      visitationMap(visitationMap),
+      regionsOfInterest(regionsOfInterest)
 {
     createVertices();
     initialize();
@@ -77,8 +80,12 @@ void VisitationMapRenderer::initialize()
 {
     shaderProgram->Use();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitationMap.GetSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitationMap.GetFrequencyMapSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, regionsOfInterest.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glGenVertexArrays(1, &vao);
@@ -91,8 +98,6 @@ void VisitationMapRenderer::initialize()
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
-
-    //todo: use shaderProgram->Use()?
 
     //Get uniform locations
     modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
@@ -141,7 +146,8 @@ void VisitationMapRenderer::Render()
 
     glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
 
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
 }

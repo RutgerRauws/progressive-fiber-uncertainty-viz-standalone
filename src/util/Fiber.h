@@ -6,20 +6,50 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_FIBER_H
 
 #include <vector>
+#include <GL/gl.h>
 #include "vtkSmartPointer.h"
 #include "glm/ext.hpp"
 
 class Fiber
 {
     public:
-        class LineSegment
+//        class __attribute__((__packed__)) LineSegment
+        class __attribute__((__packed__)) LineSegment
         {
             private:
-                glm::vec4 p1, p2; //it's a 4D-vector because this is required for padding in the shader
+                glm::vec4 p1; //4*4 = 16 bytes
+                glm::vec4 p2; //4*4 = 16 bytes
+                GLuint seedPointId; // 4 bytes
+                GLuint padding1, padding2, padding3; // 12 bytes
+//                float p1_x, p1_y, p1_z;
+//                float p2_x, p2_y, p2_z;
+//                GLuint seedPointId;
+//                glm::vec4 p1; //4 * 4 = 16 bytes
+//                glm::vec4 p2; //4 * 4 = 16 bytes
+//                GLuint seedPointId; //4 bytes
+//                GLdouble padding1; //8 bytes
+//                GLint padding2; //4 bytes
 
             public:
-                LineSegment(glm::vec4& p1, glm::vec4& p2) : p1(p1), p2(p2) {}
-                double CalculateLength() const { return glm::distance(p1, p2); }
+//                LineSegment(GLuint seedPointId, const glm::vec3& p1, const glm::vec3& p2)
+//                    : seedPointId(seedPointId), //p1(p1, 1), p2(p2, 1), padding1(0), padding2(0) {}
+//                      p1_x(p1.x), p1_y(p1.y), p1_z(p1.z),
+//                      p2_x(p2.x), p2_y(p2.y), p2_z(p2.z)
+//                {}
+                LineSegment(GLuint seedPointId, const glm::vec3& p1, const glm::vec3& p2)
+                        : seedPointId(seedPointId), p1(p1, 1), p2(p2, 1)
+                {}
+
+                double CalculateLength() const
+                {
+                    return glm::distance(
+//                        glm::vec3(p1_x, p1_y, p1_z),
+//                        glm::vec3(p2_x, p2_y, p2_z)
+                        p1, p2
+                    );
+                }
+
+                GLuint GetSeedPointId() const { return seedPointId; }
         };
 
         static unsigned int GLOBAL_FIBER_ID;
@@ -29,8 +59,8 @@ class Fiber
         const unsigned int seedPointId;
 
         std::vector<LineSegment> lineSegments;
-        std::vector<glm::vec4> lineSegmentPoints; //it's a 4D-vector because this is required for padding in the shader
-        std::vector<glm::vec4> uniquePoints; //it's a 4D-vector because this is required for padding in the shader
+        std::vector<glm::vec3> lineSegmentPoints;
+        std::vector<glm::vec3> uniquePoints;
 
         
     public:
@@ -42,8 +72,8 @@ class Fiber
 
         void AddSegment(const glm::vec3& p1, const glm::vec3& p2);
         const std::vector<LineSegment>& GetLineSegments() const;
-        const std::vector<glm::vec4>& GetLineSegmentsAsPoints() const;
-        const std::vector<glm::vec4>& GetUniquePoints() const;
+        const std::vector<glm::vec3>& GetLineSegmentsAsPoints() const;
+        const std::vector<glm::vec3>& GetUniquePoints() const;
 
         unsigned int GetId() const;
         unsigned int GetSeedPointId() const;
