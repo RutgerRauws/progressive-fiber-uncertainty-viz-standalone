@@ -20,10 +20,11 @@ struct VisitationMapProperties
 
 struct FiberSegment
 {
-    vec4 p1; //4 * 4   = 16 bytes
-    vec4 p2; //4 * 4   = 16 bytes
-    uint seedPointId; // 4 bytes
-    uint padding1, padding2, padding3; //12 bytes
+    vec4 p1;                 // 16 bytes
+    vec4 p2;                 // 16 bytes
+    uint seedPointId;        // 4 bytes
+    uint fiberId;            // 4 bytes
+    uint padding2, padding3; // 8 bytes
 };
 
 //

@@ -62,7 +62,7 @@ void FiberRenderer::NewFiber(Fiber* fiber)
     }
 
     firstVertexOfEachFiber.push_back(currentNumberOfPoints);
-    numberOfVerticesPerFiber.push_back(incomingNumberOfPoints);//TODO: there was a segfault here before, but not sure why
+    numberOfVerticesPerFiber.push_back(incomingNumberOfPoints);//TODO: there was a segfault here before, but not sure why perhaps add in mutex locks in the render method as last resort
 
     vertices = verticesVector.data();
     numberOfFibers++;
@@ -73,6 +73,7 @@ void FiberRenderer::NewFiber(Fiber* fiber)
 
 void FiberRenderer::Render()
 {
+//    mtx.lock();
     shaderProgram->Use();
 
     updateData();
@@ -83,6 +84,7 @@ void FiberRenderer::Render()
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
 
     glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
+//    mtx.unlock();
 }
 
 unsigned int FiberRenderer::GetNumberOfVertices()

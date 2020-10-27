@@ -20,7 +20,7 @@ void Fiber::AddSegment(const glm::vec3& p1, const glm::vec3& p2)
     uniquePoints.emplace_back(p2);
 
     lineSegments.emplace_back(
-        LineSegment(seedPointId, p1, p2)
+        LineSegment(seedPointId, id, p1, p2)
     );
 
     lineSegmentPoints.emplace_back(p1);

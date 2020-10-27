@@ -54,10 +54,6 @@ void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData,
 
         auto* fiber = new Fiber(seedPointId);
 
-        lock.lock();
-        fibers.emplace_back(fiber); //Todo: we need a mutex here still
-        lock.unlock();
-
         for(vtkIdType id = 0; id < idList->GetNumberOfIds() - 1; id++)
         {
             double p1[3];
@@ -71,6 +67,10 @@ void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData,
                 glm::vec3(p2[0], p2[1], p2[2])
             );
         }
+
+        lock.lock();
+        fibers.emplace_back(fiber); //Todo: we need a mutex here still
+        lock.unlock();
 
         for(FiberObserver& o : observers)
         {
