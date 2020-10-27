@@ -33,7 +33,6 @@ out vec4 outColor;
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
 const float stepSize = .05;
-const uint isovalueThreshold = 1;
 
 const float INF_POS =  1. / 0.;
 const float INF_NEG = -1. / 0.;
@@ -49,6 +48,7 @@ uniform mat4 projMat;
 
 uniform vec3 cameraPosition;
 
+uniform float isovalueThreshold;
 uniform VisitationMapProperties vmp; //visitationMapProp
 
 //
@@ -165,7 +165,7 @@ bool isVoxelInIsosurface(in uint cellIndex)
     }
 
     uint isovalue = frequency_map[cellIndex];
-    return isovalue > isovalueThreshold;
+    return isovalue > isovalueThreshold; //TODO: should this be geq?
 }
 
 bool isVoxelInIsosurface(in vec3 position)

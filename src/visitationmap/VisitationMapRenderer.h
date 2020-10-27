@@ -9,26 +9,37 @@
 #include "../util/glm/vec3.hpp"
 #include "../interaction/KeyPressObserver.h"
 #include "VisitationMap.h"
+#include "../util/FiberObserver.h"
 
-class VisitationMapRenderer : public RenderElement
+class VisitationMapRenderer : public RenderElement, public KeyPressObserver, public FiberObserver
 {
     private:
         #define VERTEX_SHADER_PATH   "./shaders/visitationmap/vertex.glsl"
         #define FRAGMENT_SHADER_PATH "./shaders/visitationmap/fragment.glsl"
+        static constexpr float PERCENTAGE_DELTA = 0.01f;
 
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;
 
         GLint cameraPos_loc = -1;
+        GLint isovalue_loc = -1;
+
+        float isovaluePercentage;
+        unsigned int numberOfFibers;
 
         void createVertices();
         void initialize() override;
+        void updateIsovaluePercentage(float delta);
+        float computeIsovalue();
 
     public:
         VisitationMapRenderer(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest, const CameraState& cameraState);
         ~VisitationMapRenderer();
 
         void Render() override;
+
+        void KeyPressed(const sf::Keyboard::Key& key) override;
+        void NewFiber(Fiber* fiber) override;
 
         unsigned int GetNumberOfVertices() override;
         unsigned int GetNumberOfBytes() override;

@@ -12,7 +12,9 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
                                              const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
       visitationMap(visitationMap),
-      regionsOfInterest(regionsOfInterest)
+      regionsOfInterest(regionsOfInterest),
+      isovaluePercentage(0),
+      numberOfFibers(0)
 {
     createVertices();
     initialize();
@@ -132,6 +134,24 @@ void VisitationMapRenderer::initialize()
     glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
 
     cameraPos_loc = glGetUniformLocation(programId, "cameraPosition");
+
+    isovalue_loc = glGetUniformLocation(programId, "isovalueThreshold");
+    glProgramUniform1f(programId, isovalue_loc, 0);
+}
+
+void VisitationMapRenderer::updateIsovaluePercentage(float delta)
+{
+    if(isovaluePercentage + delta >= 0.0f
+    && isovaluePercentage + delta <= 1.0f)
+    {
+        isovaluePercentage += delta;
+    }
+}
+
+float VisitationMapRenderer::computeIsovalue()
+{
+    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
+    return numberOfFibers * isovaluePercentage;
 }
 
 void VisitationMapRenderer::Render()
@@ -146,11 +166,34 @@ void VisitationMapRenderer::Render()
 
     glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
 
+    glProgramUniform1f(shaderProgram->GetId(), isovalue_loc, computeIsovalue());
+
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
 
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
 }
+
+void VisitationMapRenderer::KeyPressed(const sf::Keyboard::Key &key)
+{
+    //Increase isovalue
+    if(key == sf::Keyboard::U)
+    {
+        updateIsovaluePercentage(PERCENTAGE_DELTA);
+    }
+
+    //Decrease isovalue
+    if(key == sf::Keyboard::J)
+    {
+        updateIsovaluePercentage(-PERCENTAGE_DELTA);
+    }
+}
+
+void VisitationMapRenderer::NewFiber(Fiber *fiber)
+{
+    numberOfFibers++;
+}
+
 
 unsigned int VisitationMapRenderer::GetNumberOfVertices()
 {

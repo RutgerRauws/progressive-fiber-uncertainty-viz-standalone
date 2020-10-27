@@ -113,6 +113,9 @@ int main()
     fiberPublisher.RegisterObserver(visitationMapUpdater);
 
     VisitationMapRenderer visitationMapRenderer(visitationMap, regionsOfInterest, movementHandler.GetCameraState());
+    fiberPublisher.RegisterObserver(visitationMapRenderer);
+    interactionManager.AddObserver(sf::Keyboard::U, &visitationMapRenderer);
+    interactionManager.AddObserver(sf::Keyboard::J, &visitationMapRenderer);
 
     FiberRenderer fiberRenderer(movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(fiberRenderer);

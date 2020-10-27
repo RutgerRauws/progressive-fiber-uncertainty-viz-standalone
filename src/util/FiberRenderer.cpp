@@ -62,9 +62,9 @@ void FiberRenderer::NewFiber(Fiber* fiber)
     }
 
     firstVertexOfEachFiber.push_back(currentNumberOfPoints);
-    numberOfVerticesPerFiber.push_back(incomingNumberOfPoints);
+    numberOfVerticesPerFiber.push_back(incomingNumberOfPoints);//TODO: there was a segfault here before, but not sure why
 
-    vertices = &verticesVector.front();
+    vertices = verticesVector.data();
     numberOfFibers++;
     updateData();
 

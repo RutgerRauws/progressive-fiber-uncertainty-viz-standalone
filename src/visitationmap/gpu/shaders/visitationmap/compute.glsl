@@ -163,7 +163,7 @@ void splatLineSegment(in vec3 p1, in vec3 p2)
         vec3 currentPos = p1 + s * directionVec;
         uint cellIndex = GetCellIndex(currentPos);
 
-        atomicAdd(frequency_map[cellIndex], 10);
+        atomicAdd(frequency_map[cellIndex], 1);
     }
 
 //    uint cellIndex = GetCellIndex(p1);
