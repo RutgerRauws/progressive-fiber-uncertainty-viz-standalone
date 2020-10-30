@@ -1,6 +1,9 @@
 #version 430 core
 layout(local_size_x = 1) in;
 
+//!Changing this definition also requires changing the definition in the shader code!
+#define NUMBER_OF_REPRESENTATIVE_FIBERS 5
+
 //
 //
 // Structs
@@ -27,6 +30,12 @@ struct FiberSegment
     uint padding2, padding3; // 8 bytes
 };
 
+struct Bucket
+{
+    uint numberOfFibers;
+    uint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS];
+};
+
 //
 //
 // Uniforms
@@ -51,8 +60,12 @@ layout(std430, binding = 1) buffer regionsOfInterest
 
 layout(std430, binding = 2) buffer FiberSegments
 {
-//    vec4 vertices[]; //vertex is a vec3 with an empty float for required padding
     FiberSegment segments[];
+};
+
+layout(std430, binding = 3) buffer CellFiberMultiMap
+{
+    Bucket buckets[];
 };
 
 //struct Cell
@@ -158,6 +171,7 @@ void splatLineSegment(in vec3 p1, in vec3 p2)
 {
     vec3 directionVec = normalize(p2 - p1);
     float length = distance(p1, p2);
+
 
     for(float s = 0; s < length; s += vmp.cellSize / 2.0)
     {

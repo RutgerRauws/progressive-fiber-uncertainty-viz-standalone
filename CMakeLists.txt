@@ -26,7 +26,8 @@ add_executable(${EXECUTABLE_NAME}
         src/util/Shader.cpp src/util/Shader.h
         src/util/ShaderProgram.cpp src/util/ShaderProgram.h
         src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
-)
+        src/visitationmap/CellFiberMultiMap.cpp src/visitationmap/CellFiberMultiMap.h
+        )
 
 #Find any version 2.X of SFML
 #See the FindSFML.cmake file for additional details and instructions

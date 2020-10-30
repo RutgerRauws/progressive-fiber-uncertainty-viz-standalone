@@ -240,7 +240,7 @@ void main ()
 
     //If tNear > tFar, then there is no intersection
     //If tNear and tFar are negative, the ROI is behind the camera
-    if(tNear > tFar || (tNear < 0 && tFar < 0)) { return; }
+    if(tNear > tFar || (tNear < 0 && tFar < 0)) { outColor = fragmentColor; return; }
 
     vec3 currentPosition;
 
