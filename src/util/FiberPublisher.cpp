@@ -172,9 +172,3 @@ std::vector<vtkSmartPointer<vtkPolyData>> FiberPublisher::loadFromFiles(const st
 
     return _fiberPolyDatas;
 }
-
-//TODO: Remove this function
-double* FiberPublisher::GetBounds() const
-{
-    return fiberPolyDatas[0]->GetBounds();
-}

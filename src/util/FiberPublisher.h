@@ -41,7 +41,6 @@ public:
     void Stop();
     void RegisterObserver(FiberObserver& o);
 
-    double* GetBounds() const;
     unsigned int GetNumberOfSeedPoints() { return fiberPolyDatas.size(); }
 };
 

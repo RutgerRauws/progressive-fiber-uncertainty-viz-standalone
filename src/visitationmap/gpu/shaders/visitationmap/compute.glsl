@@ -208,8 +208,6 @@ void main()
 
     updateROIAABB(segment.seedPointId, currentPoint);
     updateROIAABB(segment.seedPointId, nextPoint);
-//    updateROIAABB(0, currentPoint);
-//    updateROIAABB(0, nextPoint);
 
     splatLineSegment(currentPoint, nextPoint);
 }

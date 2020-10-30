@@ -13,8 +13,8 @@
 class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderElement
 {
     private:
-        #define VERTEX_SHADER_PATH   "./shaders/fibers/vertex.glsl"
-        #define FRAGMENT_SHADER_PATH "./shaders/fibers/fragment.glsl"
+        static constexpr auto VERTEX_SHADER_PATH   = "./shaders/fibers/vertex.glsl";
+        static constexpr auto FRAGMENT_SHADER_PATH = "./shaders/fibers/fragment.glsl";
 
         //Fiber storage
         std::vector<float> verticesVector;

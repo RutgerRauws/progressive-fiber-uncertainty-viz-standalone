@@ -10,7 +10,6 @@
 #include <SFML/Graphics.hpp>
 
 #include "src/util/glm/glm.hpp"
-#include "src/util/glm/gtc/matrix_transform.hpp"
 #include "src/interaction/MovementHandler.h"
 #include "src/visitationmap/VisitationMapRenderer.h"
 #include "src/visitationmap/VisitationMapUpdater.h"
@@ -105,7 +104,9 @@ int main()
     movementHandler.SetCameraPosition(CAMERA_POS);
     movementHandler.SetCameraFront(CAMERA_FRT);
 
+    std::cout << "Initializing visitation map... " << std::flush;
     VisitationMap visitationMap = VisitationMap::CreateTest();
+    std::cout << "Complete." << std::endl;
 
     RegionsOfInterest regionsOfInterest(fiberPublisher.GetNumberOfSeedPoints());
 

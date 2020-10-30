@@ -14,8 +14,8 @@
 class VisitationMapRenderer : public RenderElement, public KeyPressObserver, public FiberObserver
 {
     private:
-        #define VERTEX_SHADER_PATH   "./shaders/visitationmap/vertex.glsl"
-        #define FRAGMENT_SHADER_PATH "./shaders/visitationmap/fragment.glsl"
+        static constexpr auto VERTEX_SHADER_PATH   = "./shaders/visitationmap/vertex.glsl";
+        static constexpr auto FRAGMENT_SHADER_PATH = "./shaders/visitationmap/fragment.glsl";
         static constexpr float PERCENTAGE_DELTA = 0.01f;
 
         VisitationMap& visitationMap;

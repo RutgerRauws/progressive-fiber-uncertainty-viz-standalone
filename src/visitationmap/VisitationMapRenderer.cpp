@@ -1,11 +1,9 @@
 //
 // Created by rutger on 10/8/20.
 //
-
 #include <GL/glew.h>
 #include <algorithm>
 #include "VisitationMapRenderer.h"
-#include "../util/glm/ext.hpp"
 
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
                                              RegionsOfInterest& regionsOfInterest,
