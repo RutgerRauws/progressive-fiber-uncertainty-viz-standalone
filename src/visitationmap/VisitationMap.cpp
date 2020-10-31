@@ -115,8 +115,8 @@ VisitationMap VisitationMap::CreateTest()
     const float DTI_YMAX =  112;
     const float DTI_ZMIN = -70;
     const float DTI_ZMAX =  70;
-    const float DTI_SPACING = 0.25; //mm
-//    const float DTI_SPACING = 1;
+//    const float DTI_SPACING = 0.25; //mm
+    const float DTI_SPACING = 1;
 
     const float MAX_FIBER_LENGTH = 190; //mm? ~186.861mm
     const glm::vec3 SEED_POINT(10.254, -6.92531, 0.630174); //estimate

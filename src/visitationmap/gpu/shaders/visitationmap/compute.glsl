@@ -38,6 +38,13 @@ struct Bucket
 
 //
 //
+// Hardcoded
+//
+//
+const float splatRadius = 2;
+
+//
+//
 // Uniforms
 //
 //
@@ -150,6 +157,23 @@ void addFiberToBucket(in Bucket bucket, in uint fiberId)
     }
 }
 
+void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
+{
+    uint bucketIndex = multiMapIndices[cellIndex];
+
+    if(bucketIndex == 0) //there is no entry yet
+    {
+        bucketIndex = atomicAdd(numberOfBucketsUsed, 1) + 1;
+        atomicCompSwap(multiMapIndices[cellIndex], 0, bucketIndex);
+    }
+
+    if(!isFiberInBucket(buckets[bucketIndex], segment.fiberId))
+    {
+        atomicAdd(buckets[bucketIndex].numberOfFibers, 1);
+        addFiberToBucket(buckets[bucketIndex], segment.fiberId);
+    }
+}
+
 //
 // General functions
 //
@@ -192,34 +216,78 @@ void makeSphere()
     }
 }
 
-//Todo: do proper convolution-based splatting
+//implicit definition of a cylinder (http://www.unchainedgeometry.com/jbloom/pdf/imp-techniques.pdf)
+//http://cs-people.bu.edu/sbargal/Fall%202016/lecture_notes/Nov_3_3d_geometry_representation
+//f(p) = |p - Closest(ab, p) - r
+//with r = radius, p = point, ab = segment from point a to b.
+//Closest(ab, p) is the distance to the closest point on the line segment:
+vec3 Closest(in vec3 a, in vec3 b, in vec3 p)
+{
+    vec3 d = b - a;
+    vec3 u = p - a;
+    float alpha = dot(d, u) / dot(d, d);
+
+    if(alpha <= 0)
+    {
+        return a;
+    }
+    else if(alpha >= 1)
+    {
+        return b;
+    }
+    else //alpha > 0 && alpha < 1
+    {
+        return a + alpha * d;
+    }
+}
+
+//returns > 0 if outside, < 0 if inside, = 0 when p is on surface
+float implicit_cylinder_f(in vec3 a, in vec3 b, in float radius, in vec3 p)
+{
+    return length(p - Closest(a, b, p)) - radius;
+}
+
 void splatLineSegment(in FiberSegment segment)
 {
     vec3 p1 = segment.p1.xyz; vec3 p2 = segment.p2.xyz;
 
-    vec3 directionVec = normalize(p2 - p1);
-    float length = distance(p1, p2);
+//    vec3 directionVec = normalize(p2 - p1);
+//    float length = distance(p1, p2);
 
+    float xmin =  min(p1.x, p2.x) - splatRadius;
+    float xmax = max(p1.x, p2.x) + splatRadius;
+    float ymin = min(p1.y, p2.y) - splatRadius;
+    float ymax = max(p1.y, p2.y) + splatRadius;
+    float zmin = min(p1.z, p2.z) - splatRadius;
+    float zmax = max(p1.z, p2.z) + splatRadius;
 
-    for(float s = 0; s < length; s += vmp.cellSize / 2.0)
+    for(float x = xmin; x <= xmax; x += vmp.cellSize)
     {
-        vec3 currentPos = p1 + s * directionVec;
-        uint cellIndex = GetCellIndex(currentPos);
-
-        uint multiMapIndex = multiMapIndices[cellIndex];
-
-        if(multiMapIndex == 0) //there is no entry yet
+        for(float y = ymin; y <= ymax; y += vmp.cellSize)
         {
-            multiMapIndex = atomicAdd(numberOfBucketsUsed, 1) + 1;
-            atomicCompSwap(multiMapIndices[cellIndex], 0, multiMapIndex);
-        }
+            for(float z = zmin; z <= zmax; z += vmp.cellSize)
+            {
+                vec3 currentPos = vec3(x, y, z);
+                uint cellIndex = GetCellIndex(currentPos);
 
-        if(!isFiberInBucket(buckets[multiMapIndex], segment.fiberId))
-        {
-            atomicAdd(buckets[multiMapIndex].numberOfFibers, 1);
-            addFiberToBucket(buckets[multiMapIndex], segment.fiberId);
+                if(implicit_cylinder_f(p1, p2, splatRadius, currentPos) <= 0)
+                {
+                    insertIntoMultiMap(cellIndex, segment);
+                }
+            }
         }
     }
+
+//    for(float s = 0; s < length; s += vmp.cellSize / 2.0)
+//    {
+//        vec3 currentPos = p1 + s * directionVec;
+//        uint cellIndex = GetCellIndex(currentPos);
+//
+//        if(implicit_cylinder_f(p1, p2, splatRadius, currentPos) <= 0)
+//        {
+//            insertIntoMultiMap(cellIndex, segment);
+//        }
+//    }
 
 //    uint cellIndex = GetCellIndex(p1);
 //    atomicAdd(multiMapIndices[cellIndex], 10);

@@ -42,6 +42,7 @@ out vec4 outColor;
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
 const float stepSize = .05;
+const float gradCalcRadius = 3;
 
 const float INF_POS =  1. / 0.;
 const float INF_NEG = -1. / 0.;
@@ -208,13 +209,12 @@ bool isVoxelVisible(in vec3 position)
 vec3 computeNormal(in vec3 position)
 {
     vec3 normal = vec3(0);
-    float rad = 5;
 
-    for(float x = position.x - rad; x < position.x + rad; x += vmp.cellSize)
+    for(float x = position.x - gradCalcRadius; x < position.x + gradCalcRadius; x += vmp.cellSize)
     {
-        for(float y = position.y - rad; y < position.y + rad; y += vmp.cellSize)
+        for(float y = position.y - gradCalcRadius; y < position.y + gradCalcRadius; y += vmp.cellSize)
         {
-            for(float z = position.z - rad; z < position.z + rad; z += vmp.cellSize)
+            for(float z = position.z - gradCalcRadius; z < position.z + gradCalcRadius; z += vmp.cellSize)
             {
                 vec3 nextVoxel = vec3(x, y, z);
 
