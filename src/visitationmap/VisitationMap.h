@@ -7,6 +7,7 @@
 
 #include "../util/glm/vec3.hpp"
 #include "AxisAlignedBoundingBox.h"
+#include "CellFiberMultiMap.h"
 
 class VisitationMap
 {
@@ -18,6 +19,8 @@ private:
     GLuint* frequency_data;
 
     GLuint frequency_map_ssbo;
+
+    CellFiberMultiMap cellFiberMultiMap;
 
     unsigned int getCellIndex(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
     void getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index) const;
@@ -49,6 +52,8 @@ public:
     unsigned int GetNumberOfBytes() const { return sizeof(unsigned int) * GetWidth() * GetHeight() * GetDepth();}
 
     GLuint GetFrequencyMapSSBOId() const { return frequency_map_ssbo; }
+
+    CellFiberMultiMap& GetCellFiberMultiMap() { return cellFiberMultiMap; }
 };
 
 

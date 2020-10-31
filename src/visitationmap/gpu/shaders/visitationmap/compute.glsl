@@ -50,7 +50,7 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 //
 layout(std430, binding = 0) buffer visitationMap
 {
-    uint frequency_map[];
+    uint multiMapIndices[];
 };
 
 layout(std430, binding = 1) buffer regionsOfInterest
@@ -65,23 +65,18 @@ layout(std430, binding = 2) buffer FiberSegments
 
 layout(std430, binding = 3) buffer CellFiberMultiMap
 {
+    uint numberOfBucketsUsed;
     Bucket buckets[];
 };
-
-//struct Cell
-//{
-//    int fiberList[];
-//};
-//
-//layout(std430, binding = 3) buffer visitationMapList
-//{
-//    Cell cells[];
-//};
 
 //
 //
 // Functions
 //
+//
+
+//
+// Visitation Map Functions
 //
 uint GetCellIndex(in uint x_index, in uint y_index, in uint z_index)
 {
@@ -127,6 +122,37 @@ void updateROIAABB(in uint seedPointId, in vec3 position)
     atomicMax(ROIs[seedPointId].zmax, int(ceil( position.z / vmp.cellSize)));
 }
 
+//
+// Bucket functions
+//
+bool isFiberInBucket(in Bucket bucket, in uint fiberId)
+{
+    for(uint i = 0; i < bucket.representativeFibers.length(); i++)
+    {
+        if(bucket.representativeFibers[i] == fiberId)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+void addFiberToBucket(in Bucket bucket, in uint fiberId)
+{
+    for(uint i = 0; i < bucket.representativeFibers.length(); i++)
+    {
+        if(bucket.representativeFibers[i] == 0)
+        {
+            bucket.representativeFibers[i] = fiberId;
+            return;
+        }
+    }
+}
+
+//
+// General functions
+//
 void makeSphere()
 {
     vec3 centerPointWC = vec3(
@@ -160,15 +186,17 @@ void makeSphere()
                     continue;
                 }
 
-                atomicAdd(frequency_map[cellIndex], 1);
+                atomicAdd(multiMapIndices[cellIndex], 1);
             }
         }
     }
 }
 
 //Todo: do proper convolution-based splatting
-void splatLineSegment(in vec3 p1, in vec3 p2)
+void splatLineSegment(in FiberSegment segment)
 {
+    vec3 p1 = segment.p1.xyz; vec3 p2 = segment.p2.xyz;
+
     vec3 directionVec = normalize(p2 - p1);
     float length = distance(p1, p2);
 
@@ -178,14 +206,26 @@ void splatLineSegment(in vec3 p1, in vec3 p2)
         vec3 currentPos = p1 + s * directionVec;
         uint cellIndex = GetCellIndex(currentPos);
 
-        atomicAdd(frequency_map[cellIndex], 1);
+        uint multiMapIndex = multiMapIndices[cellIndex];
+
+        if(multiMapIndex == 0) //there is no entry yet
+        {
+            multiMapIndex = atomicAdd(numberOfBucketsUsed, 1) + 1;
+            atomicCompSwap(multiMapIndices[cellIndex], 0, multiMapIndex);
+        }
+
+        if(!isFiberInBucket(buckets[multiMapIndex], segment.fiberId))
+        {
+            atomicAdd(buckets[multiMapIndex].numberOfFibers, 1);
+            addFiberToBucket(buckets[multiMapIndex], segment.fiberId);
+        }
     }
 
 //    uint cellIndex = GetCellIndex(p1);
-//    atomicAdd(frequency_map[cellIndex], 10);
+//    atomicAdd(multiMapIndices[cellIndex], 10);
 //
 //    cellIndex = GetCellIndex(p2);
-//    atomicAdd(frequency_map[cellIndex], 10);
+//    atomicAdd(multiMapIndices[cellIndex], 10);
 }
 
 //
@@ -209,5 +249,5 @@ void main()
     updateROIAABB(segment.seedPointId, currentPoint);
     updateROIAABB(segment.seedPointId, nextPoint);
 
-    splatLineSegment(currentPoint, nextPoint);
+    splatLineSegment(segment);
 }

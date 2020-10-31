@@ -1,5 +1,8 @@
 #version 430
 
+//!Changing this definition also requires changing the definition in the shader code!
+#define NUMBER_OF_REPRESENTATIVE_FIBERS 5
+
 //
 //
 // Structs
@@ -15,6 +18,12 @@ struct VisitationMapProperties
     AxisAlignedBoundingBox dataset_aabb; //this AABB is set once and defines the bounds of the DWI/DTI dataset
     float cellSize;
     uint width, height, depth;
+};
+
+struct Bucket
+{
+    uint numberOfFibers;
+    uint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS];
 };
 
 //
@@ -58,12 +67,18 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 //
 layout(std430, binding = 0) buffer visitationMap
 {
-    uint frequency_map[];
+    uint multiMapIndices[];
 };
 
 layout(std430, binding = 1) buffer regionsOfInterest
 {
     AxisAlignedBoundingBox ROIs[]; //these AABBBs will continuously change during execution, when new fibers are added
+};
+
+layout(std430, binding = 3) buffer CellFiberMultiMap
+{
+    uint numberOfBucketsUsed;
+    Bucket buckets[];
 };
 
 //
@@ -164,7 +179,12 @@ bool isVoxelInIsosurface(in uint cellIndex)
         return false;
     }
 
-    uint isovalue = frequency_map[cellIndex];
+    uint multiMapIndex = multiMapIndices[cellIndex];
+
+    if(multiMapIndex == 0) { return false; }
+
+    uint isovalue = buckets[multiMapIndex].numberOfFibers;
+
     return isovalue > isovalueThreshold; //TODO: should this be geq?
 }
 

@@ -79,7 +79,7 @@ void VisitationMapUpdater::initialize()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-    cellFiberMultiMap.Initialize();
+    visitationMap.GetCellFiberMultiMap().Initialize();
 
     //Get the limitations on the number of work groups the GPU supports
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNrOfWorkGroups);
@@ -109,7 +109,7 @@ void VisitationMapUpdater::Update()
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, cellFiberMultiMap.GetSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetCellFiberMultiMap().GetSSBOId());
 
     int numberOfLineSegments = segments.size();
     int numberOfWorkGroups = numberOfLineSegments;

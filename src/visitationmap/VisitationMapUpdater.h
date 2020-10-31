@@ -11,7 +11,6 @@
 #include "../util/Shader.h"
 #include "../util/ShaderProgram.h"
 #include "../util/FiberObserver.h"
-#include "CellFiberMultiMap.h"
 
 class VisitationMapUpdater : public FiberObserver
 {
@@ -23,7 +22,6 @@ class VisitationMapUpdater : public FiberObserver
 
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;
-        CellFiberMultiMap cellFiberMultiMap;
 
         std::vector<Fiber*> fiberQueue;
         GLuint fiber_segments_ssbo_id;

@@ -12,14 +12,17 @@ class CellFiberMultiMap
     private:
         //!Changing these definitions also requires changing the definitions in the shader code!
         static const unsigned int NUMBER_OF_REPRESENTATIVE_FIBERS = 5;
-        static const unsigned int NUMBER_OF_BUCKETS = 100000000; //100 million buckets with 4 + 5 * 4 bytes = 2.4 GB
+        //static const unsigned int NUMBER_OF_BUCKETS = 10000000; //100000000; //100 million buckets with 4 + 5 * 4 bytes = 2.4 GB
 
-        struct __attribute__((__packed__)) Bucket
+        struct Bucket
         {
             GLuint numberOfFibers = 0;                                      // 4 bytes
             GLuint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS];   // NUMBER_OF_REPRESENTATIVE_FIBERS * 4 bytes
         };
 
+        unsigned int numberOfBuckets;
+
+        GLuint numberOfBucketsUsed = 0;
         Bucket* buckets;
 
         GLuint ssbo_id;
