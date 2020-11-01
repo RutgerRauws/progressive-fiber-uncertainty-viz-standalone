@@ -195,13 +195,12 @@ bool isVoxelInIsosurface(in vec3 position)
     return isVoxelInIsosurface(cellIndex);
 }
 
-
 bool isVoxelVisible(in vec3 position)
 {
     //todo: verify that this is correct
     vec3 eyePosVec = normalize(cameraPosition - fragmentPositionWC);
 
-    vec3 voxelStep = float(vmp.cellSize) * eyePosVec;
+    vec3 voxelStep = 1/2 * vmp.cellSize * eyePosVec;
 
     return !isVoxelInIsosurface(position + voxelStep);
 }
@@ -218,10 +217,8 @@ vec3 computeNormal(in vec3 position)
             {
                 vec3 nextVoxel = vec3(x, y, z);
 
-                if(isVoxelVisible(nextVoxel)) {        // isVoxelVisible() just checks if the voxel in question is exposed on the surface (not covered up)
-//                    uint cellIndex = GetCellIndex(nextVoxel);
-//                    uint value = frequency_map[cellIndex];
-//                    normal += value * normalize(nextVoxel - position);
+                if(isVoxelVisible(nextVoxel))        // isVoxelVisible() just checks if the voxel in question is exposed on the surface (not covered up)
+                {
                     normal += normalize(nextVoxel - position);
                 }
             }
@@ -233,13 +230,11 @@ vec3 computeNormal(in vec3 position)
 
 vec4 computeShading(in vec3 position, in vec3 eyeVec)
 {
-//    return vec4(1);
     vec3 normal = computeNormal(position);
-//    return vec4(normal, 1);
 
     //Surface material properties
-    float k_a = 0.8;  //ambient
-    float k_d = 0.8;  //diffuse
+    float k_a = 0.3;  //ambient
+    float k_d = 0.7;  //diffuse
     float k_s = 0.2;  //specular
     float alpha = 5; //shininess
 
@@ -253,8 +248,8 @@ vec4 computeShading(in vec3 position, in vec3 eyeVec)
     color += k_a * i_a;                       //ambient contribution
     color += k_d * dot(eyeVec, normal) * i_d; //diffuse contribution
 
-    vec3 R_m = 2 * dot(eyeVec, normal) * normal - eyeVec; //perfect reflection direction
-    color += k_s * pow(dot(R_m, eyeVec), alpha) * i_s; //specular contribution
+//    vec3 R_m = 2 * dot(eyeVec, normal) * normal - eyeVec; //perfect reflection direction
+//    color += k_s * pow(dot(R_m, eyeVec), alpha) * i_s; //specular contribution
 
     return vec4(color, 1);
 }
@@ -310,8 +305,8 @@ void main()
 
         if(isVoxelInIsosurface(currentPosition))
         {
-//            fragmentColor += computeShading(currentPosition, -stepDir);
-            fragmentColor += vec4(1, 0, 0, 0.5);
+            fragmentColor += computeShading(currentPosition, -stepDir);
+//            fragmentColor += vec4(1, 0, 0, 0.5);
             vec4 depth_vec = viewMat * projMat * vec4(currentPosition, 1.0);
             float depth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
             gl_FragDepth = depth;
