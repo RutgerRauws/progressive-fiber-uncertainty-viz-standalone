@@ -228,20 +228,43 @@ vec3 computeNormal(in vec3 position)
         }
     }
 
-    return -normalize(normal);
+    return normalize(normal);
 }
 
-//vec3 computeLighting(in vec3 position)
-//{
-//
-//}
+vec4 computeShading(in vec3 position, in vec3 eyeVec)
+{
+//    return vec4(1);
+    vec3 normal = computeNormal(position);
+//    return vec4(normal, 1);
+
+    //Surface material properties
+    float k_a = 0.8;  //ambient
+    float k_d = 0.8;  //diffuse
+    float k_s = 0.2;  //specular
+    float alpha = 5; //shininess
+
+    //Light properties
+    vec3 i_a = vec3(1, 1, 0);
+    vec3 i_d = vec3(1, 1, 0);
+    vec3 i_s = vec3(1);
+
+    vec3 color = vec3(0);
+
+    color += k_a * i_a;                       //ambient contribution
+    color += k_d * dot(eyeVec, normal) * i_d; //diffuse contribution
+
+    vec3 R_m = 2 * dot(eyeVec, normal) * normal - eyeVec; //perfect reflection direction
+    color += k_s * pow(dot(R_m, eyeVec), alpha) * i_s; //specular contribution
+
+    return vec4(color, 1);
+}
 
 //
 //
 // Main loop
 //
 //
-void main ()
+void main()
 {
     vec3 eyePosVec = fragmentPositionWC - cameraPosition;
     vec3 stepDir = normalize(eyePosVec);
@@ -260,7 +283,7 @@ void main ()
 
     //If tNear > tFar, then there is no intersection
     //If tNear and tFar are negative, the ROI is behind the camera
-    if(tNear > tFar || (tNear < 0 && tFar < 0)) { outColor = fragmentColor; return; }
+    if(tNear > tFar || (tNear < 0 && tFar < 0)) { outColor = fragmentColor; gl_FragDepth= 1; return; }
 
     vec3 currentPosition;
 
@@ -287,9 +310,15 @@ void main ()
 
         if(isVoxelInIsosurface(currentPosition))
         {
-//            vec3 normal = computeNormal(currentPosition);
-//            fragmentColor = vec4(normal, 1);
-            fragmentColor += vec4(1, 0, 0, 1);
+//            fragmentColor += computeShading(currentPosition, -stepDir);
+            fragmentColor += vec4(1, 0, 0, 0.5);
+            vec4 depth_vec = viewMat * projMat * vec4(currentPosition, 1.0);
+            float depth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
+            gl_FragDepth = depth;
+        }
+        else
+        {
+            gl_FragDepth = 1;
         }
 
         currentPosition += stepVec;
