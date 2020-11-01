@@ -7,6 +7,7 @@
 
 #include <string>
 #include <GL/glew.h>
+#include <mutex>
 #include "VisitationMap.h"
 #include "../util/Shader.h"
 #include "../util/ShaderProgram.h"
@@ -23,6 +24,7 @@ class VisitationMapUpdater : public FiberObserver
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;
 
+        std::mutex queueLock;
         std::vector<Fiber*> fiberQueue;
         GLuint fiber_segments_ssbo_id;
         GLint maxNrOfWorkGroups;

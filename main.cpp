@@ -79,8 +79,8 @@ int main()
 
     #ifdef DEBUG
     // During init, enable debug output
-    glEnable              ( GL_DEBUG_OUTPUT );
-    glDebugMessageCallback( MessageCallback, 0 );
+    glEnable(GL_DEBUG_OUTPUT);
+    glDebugMessageCallback(MessageCallback, 0);
     #endif
 
     glm::mat4 modelMat = glm::mat4(1.0f);
@@ -123,9 +123,8 @@ int main()
 
     glEnable(GL_DEPTH_TEST);
 
-    fiberPublisher.Start();
-
     window.display();
+    fiberPublisher.Start();
 
     while (window.isOpen())
     {

@@ -87,7 +87,9 @@ void VisitationMapUpdater::initialize()
 
 void VisitationMapUpdater::NewFiber(Fiber* fiber)
 {
+    queueLock.lock();
     fiberQueue.push_back(fiber);
+    queueLock.unlock();
 }
 
 void VisitationMapUpdater::Update()
@@ -122,8 +124,10 @@ void VisitationMapUpdater::Update()
 
 void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments)
 {
+    queueLock.lock();
     std::vector<Fiber*> fibersCopy(fiberQueue);
     fiberQueue.clear();
+    queueLock.unlock();
 
     for(Fiber* fiber : fibersCopy)
     {
