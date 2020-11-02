@@ -28,9 +28,9 @@ class RenderElement
         GLuint vbo;
 
         const CameraState& cameraState;
-        int modelMatLoc = -1;
-        int viewMatLoc = -1;
-        int projMatLoc = -1;
+        GLint modelMatLoc = -1;
+        GLint viewMatLoc = -1;
+        GLint projMatLoc = -1;
 
 public:
         RenderElement(const std::string& vertexShaderPath,
