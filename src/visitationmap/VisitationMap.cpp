@@ -23,7 +23,7 @@ VisitationMap::VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat y
 
 VisitationMap::~VisitationMap()
 {
-    delete[] frequency_data;
+//    delete[] frequency_data;
 }
 
 void VisitationMap::initialize()

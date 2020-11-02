@@ -6,7 +6,6 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_CELL_FIBER_MULTI_MAP_H
 
 #include <GL/gl.h>
-#include <vector>
 
 class CellFiberMultiMap
 {
@@ -24,12 +23,13 @@ class CellFiberMultiMap
         unsigned int numberOfBuckets;
 
         GLuint numberOfBucketsUsed = 0;
-        std::vector<Bucket> buckets;
+        Bucket* buckets;
 
         GLuint ssbo_id;
 
     public:
         CellFiberMultiMap();
+//        ~CellFiberMultiMap();
 
         void Initialize();
 

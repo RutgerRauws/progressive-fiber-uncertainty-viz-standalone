@@ -11,8 +11,15 @@ VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap, Regions
     initialize();
 }
 
+VisitationMapUpdater::~VisitationMapUpdater()
+{
+    delete shaderProgram;
+}
+
 void VisitationMapUpdater::initialize()
 {
+    Shader* computeShader = nullptr;
+
     try
     {
         computeShader = Shader::LoadFromFile(COMPUTE_SHADER_PATH, GL_COMPUTE_SHADER);
@@ -26,6 +33,8 @@ void VisitationMapUpdater::initialize()
 
     Shader* shaders[1] = {computeShader};
     shaderProgram = new ShaderProgram(shaders, 1);
+
+    delete computeShader; //it's not used anymore after compiling
 
     shaderProgram->Use();
 
@@ -71,6 +80,8 @@ void VisitationMapUpdater::initialize()
     glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+    delete[] visitationMap.GetData(); //reduce internal memory load
 
     regionsOfInterest.Initialize();
 

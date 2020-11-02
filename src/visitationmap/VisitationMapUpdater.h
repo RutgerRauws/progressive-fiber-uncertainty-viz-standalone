@@ -18,7 +18,6 @@ class VisitationMapUpdater : public FiberObserver
     private:
         const std::string COMPUTE_SHADER_PATH = "./shaders/visitationmap/compute.glsl";
 
-        Shader* computeShader = nullptr;
         ShaderProgram* shaderProgram = nullptr;
 
         VisitationMap& visitationMap;
@@ -34,6 +33,7 @@ class VisitationMapUpdater : public FiberObserver
 
     public:
         VisitationMapUpdater(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest);
+        ~VisitationMapUpdater();
 
         void NewFiber(Fiber* fiber) override;
         void Update();
