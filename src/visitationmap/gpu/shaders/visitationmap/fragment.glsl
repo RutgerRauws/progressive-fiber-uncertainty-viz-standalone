@@ -47,7 +47,7 @@ out vec4 outColor;
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
 const float stepSize = .05;
-const float gradCalcRadius = 3;
+const float gradCalcRadius = 3; //0.75;
 
 const float INF_POS =  1. / 0.;
 const float INF_NEG = -1. / 0.;
