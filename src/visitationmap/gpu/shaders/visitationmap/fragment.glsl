@@ -312,9 +312,11 @@ void main()
         {
             fragmentColor += computeShading(currentPosition, -stepDir);
 //            fragmentColor += vec4(1, 0, 0, 0.5);
-            vec4 depth_vec = viewMat * projMat * vec4(currentPosition, 1.0);
-            float depth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
-            gl_FragDepth = depth;
+
+//            TODO: properly implement depth values
+//            vec4 depth_vec = viewMat * projMat * vec4(currentPosition, 1.0);
+//            float depth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
+            gl_FragDepth = 0.5; //not correct, but works for now;
         }
         else
         {
