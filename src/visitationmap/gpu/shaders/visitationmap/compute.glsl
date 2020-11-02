@@ -177,45 +177,6 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
 //
 // General functions
 //
-void makeSphere()
-{
-    vec3 centerPointWC = vec3(
-        ((vmp.dataset_aabb.xmin + vmp.dataset_aabb.xmax) * vmp.cellSize) / 2.0,
-        ((vmp.dataset_aabb.ymin + vmp.dataset_aabb.ymax) * vmp.cellSize) / 2.0,
-        ((vmp.dataset_aabb.zmin + vmp.dataset_aabb.zmax) * vmp.cellSize) / 2.0
-    );
-
-    uint indices[3];
-    GetIndices(centerPointWC, indices[0], indices[1], indices[2]);
-
-    float sideSize = min(vmp.width, min(vmp.height, vmp.depth)) / 2.0;
-    int sideIndexOffset = int(sideSize / vmp.cellSize) ;
-    for(int x = -sideIndexOffset; x < sideIndexOffset; x++)
-    {
-        for(int y = -sideIndexOffset; y < sideIndexOffset; y++)
-        {
-            for(int z = -sideIndexOffset; z < sideIndexOffset; z++)
-            {
-                vec3 newPoint = centerPointWC + vec3(x, y, z);
-
-                if(distance(vec3(0, 0, 0), newPoint) > sideIndexOffset)
-                {
-                    continue;
-                }
-
-                uint cellIndex = GetCellIndex(indices[0] + x, indices[1] + y, indices[2] + z);
-
-                if(cellIndex > vmp.width * vmp.height * vmp.depth)
-                {
-                    continue;
-                }
-
-                atomicAdd(multiMapIndices[cellIndex], 1);
-            }
-        }
-    }
-}
-
 //implicit definition of a cylinder (http://www.unchainedgeometry.com/jbloom/pdf/imp-techniques.pdf)
 //http://cs-people.bu.edu/sbargal/Fall%202016/lecture_notes/Nov_3_3d_geometry_representation
 //f(p) = |p - Closest(ab, p) - r
@@ -278,6 +239,9 @@ void splatLineSegment(in FiberSegment segment)
         }
     }
 
+    updateROIAABB(segment.seedPointId, vec3(xmin, ymin, zmin));
+    updateROIAABB(segment.seedPointId, vec3(xmax, ymax, zmax));
+
 //    for(float s = 0; s < length; s += vmp.cellSize / 2.0)
 //    {
 //        vec3 currentPos = p1 + s * directionVec;
@@ -304,7 +268,6 @@ void splatLineSegment(in FiberSegment segment)
 void main()
 {
     if(segments.length() < 1) { return; }
-//    makeSphere();
 
     uint numberOfLineSegments = gl_NumWorkGroups.x;
     uint segmentId = gl_WorkGroupID.x; //the segment id is the vertex number for the 'start vertex'
@@ -313,9 +276,6 @@ void main()
 
     vec3 currentPoint = segment.p1.xyz;
     vec3 nextPoint = segment.p2.xyz;
-
-    updateROIAABB(segment.seedPointId, currentPoint);
-    updateROIAABB(segment.seedPointId, nextPoint);
 
     splatLineSegment(segment);
 }
