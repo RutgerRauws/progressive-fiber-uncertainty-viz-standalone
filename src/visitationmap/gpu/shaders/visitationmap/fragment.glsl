@@ -13,6 +13,11 @@ struct AxisAlignedBoundingBox
     int xmin, xmax, ymin, ymax, zmin, zmax;
 };
 
+struct BoxIntersection
+{
+    float Near, Far;
+};
+
 struct VisitationMapProperties
 {
     AxisAlignedBoundingBox dataset_aabb; //this AABB is set once and defines the bounds of the DWI/DTI dataset
@@ -109,7 +114,7 @@ uint GetCellIndex(in vec3 positionWC)
 }
 
 //https://gist.github.com/DomNomNom/46bb1ce47f68d255fd5d
-vec2 intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
+BoxIntersection intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
 {
     vec3 tMin = (boxMin - rayOrigin) / rayDir;
     vec3 tMax = (boxMax - rayOrigin) / rayDir;
@@ -117,30 +122,30 @@ vec2 intersectAABB(vec3 rayOrigin, vec3 rayDir, vec3 boxMin, vec3 boxMax)
     vec3 t2 = max(tMin, tMax);
     float tNear = max(max(t1.x, t1.y), t1.z);
     float tFar = min(min(t2.x, t2.y), t2.z);
-    return vec2(tNear, tFar);
+    return BoxIntersection(tNear, tFar);
 }
 
-vec2 intersectAABBs(vec3 rayOrigin, vec3 rayDir)
+BoxIntersection intersectAABBs(vec3 rayOrigin, vec3 rayDir)
 {
-    vec2 t = vec2(INF_POS, INF_NEG);
-                                                                                            //todo: HIER VERDER KIJKEN, AABBs zijn nog niet goed geinitieerd voor intersect()??
+    BoxIntersection t = BoxIntersection(INF_POS, INF_NEG);
+
     for(uint i = 0; i < ROIs.length(); i++)
     {
         AxisAlignedBoundingBox aabb = ROIs[i];
 
-        vec2 t_local = intersectAABB(
+        BoxIntersection tLocal = intersectAABB(
             rayOrigin,
             rayDir,
             vec3(aabb.xmin * vmp.cellSize, aabb.ymin * vmp.cellSize, aabb.zmin * vmp.cellSize),
             vec3(aabb.xmax * vmp.cellSize, aabb.ymax * vmp.cellSize, aabb.zmax * vmp.cellSize)
         );
 
-        float tNear = t_local.x;
-        float tFar = t_local.y;
+        float tNear = tLocal.Near;
+        float tFar = tLocal.Far;
         if(tNear > tFar || (tNear < 0 && tFar < 0)) { continue; }
 
-        t.x = min(t.x, t_local.x);
-        t.y = max(t.y, t_local.y);
+        t.Near = min(t.Near, tLocal.Near);
+        t.Far = max(t.Far, tLocal.Far);
     }
 
     return t;
@@ -268,17 +273,17 @@ void main()
     vec4 fragmentColor = vec4(0);
 
     //Find start point
-    vec2 t = intersectAABBs(
+    BoxIntersection intersection = intersectAABBs(
         cameraPosition,
         stepDir
     );
 
-    float tNear = t.x;
-    float tFar = t.y;
+    float tNear = intersection.Near;
+    float tFar = intersection.Far;
 
     //If tNear > tFar, then there is no intersection
     //If tNear and tFar are negative, the ROI is behind the camera
-    if(tNear > tFar || (tNear < 0 && tFar < 0)) { outColor = fragmentColor; gl_FragDepth= 1; return; }
+    if(tNear > tFar || (tNear < 0 && tFar < 0)) { outColor = fragmentColor; gl_FragDepth = 1; return; }
 
     vec3 currentPosition;
 
