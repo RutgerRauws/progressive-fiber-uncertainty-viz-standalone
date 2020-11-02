@@ -120,6 +120,7 @@ int main()
 
     FiberRenderer fiberRenderer(movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(fiberRenderer);
+    interactionManager.AddObserver(sf::Keyboard::F, &fiberRenderer);
 
     glEnable(GL_DEPTH_TEST);
 

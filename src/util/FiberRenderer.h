@@ -25,8 +25,10 @@ class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderEleme
 
         std::mutex mtx; // mutex for critical section, NewFiber() is called from various threads
 
+        GLint showFibersLoc;
+
         //Options
-        bool fibersShown, pointsShown;
+        bool showFibers, showPoints;
 
         void initialize() override;
         void updateData();

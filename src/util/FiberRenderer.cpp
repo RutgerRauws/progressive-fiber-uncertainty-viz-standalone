@@ -8,7 +8,7 @@
 
 FiberRenderer::FiberRenderer(const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
-      numberOfFibers(0), fibersShown(true), pointsShown(false)
+      numberOfFibers(0), showFibers(true), showPoints(false)
 {
     initialize();
 }
@@ -20,12 +20,12 @@ void FiberRenderer::initialize()
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
-    //todo: use shaderProgram->Use()?
-
     //Get uniform locations
     modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
     viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
     projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
+
+    showFibersLoc = glGetUniformLocation(shaderProgram->GetId(), "showFibers");
 }
 
 void FiberRenderer::updateData()
@@ -83,6 +83,8 @@ void FiberRenderer::Render()
     glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.viewMatrix));
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
 
+    glUniform1i(showFibersLoc, showFibers);
+
     glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
 //    mtx.unlock();
 }
@@ -99,30 +101,8 @@ unsigned int FiberRenderer::GetNumberOfBytes()
 
 void FiberRenderer::KeyPressed(const sf::Keyboard::Key& key)
 {
-//    if(key == sf::Keyboard::P)
-//    {
-//        if(pointsShown)
-//        {
-//            renderer->RemoveActor(pointsActor);
-//        }
-//        else
-//        {
-//            renderer->AddActor(pointsActor);
-//        }
-//
-//        pointsShown = !pointsShown;
-//    }
-//    else if(key == sf::Keyboard::F)
-//    {
-//        if(fibersShown)
-//        {
-//            renderer->RemoveActor(fiberActor);
-//        }
-//        else
-//        {
-//            renderer->AddActor(fiberActor);
-//        }
-//
-//        fibersShown = !fibersShown;
-//    }
+    if(key == sf::Keyboard::F)
+    {
+        showFibers = !showFibers;
+    }
 }
