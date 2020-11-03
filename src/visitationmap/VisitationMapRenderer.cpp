@@ -152,8 +152,7 @@ void VisitationMapRenderer::updateIsovaluePercentage(float delta)
 
 float VisitationMapRenderer::computeIsovalue()
 {
-    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
-    return numberOfFibers * isovaluePercentage;
+    return std::ceil((float)numberOfFibers * isovaluePercentage);
 }
 
 void VisitationMapRenderer::Render()
@@ -190,6 +189,8 @@ void VisitationMapRenderer::KeyPressed(const sf::Keyboard::Key &key)
     {
         updateIsovaluePercentage(-PERCENTAGE_DELTA);
     }
+
+    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
 }
 
 void VisitationMapRenderer::NewFiber(Fiber *fiber)

@@ -189,7 +189,7 @@ bool isVoxelInIsosurface(in uint cellIndex)
 
     if(multiMapIndex == 0) { return false; }
 
-    uint isovalue = buckets[multiMapIndex].numberOfFibers;
+    float isovalue = float(buckets[multiMapIndex].numberOfFibers);
 
     return isovalue > isovalueThreshold; //TODO: should this be geq?
 }
@@ -316,6 +316,7 @@ void main()
 //            TODO: properly implement depth values
 //            vec4 depth_vec = viewMat * projMat * vec4(currentPosition, 1.0);
 //            float depth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
+//            gl_FragDepth = depth;
             gl_FragDepth = 0.5; //not correct, but works for now;
         }
         else
