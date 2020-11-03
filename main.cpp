@@ -122,7 +122,12 @@ int main()
     fiberPublisher.RegisterObserver(fiberRenderer);
     interactionManager.AddObserver(sf::Keyboard::F, &fiberRenderer);
 
+    CenterlineRenderer centerlineRenderer(movementHandler.GetCameraState(), fiberPublisher.GetNumberOfSeedPoints());
+    fiberPublisher.RegisterObserver(centerlineRenderer);
+    interactionManager.AddObserver(sf::Keyboard::C, &centerlineRenderer);
+
     glEnable(GL_DEPTH_TEST);
+    glEnable(GL_BLEND);
 
     window.display();
     fiberPublisher.Start();
@@ -152,6 +157,7 @@ int main()
         //Actual draw calls
         visitationMapUpdater.Update();
         visitationMapRenderer.Render();
+        centerlineRenderer.Render();
         fiberRenderer.Render();
 
         window.display();

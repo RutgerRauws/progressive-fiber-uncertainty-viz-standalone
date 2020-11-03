@@ -8,7 +8,7 @@
 
 FiberRenderer::FiberRenderer(const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
-      numberOfFibers(0), showFibers(true), showPoints(false)
+      numberOfFibers(0), showFibers(false), showPoints(false)
 {
     initialize();
 }
@@ -35,12 +35,17 @@ void FiberRenderer::updateData()
         return;
     }
 
+    mtx.lock();
     glBindVertexArray(vao);
 
     glBindBuffer(GL_ARRAY_BUFFER, vbo);
     glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW); //TODO: there was a segfault here before, but not sure why
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+
+    mtx.unlock();
 }
 
 void FiberRenderer::NewFiber(Fiber* fiber)
@@ -66,17 +71,16 @@ void FiberRenderer::NewFiber(Fiber* fiber)
 
     vertices = verticesVector.data();
     numberOfFibers++;
-    updateData();
 
     mtx.unlock();
 }
 
 void FiberRenderer::Render()
 {
-//    mtx.lock();
     shaderProgram->Use();
 
     updateData();
+
     glBindVertexArray(vao);
 
     glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
@@ -85,8 +89,9 @@ void FiberRenderer::Render()
 
     glUniform1i(showFibersLoc, showFibers);
 
-    glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
-//    mtx.unlock();
+    glMultiDrawArrays(GL_LINE_STRIP, firstVertexOfEachFiber.data(), numberOfVerticesPerFiber.data(), numberOfFibers);
+
+    glBindVertexArray(0);
 }
 
 unsigned int FiberRenderer::GetNumberOfVertices()

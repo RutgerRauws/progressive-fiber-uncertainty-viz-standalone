@@ -2,31 +2,100 @@
 // Created by rutger on 8/1/20.
 //
 
-#include <string>
-#include <vtkPolyDataMapper.h>
-#include <vtkPoints.h>
-#include <vtkLineSource.h>
-#include <vtkPolyLine.h>
-#include <vtkTubeFilter.h>
-#include <vtkRenderer.h>
-#include <vtkProperty.h>
+#include <GL/glew.h>
 #include "CenterlineRenderer.h"
 
-CenterlineRenderer::CenterlineRenderer(vtkSmartPointer<vtkRenderer> renderer)
-    : renderer(std::move(renderer)),
-      actor(vtkSmartPointer<vtkActor>::New()),
-      centerlineShown(false),
-      centerFiberId(std::numeric_limits<unsigned int>::max())
-{}
-
-void CenterlineRenderer::NewFiber(Fiber* newCenterline)
+CenterlineRenderer::CenterlineRenderer(const CameraState& cameraState, unsigned int numberOfSeedPoints)
+    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
+      numberOfSeedPoints(numberOfSeedPoints),
+      showCenterline(true),
+      numberOfFibers(0)
 {
-    distanceTable.InsertNewFiber(*newCenterline);
+    initialize();
+}
 
-    if(distanceTable.GetCenterline().GetId() != centerFiberId)
+void CenterlineRenderer::initialize()
+{
+    distanceTables.reserve(numberOfSeedPoints);
+    centerFibers.reserve(numberOfSeedPoints);
+
+    for(unsigned int i = 0; i < numberOfSeedPoints; i++)
     {
-        centerFiberId = distanceTable.GetCenterline().GetId();
-        render();
+        distanceTables.emplace_back(DistanceTable());
+        centerFibers.push_back(nullptr);
+    }
+
+    shaderProgram->Use();
+
+    glGenVertexArrays(1, &vao);
+    glGenBuffers(1, &vbo);
+
+    //Get uniform locations
+    modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
+    viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
+    projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
+
+    showCenterlineLoc = glGetUniformLocation(shaderProgram->GetId(), "showFibers");
+}
+
+void CenterlineRenderer::updateData()
+{
+    mtx.lock();
+
+    verticesVector.clear();
+    firstVertexOfEachFiber.clear();
+    numberOfVerticesPerFiber.clear();
+
+    for(const Fiber* fiber : centerFibers)
+    {
+        if(fiber == nullptr) { continue; }
+
+        const std::vector<glm::vec3>& fiberPoints = fiber->GetUniquePoints();
+        unsigned int incomingNumberOfPoints = fiberPoints.size();
+        unsigned int currentNumberOfPoints = GetNumberOfVertices();
+
+        for(unsigned int i = 0; i < incomingNumberOfPoints; i++)
+        {
+            const glm::vec3& point = fiberPoints[i];
+
+            verticesVector.push_back(point.x);
+            verticesVector.push_back(point.y);
+            verticesVector.push_back(point.z);
+        }
+
+        firstVertexOfEachFiber.push_back(currentNumberOfPoints);
+        numberOfVerticesPerFiber.push_back(incomingNumberOfPoints);//TODO: there was a segfault here before, but not sure why perhaps add in mutex locks in the render method as last resort
+    }
+
+    vertices = verticesVector.data();
+    numberOfFibers = firstVertexOfEachFiber.size();
+
+    mtx.unlock();
+}
+
+void CenterlineRenderer::sendData()
+{
+    glBindVertexArray(vao);
+
+    glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW); //TODO: there was a segfault here before, but not sure why
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    glEnableVertexAttribArray(0);
+
+    glBindVertexArray(0);
+}
+
+void CenterlineRenderer::NewFiber(Fiber* fiber)
+{
+    DistanceTable& distanceTable = distanceTables.at(fiber->GetSeedPointId());
+    const Fiber* currentCenterFiber = centerFibers.at(fiber->GetSeedPointId());
+
+    distanceTable.InsertNewFiber(*fiber);
+
+    if(currentCenterFiber == nullptr || distanceTable.GetCenterline().GetId() != currentCenterFiber->GetId())
+    {
+        centerFibers.at(fiber->GetSeedPointId()) = &distanceTable.GetCenterline();
+        updateData();
     }
 }
 
@@ -34,76 +103,37 @@ void CenterlineRenderer::KeyPressed(const sf::Keyboard::Key& key)
 {
     if(key == sf::Keyboard::C)
     {
-        if(actor != nullptr)
-        {
-            if (centerlineShown)
-            {
-                renderer->RemoveActor(actor);
-                std::cout << "Centerline hidden" << std::endl;
-            }
-            else
-            {
-                renderer->AddActor(actor);
-                std::cout << "Centerline shown" << std::endl;
-            }
-        }
-
-        centerlineShown = !centerlineShown;
+        showCenterline = !showCenterline;
     }
 }
 
-void CenterlineRenderer::render()
+void CenterlineRenderer::Render()
 {
-    vtkNew<vtkPoints> points;
-    vtkNew<vtkCellArray> lines;
+    shaderProgram->Use();
 
-    const std::vector<glm::vec3>& newPoints = distanceTable.GetCenterline().GetUniquePoints();
-    points->SetNumberOfPoints(newPoints.size());
+    mtx.lock();
+    sendData();
 
-    vtkNew<vtkPolyLine> polyLine;
-    polyLine->GetPointIds()->SetNumberOfIds(newPoints.size());
+    glBindVertexArray(vao);
 
-    for(int i = 0; i < newPoints.size(); i++)
-    {
-        const glm::vec3& point = newPoints[i];
+    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
+    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.viewMatrix));
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
 
-        points->InsertPoint(i, point.x, point.y, point.z);
-        polyLine->GetPointIds()->SetId(i, i);
-    }
+    glUniform1i(showCenterlineLoc, showCenterline);
 
-    lines->InsertNextCell(polyLine);
+    glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
+    mtx.unlock();
 
-    vtkNew<vtkPolyData> polyData;
-    polyData->SetPoints(points);
-    polyData->SetLines(lines);
+    glBindVertexArray(0);
+}
 
-    vtkNew<vtkPolyDataMapper> polyMapper;
-    polyMapper->SetInputData(polyData);
+unsigned int CenterlineRenderer::GetNumberOfVertices()
+{
+    return verticesVector.size() / 3;
+}
 
-    // Create a tube (cylinder) around the line
-    vtkNew<vtkTubeFilter> tubeFilter;
-    tubeFilter->SetInputData(polyData);
-    tubeFilter->SetCapping(true);
-    tubeFilter->SetRadius(.25); //default is .5
-    tubeFilter->SetNumberOfSides(6);
-    tubeFilter->Update();
-
-    // Create a mapper and actor
-    vtkNew<vtkPolyDataMapper> tubeMapper;
-    tubeMapper->SetInputConnection(tubeFilter->GetOutputPort());
-
-    if(actor != nullptr)
-    {
-        renderer->RemoveActor(actor);
-    }
-
-    actor->GetProperty()->SetColor(1, 1, 1);
-    actor->GetProperty()->SetOpacity(0.75);
-    actor->SetMapper(tubeMapper);
-
-    if(centerlineShown)
-    {
-        renderer->AddActor(actor);
-        std::cout << "Rendered new centerline" << std::endl;
-    }
+unsigned int CenterlineRenderer::GetNumberOfBytes()
+{
+    return verticesVector.size() * sizeof(float);
 }
