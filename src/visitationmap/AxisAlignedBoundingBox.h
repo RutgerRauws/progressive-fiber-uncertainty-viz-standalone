@@ -22,14 +22,7 @@ class AxisAlignedBoundingBox
 
         static AxisAlignedBoundingBox CreateStartAABB()
         {
-            AxisAlignedBoundingBox aabb(
-                std::numeric_limits<GLint>::max(),
-                std::numeric_limits<GLint>::min(),
-                std::numeric_limits<GLint>::max(),
-                std::numeric_limits<GLint>::min(),
-                std::numeric_limits<GLint>::max(),
-                std::numeric_limits<GLint>::min()
-            );
+            AxisAlignedBoundingBox aabb(0, 0, 0, 0, 0, 0);
 
             return aabb;
         }

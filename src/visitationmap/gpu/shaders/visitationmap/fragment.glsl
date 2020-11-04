@@ -133,6 +133,11 @@ BoxIntersection intersectAABBs(vec3 rayOrigin, vec3 rayDir)
     {
         AxisAlignedBoundingBox aabb = ROIs[i];
 
+        if(aabb.xmin == 0 && aabb.xmax == 0 && aabb.ymin == 0 && aabb.ymax == 0 && aabb.zmin == 0 && aabb.zmax == 0)
+        {
+            continue;
+        }
+
         BoxIntersection tLocal = intersectAABB(
             rayOrigin,
             rayDir,
