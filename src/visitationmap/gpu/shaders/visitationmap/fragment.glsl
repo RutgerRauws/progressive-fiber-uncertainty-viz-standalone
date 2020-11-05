@@ -63,7 +63,8 @@ uniform mat4 projMat;
 
 uniform vec3 cameraPosition;
 
-uniform float isovalueThreshold;
+//uniform float isovalueThreshold;
+uniform uint isovalueThreshold;
 uniform VisitationMapProperties vmp; //visitationMapProp
 
 //
@@ -194,9 +195,9 @@ bool isVoxelInIsosurface(in uint cellIndex)
 
     if(multiMapIndex == 0) { return false; }
 
-    float isovalue = float(buckets[multiMapIndex].numberOfFibers);
+    uint isovalue = buckets[multiMapIndex].numberOfFibers;
 
-    return isovalue > isovalueThreshold; //TODO: should this be geq?
+    return isovalue > uint(isovalueThreshold); //TODO: should this be geq?
 }
 
 bool isVoxelInIsosurface(in vec3 position)
@@ -316,7 +317,6 @@ void main()
         if(isVoxelInIsosurface(currentPosition))
         {
             fragmentColor += computeShading(currentPosition, -stepDir);
-//            fragmentColor += vec4(1, 0, 0, 0.5);
 
 //            TODO: properly implement depth values
 //            vec4 depth_vec = viewMat * projMat * vec4(currentPosition, 1.0);
@@ -332,6 +332,6 @@ void main()
         currentPosition += stepVec;
         s += stepSize;
     }
-
+    
     outColor = fragmentColor;
 }

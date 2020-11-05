@@ -103,6 +103,17 @@ void VisitationMapUpdater::NewFiber(Fiber* fiber)
     queueLock.unlock();
 }
 
+static int nextPowerOfTwo(int x) {
+    x--;
+    x |= x >> 1; // handle 2 bit numbers
+    x |= x >> 2; // handle 4 bit numbers
+    x |= x >> 4; // handle 8 bit numbers
+    x |= x >> 8; // handle 16 bit numbers
+    x |= x >> 16; // handle 32 bit numbers
+    x++;
+    return x;
+}
+
 void VisitationMapUpdater::Update()
 {
     if(fiberQueue.empty())
@@ -129,8 +140,26 @@ void VisitationMapUpdater::Update()
     //int numberOfWorkGroups = std::min(numberOfEdges, maxNrOfWorkGroups); //TODO: we do not want to dispatch more workgroups than the GPU supports
     //minimum supported is 65535
 
-    glDispatchCompute(numberOfWorkGroups, 1, 1);
+//    glDispatchCompute(1, 1, 1);
+//    glDispatchCompute(visitationMap.GetWidth() / 15, visitationMap.GetHeight() / 15, visitationMap.GetDepth() / 15);
+//    glDispatchCompute(
+//            std::ceil(visitationMap.GetWidth()  / 8.0),
+//            std::ceil(visitationMap.GetHeight() / 8.0),
+//            std::ceil(visitationMap.GetDepth()  / 8.0)
+//    );
+//
+
+    glDispatchCompute(
+            nextPowerOfTwo(visitationMap.GetWidth() / 8),
+            nextPowerOfTwo(visitationMap.GetHeight() / 8),
+            nextPowerOfTwo(visitationMap.GetDepth() / 8)
+    );
+
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+
+
+//    glDispatchCompute(visitationMap.GetWidth(), visitationMap.GetHeight(), visitationMap.GetDepth());
+//    glFinish();
 }
 
 void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments)

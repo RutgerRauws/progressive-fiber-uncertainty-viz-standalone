@@ -26,6 +26,7 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
 
         float isovaluePercentage;
         unsigned int numberOfFibers;
+        unsigned int isovalueThreshold;
 
         void createVertices();
         void initialize() override;

@@ -12,7 +12,8 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
       visitationMap(visitationMap),
       regionsOfInterest(regionsOfInterest),
       isovaluePercentage(0),
-      numberOfFibers(0)
+      numberOfFibers(0),
+      isovalueThreshold(0)
 {
     createVertices();
     initialize();
@@ -138,7 +139,8 @@ void VisitationMapRenderer::initialize()
     cameraPos_loc = glGetUniformLocation(programId, "cameraPosition");
 
     isovalue_loc = glGetUniformLocation(programId, "isovalueThreshold");
-    glProgramUniform1f(programId, isovalue_loc, 0);
+//    glProgramUniform1f(programId, isovalue_loc, 0);
+    glProgramUniform1ui(programId, isovalue_loc, 0);
 }
 
 void VisitationMapRenderer::updateIsovaluePercentage(float delta)
@@ -167,7 +169,8 @@ void VisitationMapRenderer::Render()
 
     glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
 
-    glProgramUniform1f(shaderProgram->GetId(), isovalue_loc, computeIsovalue());
+//    glProgramUniform1f(shaderProgram->GetId(), isovalue_loc, computeIsovalue());
+    glProgramUniform1ui(shaderProgram->GetId(), isovalue_loc, isovalueThreshold);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
@@ -181,16 +184,19 @@ void VisitationMapRenderer::KeyPressed(const sf::Keyboard::Key &key)
     //Increase isovalue
     if(key == sf::Keyboard::U)
     {
-        updateIsovaluePercentage(PERCENTAGE_DELTA);
+//        updateIsovaluePercentage(PERCENTAGE_DELTA);
+        isovalueThreshold++;
     }
 
     //Decrease isovalue
     if(key == sf::Keyboard::J)
     {
-        updateIsovaluePercentage(-PERCENTAGE_DELTA);
+//        updateIsovaluePercentage(-PERCENTAGE_DELTA);
+        isovalueThreshold--;
     }
 
-    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
+//    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
+    std::cout << "Isovalue threshold at " << isovalueThreshold << std::endl;
 }
 
 void VisitationMapRenderer::NewFiber(Fiber *fiber)

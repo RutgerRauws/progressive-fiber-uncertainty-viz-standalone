@@ -1,5 +1,5 @@
 #version 430 core
-layout(local_size_x = 1) in;
+layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 //!Changing this definition also requires changing the definition in the shader code!
 #define NUMBER_OF_REPRESENTATIVE_FIBERS 5
@@ -55,12 +55,12 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 // SSBOs
 //
 //
-layout(std430, binding = 0) buffer visitationMap
+layout(std430, binding = 0) coherent buffer visitationMap
 {
     uint multiMapIndices[];
 };
 
-layout(std430, binding = 1) buffer regionsOfInterest
+layout(std430, binding = 1) coherent buffer regionsOfInterest
 {
     AxisAlignedBoundingBox ROIs[]; //these AABBBs will continuously change during execution, when new fibers are added
 };
@@ -70,7 +70,7 @@ layout(std430, binding = 2) buffer FiberSegments
     FiberSegment segments[];
 };
 
-layout(std430, binding = 3) buffer CellFiberMultiMap
+layout(std430, binding = 3) coherent buffer CellFiberMultiMap
 {
     uint numberOfBucketsUsed;
     Bucket buckets[];
@@ -88,6 +88,22 @@ layout(std430, binding = 3) buffer CellFiberMultiMap
 uint GetCellIndex(in uint x_index, in uint y_index, in uint z_index)
 {
     return x_index + vmp.width * (y_index + z_index * vmp.height);
+}
+
+void GetCellIndices(in uint index, in uint x_index, in uint y_index, in uint z_index)
+{
+    x_index = index % vmp.width;
+    y_index = (index / vmp.width) % vmp.height;
+    z_index = (index / vmp.width) / vmp.height;
+}
+
+vec3 GetPosition(in uint x_index, in uint y_index, in uint z_index)
+{
+    return vec3(
+        (vmp.dataset_aabb.xmin + int(x_index)) * vmp.cellSize,
+        (vmp.dataset_aabb.ymin + int(y_index)) * vmp.cellSize,
+        (vmp.dataset_aabb.zmin + int(z_index)) * vmp.cellSize
+    );
 }
 
 void GetIndices(in vec3 point, out uint x_index, out uint y_index, out uint z_index)
@@ -127,6 +143,8 @@ void updateROIAABB(in uint seedPointId, in vec3 position)
     atomicMax(ROIs[seedPointId].ymax, int(ceil( position.y / vmp.cellSize)));
     atomicMin(ROIs[seedPointId].zmin, int(floor(position.z / vmp.cellSize)));
     atomicMax(ROIs[seedPointId].zmax, int(ceil( position.z / vmp.cellSize)));
+//    memoryBarrierBuffer();
+//    barrier();
 }
 
 //
@@ -134,7 +152,7 @@ void updateROIAABB(in uint seedPointId, in vec3 position)
 //
 bool isFiberInBucket(in Bucket bucket, in uint fiberId)
 {
-    for(uint i = 0; i < bucket.representativeFibers.length(); i++)
+    for(uint i = 0; i < NUMBER_OF_REPRESENTATIVE_FIBERS; i++)
     {
         if(bucket.representativeFibers[i] == fiberId)
         {
@@ -164,6 +182,8 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
     if(bucketIndex == 0) //there is no entry yet
     {
         bucketIndex = atomicAdd(numberOfBucketsUsed, 1) + 1;
+        memoryBarrierBuffer();
+        barrier();
         atomicCompSwap(multiMapIndices[cellIndex], 0, bucketIndex);
     }
 
@@ -208,39 +228,17 @@ float implicit_cylinder_f(in vec3 a, in vec3 b, in float radius, in vec3 p)
     return length(p - Closest(a, b, p)) - radius;
 }
 
-void splatLineSegment(in FiberSegment segment)
+void splatLineSegment(in FiberSegment segment, in uint cellIndex, in vec3 currentPos)
 {
-    vec3 p1 = segment.p1.xyz; vec3 p2 = segment.p2.xyz;
+    vec3 p1 = segment.p1.xyz;
+    vec3 p2 = segment.p2.xyz;
 
-//    vec3 directionVec = normalize(p2 - p1);
-//    float length = distance(p1, p2);
-
-    float xmin =  min(p1.x, p2.x) - splatRadius;
-    float xmax = max(p1.x, p2.x) + splatRadius;
-    float ymin = min(p1.y, p2.y) - splatRadius;
-    float ymax = max(p1.y, p2.y) + splatRadius;
-    float zmin = min(p1.z, p2.z) - splatRadius;
-    float zmax = max(p1.z, p2.z) + splatRadius;
-
-    for(float x = xmin; x <= xmax; x += vmp.cellSize)
+    if(implicit_cylinder_f(p1, p2, splatRadius, currentPos) <= 0) //point currentPos is on or in cylinder
     {
-        for(float y = ymin; y <= ymax; y += vmp.cellSize)
-        {
-            for(float z = zmin; z <= zmax; z += vmp.cellSize)
-            {
-                vec3 currentPos = vec3(x, y, z);
-                uint cellIndex = GetCellIndex(currentPos);
-
-                if(implicit_cylinder_f(p1, p2, splatRadius, currentPos) <= 0)
-                {
-                    insertIntoMultiMap(cellIndex, segment);
-                }
-            }
-        }
+        insertIntoMultiMap(cellIndex, segment);
+        updateROIAABB(segment.seedPointId, currentPos);
     }
-
-    updateROIAABB(segment.seedPointId, vec3(xmin, ymin, zmin));
-    updateROIAABB(segment.seedPointId, vec3(xmax, ymax, zmax));
+    groupMemoryBarrier();
 
 //    for(float s = 0; s < length; s += vmp.cellSize / 2.0)
 //    {
@@ -267,15 +265,63 @@ void splatLineSegment(in FiberSegment segment)
 //
 void main()
 {
-    if(segments.length() < 1) { return; }
+    uint x_index = gl_GlobalInvocationID.x;
+    uint y_index = gl_GlobalInvocationID.y;
+    uint z_index = gl_GlobalInvocationID.z;
 
-    uint numberOfLineSegments = gl_NumWorkGroups.x;
-    uint segmentId = gl_WorkGroupID.x; //the segment id is the vertex number for the 'start vertex'
+    if(segments.length() < 1
+    || x_index >= vmp.width
+    || y_index >= vmp.height
+    || z_index >= vmp.depth
+    )
+    { return; }
 
-    FiberSegment segment = segments[segmentId];
+    uint cellIndex = GetCellIndex(x_index, y_index, z_index);
 
-    vec3 currentPoint = segment.p1.xyz;
-    vec3 nextPoint = segment.p2.xyz;
+//    multiMapIndices[cellIndex]++;
+//    return;
 
-    splatLineSegment(segment);
+    uint bucketIndex = multiMapIndices[cellIndex];
+    vec3 currentPos = GetPosition(x_index, y_index, z_index);
+
+    for (uint i = 0; i < segments.length(); i++)
+    {
+        splatLineSegment(segments[i], cellIndex, currentPos);
+    }
+
+//    memoryBarrierBuffer();
+//    barrier();
+
+//    uint x_index_global = gl_WorkGroupID.x * gl_WorkGroupSize.x;
+//    uint y_index_global = gl_WorkGroupID.y * gl_WorkGroupSize.y;
+//    uint z_index_global = gl_WorkGroupID.z * gl_WorkGroupSize.z;
+//
+//    for(uint x_index = x_index_global; x_index < x_index_global + gl_WorkGroupSize.x; x_index++)
+//    {
+//        for(uint y_index = y_index_global; y_index < y_index_global + gl_WorkGroupSize.y; y_index++)
+//        {
+//            for(uint z_index = z_index_global; z_index < z_index_global + gl_WorkGroupSize.z; z_index++)
+//            {
+//                uint cellIndex = GetCellIndex(x_index, y_index, z_index);
+//                vec3 currentPos = GetPosition(x_index, y_index, z_index);
+//
+//                for (uint i = 0; i < segments.length(); i++)
+//                {
+//                    splatLineSegment(segments[i], cellIndex, currentPos);
+//                }
+//            }
+//        }
+//    }
+//
+//    memoryBarrierShared();
+
+//    uint numberOfLineSegments = gl_NumWorkGroups.x;
+//    uint segmentId = gl_WorkGroupID.x; //the segment id is the vertex number for the 'start vertex'
+//
+//    FiberSegment segment = segments[segmentId];
+//
+//    vec3 currentPoint = segment.p1.xyz;
+//    vec3 nextPoint = segment.p2.xyz;
+//
+//    splatLineSegment(segment);
 }
