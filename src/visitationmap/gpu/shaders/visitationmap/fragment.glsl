@@ -191,11 +191,7 @@ bool isVoxelInIsosurface(in uint cellIndex)
         return false;
     }
 
-    uint multiMapIndex = multiMapIndices[cellIndex];
-
-    if(multiMapIndex == 0) { return false; }
-
-    uint isovalue = buckets[multiMapIndex].numberOfFibers;
+    uint isovalue = buckets[cellIndex].numberOfFibers;
 
     return isovalue > uint(isovalueThreshold); //TODO: should this be geq?
 }

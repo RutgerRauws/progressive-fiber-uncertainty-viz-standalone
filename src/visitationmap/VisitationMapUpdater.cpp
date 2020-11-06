@@ -140,15 +140,6 @@ void VisitationMapUpdater::Update()
     //int numberOfWorkGroups = std::min(numberOfEdges, maxNrOfWorkGroups); //TODO: we do not want to dispatch more workgroups than the GPU supports
     //minimum supported is 65535
 
-//    glDispatchCompute(1, 1, 1);
-//    glDispatchCompute(visitationMap.GetWidth() / 15, visitationMap.GetHeight() / 15, visitationMap.GetDepth() / 15);
-//    glDispatchCompute(
-//            std::ceil(visitationMap.GetWidth()  / 8.0),
-//            std::ceil(visitationMap.GetHeight() / 8.0),
-//            std::ceil(visitationMap.GetDepth()  / 8.0)
-//    );
-//
-
     glDispatchCompute(
             nextPowerOfTwo(visitationMap.GetWidth() / 8),
             nextPowerOfTwo(visitationMap.GetHeight() / 8),
@@ -156,10 +147,6 @@ void VisitationMapUpdater::Update()
     );
 
     glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
-
-
-//    glDispatchCompute(visitationMap.GetWidth(), visitationMap.GetHeight(), visitationMap.GetDepth());
-//    glFinish();
 }
 
 void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments)

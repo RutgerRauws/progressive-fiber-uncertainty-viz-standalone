@@ -51,7 +51,6 @@ void FiberPublisher::publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData,
 
     while(fiberPolyData->GetLines()->GetNextCell(idList) && keepAddingFibers)
     {
-
         auto* fiber = new Fiber(seedPointId);
 
         for(vtkIdType id = 0; id < idList->GetNumberOfIds() - 1; id++)
