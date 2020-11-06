@@ -6,6 +6,7 @@
 #include <GL/glew.h>
 #include <cmath>
 #include <iostream>
+#include <cstring>
 #include "VisitationMap.h"
 #include "../util/glm/glm.hpp"
 
@@ -33,11 +34,21 @@ void VisitationMap::initialize()
     height = std::abs(ymin - ymax);
     depth =  std::abs(zmin - zmax);
 
-    //Visitation Map frequencies itself
-    frequency_data = new GLuint[width * height * depth];
-    std::fill_n(frequency_data, width * height * depth, 0);
+    GLint size;
+    glGetIntegerv(GL_MAX_SHADER_STORAGE_BLOCK_SIZE, &size);
 
-    glGenBuffers(1, &frequency_map_ssbo);
+    if(GetNumberOfBytes() > size)
+    {
+        throw std::runtime_error("Cannot construct visitation map as it does not fit into the available shader storage "
+                                 "block size. Consider reducing NUMBER_OF_REPRESENTATIVE_FIBERS.");
+    }
+
+    //Visitation Map frequencies itself
+    unsigned int numberOfCells = width * height * depth;
+    cell_data = new Cell[numberOfCells];
+    std::memset(cell_data, 0, sizeof(Cell) * numberOfCells);
+
+    glGenBuffers(1, &cells_ssbo);
 //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
 //    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * width * height * depth, &frequency_data, GL_DYNAMIC_DRAW);
 //    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
@@ -56,55 +67,6 @@ void VisitationMap::getIndices(const glm::vec3& point, unsigned int& x_index, un
     x_index = uint((point.x - xmin * spacing) / spacing);
     y_index = uint((point.y - ymin * spacing) / spacing);
     z_index = uint((point.z - zmin * spacing) / spacing);
-}
-
-void VisitationMap::makeSphere()
-{
-    glm::vec3 centerPointWC(
-        ((xmin + xmax) * spacing) / 2.0,
-        ((ymin + ymax) * spacing) / 2.0,
-        ((zmin + zmax) * spacing) / 2.0
-    );
-
-    unsigned int indices[3];
-
-    getIndices(centerPointWC, indices[0], indices[1], indices[2]);
-
-//    unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
-
-    //int sideSize = 30;
-    float sideSize = std::min(width, std::min(height, depth)) / 2.0;
-
-    for(float x = -sideSize; x < sideSize; x++)
-    {
-        for(float y = -sideSize; y < sideSize; y++)
-        {
-            for(float z = -sideSize; z < sideSize; z++)
-            {
-//                unsigned int cellIndex = getCellIndex(indices[0], indices[1], indices[2]);
-//
-//                unsigned int cellIndex =
-//                    getCellIndex(indices[0] + x, indices[1] + y, indices[2] + z);
-
-                glm::vec3 newPoint = centerPointWC + glm::vec3(x, y, z);
-                if(glm::distance(centerPointWC, newPoint) > sideSize)
-                {
-                    continue;
-                }
-
-                unsigned int cellIndex =
-                        getCellIndex(indices[0] + x, indices[1] + y, indices[2] + z);
-
-                if(cellIndex > width * height * depth)
-                {
-                    std::cerr << "Splat out of bounds!" << std::endl;
-                    continue;
-                }
-
-                frequency_data[cellIndex] = 9;
-            }
-        }
-    }
 }
 
 VisitationMap VisitationMap::CreateTest()

@@ -1,7 +1,7 @@
 #version 430
 
 //!Changing this definition also requires changing the definition in the shader code!
-#define NUMBER_OF_REPRESENTATIVE_FIBERS 5
+#define NUMBER_OF_REPRESENTATIVE_FIBERS 15
 
 //
 //
@@ -25,7 +25,7 @@ struct VisitationMapProperties
     uint width, height, depth;
 };
 
-struct Bucket
+struct Cell
 {
     uint numberOfFibers;
     uint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS];
@@ -72,20 +72,14 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 // SSBOs
 //
 //
-layout(std430, binding = 0) buffer visitationMap
+layout(std430, binding = 0) coherent buffer visitationMap
 {
-    uint multiMapIndices[];
+    Cell cells[];
 };
 
 layout(std430, binding = 1) buffer regionsOfInterest
 {
     AxisAlignedBoundingBox ROIs[]; //these AABBBs will continuously change during execution, when new fibers are added
-};
-
-layout(std430, binding = 3) buffer CellFiberMultiMap
-{
-    uint numberOfBucketsUsed;
-    Bucket buckets[];
 };
 
 //
@@ -191,7 +185,7 @@ bool isVoxelInIsosurface(in uint cellIndex)
         return false;
     }
 
-    uint isovalue = buckets[cellIndex].numberOfFibers;
+    uint isovalue = cells[cellIndex].numberOfFibers;
 
     return isovalue > uint(isovalueThreshold); //TODO: should this be geq?
 }

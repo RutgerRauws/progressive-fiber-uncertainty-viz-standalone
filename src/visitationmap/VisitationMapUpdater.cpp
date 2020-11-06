@@ -71,14 +71,14 @@ void VisitationMapUpdater::initialize()
     glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
 
     //Visitation Map frequencies itself
-    GLuint frequency_map_ssbo_id = visitationMap.GetFrequencyMapSSBOId();
+    GLuint visitation_map_ssbo_id = visitationMap.GetSSBOId();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitation_map_ssbo_id);
 //    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), 0, GL_DYNAMIC_DRAW);
 //    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (GLint*)&visitationMap.GetAABB());
 //    glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()), visitationMap.GetNumberOfBytes(), visitationMap.GetData());
     glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo_id);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitation_map_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     delete[] visitationMap.GetData(); //reduce internal memory load
@@ -89,8 +89,6 @@ void VisitationMapUpdater::initialize()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-
-    visitationMap.GetCellFiberMultiMap().Initialize();
 
     //Get the limitations on the number of work groups the GPU supports
     glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNrOfWorkGroups);
@@ -131,9 +129,8 @@ void VisitationMapUpdater::Update()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetCellFiberMultiMap().GetSSBOId());
 
     int numberOfLineSegments = segments.size();
     int numberOfWorkGroups = numberOfLineSegments;

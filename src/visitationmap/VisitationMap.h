@@ -7,20 +7,24 @@
 
 #include "../util/glm/vec3.hpp"
 #include "AxisAlignedBoundingBox.h"
-#include "CellFiberMultiMap.h"
 
 class VisitationMap
 {
 private:
+    //!Changing these definitions also requires changing the definitions in the shader code!
+    static const unsigned int NUMBER_OF_REPRESENTATIVE_FIBERS = 15;
+    struct Cell
+    {
+        GLuint numberOfFibers = 0;                                      // 4 bytes
+        GLuint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS];   // NUMBER_OF_REPRESENTATIVE_FIBERS * 4 bytes
+    };
+
     GLint xmin, xmax, ymin, ymax, zmin, zmax;
     GLfloat spacing;
     GLuint width, height, depth;
 
-    GLuint* frequency_data;
-
-    GLuint frequency_map_ssbo;
-
-    CellFiberMultiMap cellFiberMultiMap;
+    Cell* cell_data;
+    GLuint cells_ssbo;
 
     unsigned int getCellIndex(unsigned int x_index, unsigned int y_index, unsigned int z_index) const;
     void getIndices(const glm::vec3& point, unsigned int& x_index, unsigned int& y_index, unsigned int& z_index) const;
@@ -47,13 +51,11 @@ public:
     GLuint GetHeight() const { return height; }
     GLuint GetDepth() const { return depth; }
 
-    GLuint* GetData() const { return frequency_data; }
+    Cell* GetData() const { return cell_data; }
 
-    unsigned int GetNumberOfBytes() const { return sizeof(unsigned int) * GetWidth() * GetHeight() * GetDepth();}
+    unsigned int GetNumberOfBytes() const { return sizeof(Cell) * GetWidth() * GetHeight() * GetDepth();}
 
-    GLuint GetFrequencyMapSSBOId() const { return frequency_map_ssbo; }
-
-    CellFiberMultiMap& GetCellFiberMultiMap() { return cellFiberMultiMap; }
+    GLuint GetSSBOId() const { return cells_ssbo; }
 };
 
 

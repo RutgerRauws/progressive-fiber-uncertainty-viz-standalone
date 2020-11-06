@@ -81,16 +81,12 @@ void VisitationMapRenderer::initialize()
 {
     shaderProgram->Use();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitationMap.GetFrequencyMapSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, regionsOfInterest.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
-
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetCellFiberMultiMap().GetSSBOId());
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, visitationMap.GetCellFiberMultiMap().GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glGenVertexArrays(1, &vao);
@@ -172,9 +168,8 @@ void VisitationMapRenderer::Render()
 //    glProgramUniform1f(shaderProgram->GetId(), isovalue_loc, computeIsovalue());
     glProgramUniform1ui(shaderProgram->GetId(), isovalue_loc, isovalueThreshold);
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetFrequencyMapSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetCellFiberMultiMap().GetSSBOId());
 
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
 }

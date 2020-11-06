@@ -2,7 +2,7 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 //!Changing this definition also requires changing the definition in the shader code!
-#define NUMBER_OF_REPRESENTATIVE_FIBERS 5
+#define NUMBER_OF_REPRESENTATIVE_FIBERS 15
 
 //
 //
@@ -30,7 +30,7 @@ struct FiberSegment
     uint padding2, padding3; // 8 bytes
 };
 
-struct Bucket
+struct Cell
 {
     uint numberOfFibers;
     uint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS];
@@ -57,7 +57,7 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 //
 layout(std430, binding = 0) coherent buffer visitationMap
 {
-    uint multiMapIndices[];
+    Cell cells[];
 };
 
 layout(std430, binding = 1) coherent buffer regionsOfInterest
@@ -68,12 +68,6 @@ layout(std430, binding = 1) coherent buffer regionsOfInterest
 layout(std430, binding = 2) buffer FiberSegments
 {
     FiberSegment segments[];
-};
-
-layout(std430, binding = 3) coherent buffer CellFiberMultiMap
-{
-    uint numberOfBucketsUsed;
-    Bucket buckets[];
 };
 
 //
@@ -146,13 +140,13 @@ void updateROIAABB(in uint seedPointId, in vec3 position)
 }
 
 //
-// Bucket functions
+// Cell functions
 //
-bool isFiberInBucket(in Bucket bucket, in uint fiberId)
+bool isFiberInCell(in Cell cell, in uint fiberId)
 {
     for(uint i = 0; i < NUMBER_OF_REPRESENTATIVE_FIBERS; i++)
     {
-        if(bucket.representativeFibers[i] == fiberId)
+        if(cell.representativeFibers[i] == fiberId)
         {
             return true;
         }
@@ -161,13 +155,13 @@ bool isFiberInBucket(in Bucket bucket, in uint fiberId)
     return false;
 }
 
-void addFiberToBucket(in Bucket bucket, in uint fiberId)
+void addFiberToCell(in Cell cell, in uint fiberId)
 {
-    for(uint i = 0; i < bucket.representativeFibers.length(); i++)
+    for(uint i = 0; i < cell.representativeFibers.length(); i++)
     {
-        if(bucket.representativeFibers[i] == 0)
+        if(cell.representativeFibers[i] == 0)
         {
-            bucket.representativeFibers[i] = fiberId;
+            cell.representativeFibers[i] = fiberId;
             return;
         }
     }
@@ -177,25 +171,25 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
 {
     bool alreadyPresent = false;
 
-    //insert in open cell of bucket
+    //insert in open bucket in cell
     for(uint i = 0; i < NUMBER_OF_REPRESENTATIVE_FIBERS; i++)
     {
-        if(buckets[cellIndex].representativeFibers[i] == segment.fiberId)
+        if(cells[cellIndex].representativeFibers[i] == segment.fiberId)
         {
             alreadyPresent = true;
             break;
         }
 
-        if(buckets[cellIndex].representativeFibers[i] == 0)
+        if(cells[cellIndex].representativeFibers[i] == 0)
         {
-            buckets[cellIndex].representativeFibers[i] = segment.fiberId;
+            cells[cellIndex].representativeFibers[i] = segment.fiberId;
             break;
         }
     }
 
     if(!alreadyPresent)
     {
-        buckets[cellIndex].numberOfFibers += 1;
+        cells[cellIndex].numberOfFibers += 1;
     }
 }
 
@@ -238,6 +232,7 @@ void splatLineSegment(in FiberSegment segment, in uint cellIndex, in vec3 curren
     vec3 p1 = segment.p1.xyz;
     vec3 p2 = segment.p2.xyz;
 
+    //todo: think about the consequences for corner points in cylinders not being considered
     if(implicit_cylinder_f(p1, p2, splatRadius, currentPos) <= 0) //point currentPos is on or in cylinder
     {
         insertIntoMultiMap(cellIndex, segment);
@@ -252,8 +247,6 @@ void splatLineSegment(in FiberSegment segment, in uint cellIndex, in vec3 curren
 //
 void main()
 {
-    atomicCompSwap(numberOfBucketsUsed, 0, 1);
-
     uint x_index = gl_GlobalInvocationID.x;
     uint y_index = gl_GlobalInvocationID.y;
     uint z_index = gl_GlobalInvocationID.z;
