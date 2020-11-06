@@ -12,8 +12,7 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
       visitationMap(visitationMap),
       regionsOfInterest(regionsOfInterest),
       isovaluePercentage(0),
-      numberOfFibers(0),
-      isovalueThreshold(0)
+      numberOfFibers(0)
 {
     createVertices();
     initialize();
@@ -148,7 +147,7 @@ void VisitationMapRenderer::updateIsovaluePercentage(float delta)
     }
 }
 
-float VisitationMapRenderer::computeIsovalue()
+unsigned int VisitationMapRenderer::computeIsovalue()
 {
     return std::ceil((float)numberOfFibers * isovaluePercentage);
 }
@@ -165,8 +164,7 @@ void VisitationMapRenderer::Render()
 
     glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
 
-//    glProgramUniform1f(shaderProgram->GetId(), isovalue_loc, computeIsovalue());
-    glProgramUniform1ui(shaderProgram->GetId(), isovalue_loc, isovalueThreshold);
+    glProgramUniform1ui(shaderProgram->GetId(), isovalue_loc, computeIsovalue());
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
@@ -179,19 +177,16 @@ void VisitationMapRenderer::KeyPressed(const sf::Keyboard::Key &key)
     //Increase isovalue
     if(key == sf::Keyboard::U)
     {
-//        updateIsovaluePercentage(PERCENTAGE_DELTA);
-        isovalueThreshold++;
+        updateIsovaluePercentage(PERCENTAGE_DELTA);
     }
 
     //Decrease isovalue
     if(key == sf::Keyboard::J)
     {
-//        updateIsovaluePercentage(-PERCENTAGE_DELTA);
-        isovalueThreshold--;
+        updateIsovaluePercentage(-PERCENTAGE_DELTA);
     }
 
-//    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
-    std::cout << "Isovalue threshold at " << isovalueThreshold << std::endl;
+    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
 }
 
 void VisitationMapRenderer::NewFiber(Fiber *fiber)

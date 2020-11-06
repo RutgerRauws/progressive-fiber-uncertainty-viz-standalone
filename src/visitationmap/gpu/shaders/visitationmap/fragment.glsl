@@ -187,7 +187,7 @@ bool isVoxelInIsosurface(in uint cellIndex)
 
     uint isovalue = cells[cellIndex].numberOfFibers;
 
-    return isovalue > uint(isovalueThreshold); //TODO: should this be geq?
+    return isovalue > isovalueThreshold; //TODO: should this be geq?
 }
 
 bool isVoxelInIsosurface(in vec3 position)
