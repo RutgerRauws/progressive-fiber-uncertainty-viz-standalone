@@ -2,7 +2,7 @@
 layout(local_size_x = 8, local_size_y = 8, local_size_z = 8) in;
 
 //!Changing this definition also requires changing the definition in the shader code!
-#define NUMBER_OF_REPRESENTATIVE_FIBERS 15
+#define NUMBER_OF_REPRESENTATIVE_FIBERS 50
 
 //
 //
@@ -170,6 +170,7 @@ void addFiberToCell(in Cell cell, in uint fiberId)
 void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
 {
     bool alreadyPresent = false;
+    bool inserted = false;
 
     //insert in open bucket in cell
     for(uint i = 0; i < NUMBER_OF_REPRESENTATIVE_FIBERS; i++)
@@ -183,6 +184,7 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
         if(cells[cellIndex].representativeFibers[i] == 0)
         {
             cells[cellIndex].representativeFibers[i] = segment.fiberId;
+            inserted = true;
             break;
         }
     }
@@ -190,6 +192,12 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
     if(!alreadyPresent)
     {
         cells[cellIndex].numberOfFibers += 1;
+    }
+
+    //todo: evict a more reasonable fiber from the list
+    if(!inserted)
+    {
+        cells[cellIndex].representativeFibers[0] = segment.fiberId;
     }
 }
 

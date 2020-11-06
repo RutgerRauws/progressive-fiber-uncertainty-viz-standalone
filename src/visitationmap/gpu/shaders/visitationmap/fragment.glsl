@@ -1,7 +1,7 @@
 #version 430
 
 //!Changing this definition also requires changing the definition in the shader code!
-#define NUMBER_OF_REPRESENTATIVE_FIBERS 15
+#define NUMBER_OF_REPRESENTATIVE_FIBERS 50
 
 //
 //
