@@ -12,6 +12,7 @@
 #include "../util/Shader.h"
 #include "../util/ShaderProgram.h"
 #include "../util/FiberObserver.h"
+#include "../centerline/DistanceTableCollection.h"
 
 class VisitationMapUpdater : public FiberObserver
 {
@@ -22,6 +23,7 @@ class VisitationMapUpdater : public FiberObserver
 
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;
+        const DistanceTableCollection& distanceTables;
 
         std::mutex queueLock;
         std::vector<Fiber*> fiberQueue;
@@ -35,7 +37,9 @@ class VisitationMapUpdater : public FiberObserver
         void fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments);
 
     public:
-        VisitationMapUpdater(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest);
+        VisitationMapUpdater(VisitationMap& visitationMap,
+                             RegionsOfInterest& regionsOfInterest,
+                             const DistanceTableCollection& distanceTables);
         ~VisitationMapUpdater();
 
         void NewFiber(Fiber* fiber) override;

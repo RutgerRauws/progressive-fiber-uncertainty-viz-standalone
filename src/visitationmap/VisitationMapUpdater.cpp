@@ -5,8 +5,12 @@
 #include "VisitationMapUpdater.h"
 #include <iostream>
 
-VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest)
-   : visitationMap(visitationMap), regionsOfInterest(regionsOfInterest)
+VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap,
+                                           RegionsOfInterest& regionsOfInterest,
+                                           const DistanceTableCollection& distanceTables)
+   : visitationMap(visitationMap),
+     regionsOfInterest(regionsOfInterest),
+     distanceTables(distanceTables)
 {
     initialize();
 }
@@ -131,6 +135,7 @@ void VisitationMapUpdater::Update()
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
 
     int numberOfLineSegments = segments.size();
     int numberOfWorkGroups = numberOfLineSegments;

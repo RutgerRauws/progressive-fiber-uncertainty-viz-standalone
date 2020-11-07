@@ -125,7 +125,9 @@ int main()
 
     RegionsOfInterest regionsOfInterest(fiberPublisher.GetNumberOfSeedPoints());
 
-    VisitationMapUpdater visitationMapUpdater(visitationMap, regionsOfInterest);
+    VisitationMapUpdater visitationMapUpdater(visitationMap,
+                                              regionsOfInterest,
+                                              distanceTablesUpdater.GetDistanceTables());
     fiberPublisher.RegisterObserver(visitationMapUpdater);
 
     VisitationMapRenderer visitationMapRenderer(visitationMap,

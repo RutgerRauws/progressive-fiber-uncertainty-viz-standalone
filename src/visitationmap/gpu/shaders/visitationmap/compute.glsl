@@ -42,6 +42,10 @@ struct Cell
 //
 //
 const float splatRadius = 2;
+const double cutOffDistance = 0.1;
+
+const float INF_POS =  1. / 0.; //works from OpenGL 4.1 and on
+const float INF_NEG = -1. / 0.;
 
 //
 //
@@ -68,6 +72,11 @@ layout(std430, binding = 1) coherent buffer regionsOfInterest
 layout(std430, binding = 2) buffer FiberSegments
 {
     FiberSegment segments[];
+};
+
+layout(std430, binding = 3) buffer DistanceScores
+{
+    double distanceScores[]; //sorted by fiber IDs in ascending order
 };
 
 //
@@ -172,20 +181,50 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
     bool alreadyPresent = false;
     bool inserted = false;
 
+    uint newFiberId = segment.fiberId;
+
+    double maximumDistanceScore = INF_NEG;
+    uint maximumDistanceScoreIndex = 0;
+
     //insert in open bucket in cell
     for(uint i = 0; i < NUMBER_OF_REPRESENTATIVE_FIBERS; i++)
     {
-        if(cells[cellIndex].representativeFibers[i] == segment.fiberId)
+        uint presentFiberId = cells[cellIndex].representativeFibers[i];
+
+        //The fiber is found in one of the fiber set slots, so we can abort the insertion
+        if(presentFiberId == newFiberId)
         {
             alreadyPresent = true;
             break;
         }
 
-        if(cells[cellIndex].representativeFibers[i] == 0)
+        //If the new fiber's distance score is relatively similar to an existing fiber in this cell's fiber set,
+        //we remove the existing fiber from the cell's fiber set and replace it with the new fiber.
+        //Why replace it? This is done to make sure that other line segments of the same fiber splatting into this cell
+        //do not increment the frequency.
+        if(presentFiberId != 0 && abs(distanceScores[presentFiberId] - distanceScores[newFiberId]) < cutOffDistance)
         {
-            cells[cellIndex].representativeFibers[i] = segment.fiberId;
+            cells[cellIndex].representativeFibers[i] = newFiberId;
             inserted = true;
             break;
+        }
+
+        //We found an empty slot in the fiber set, meaning we are at the end of the list.
+        //This means we will insert the fiber in the empty slot and stop.
+        if(presentFiberId == 0)
+        {
+            cells[cellIndex].representativeFibers[i] = newFiberId;
+            inserted = true;
+            break;
+        }
+
+        //When we reach this point, we know that the fiber set is non-empty,
+        //and we start keeping track of the maximum distance score in the fiber set in order to evict the fiber from
+        //the fiber set at the end of this function.
+        if(distanceScores[presentFiberId] > maximumDistanceScore)
+        {
+            maximumDistanceScore = distanceScores[presentFiberId];
+            maximumDistanceScoreIndex = i;
         }
     }
 
@@ -194,10 +233,12 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
         cells[cellIndex].numberOfFibers += 1;
     }
 
-    //todo: evict a more reasonable fiber from the list
-    if(!inserted)
+    //If the fiber was not presen in the fiber set, but was also not yet inserted into the fiber set, we know that
+    //the fiber set was full. We will evict the fiber from the set with the highest distance score and replace it with
+    //the new fiber.
+    if(!inserted && !alreadyPresent)
     {
-        cells[cellIndex].representativeFibers[0] = segment.fiberId;
+        cells[cellIndex].representativeFibers[maximumDistanceScoreIndex] = segment.fiberId;
     }
 }
 

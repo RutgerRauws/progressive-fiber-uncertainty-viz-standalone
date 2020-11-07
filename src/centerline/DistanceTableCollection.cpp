@@ -2,6 +2,7 @@
 // Created by rutger on 11/7/20.
 //
 
+#include <GL/glew.h>
 #include "DistanceTableCollection.h"
 
 DistanceTableCollection::DistanceTableCollection(unsigned int numberOfSeedPoints)
@@ -12,6 +13,8 @@ DistanceTableCollection::DistanceTableCollection(unsigned int numberOfSeedPoints
     {
         distanceTables.emplace_back(DistanceTable(i));
     }
+
+    glGenBuffers(1, &distance_scores_ssbo_id);
 }
 
 void DistanceTableCollection::InsertFiber(unsigned int seedPointId, Fiber* fiber)

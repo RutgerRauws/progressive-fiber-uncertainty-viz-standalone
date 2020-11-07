@@ -22,14 +22,12 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
 
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;
+        const DistanceTableCollection& distanceTables;
 
         GLint cameraPos_loc = -1;
         GLint frequency_isovalue_loc = -1;
         GLint distance_score_isovalue_loc = -1;
         GLint use_frequency_isovalue_loc = -1;
-
-        const DistanceTableCollection& distanceTables;
-        GLuint distance_scores_ssbo_id;
 
         bool useFrequencyIsovalue;
         double maxDistanceScoreIsovalue;

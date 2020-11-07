@@ -15,6 +15,8 @@ private:
     std::vector<DistanceTable> distanceTables;
     std::vector<double*> distanceScores;
 
+    GLuint distance_scores_ssbo_id;
+
 public:
     explicit DistanceTableCollection(unsigned int numberOfSeedPoints);
 
@@ -25,6 +27,8 @@ public:
 
     std::vector<double> GetDistanceScoreCopy() const;
     unsigned int GetNumberOfBytes() const;
+
+    GLuint GetSSBOId() const { return distance_scores_ssbo_id; };
 };
 
 

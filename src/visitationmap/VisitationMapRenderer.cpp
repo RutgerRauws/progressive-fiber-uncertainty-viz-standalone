@@ -92,9 +92,8 @@ void VisitationMapRenderer::initialize()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, regionsOfInterest.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-    glGenBuffers(1, &distance_scores_ssbo_id);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distance_scores_ssbo_id);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distance_scores_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glGenVertexArrays(1, &vao);
@@ -188,9 +187,9 @@ void VisitationMapRenderer::Render()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
 
     std::vector<double> distanceScores = distanceTables.GetDistanceScoreCopy();
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distance_scores_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
     glBufferData(GL_SHADER_STORAGE_BUFFER, distanceTables.GetNumberOfBytes(), distanceScores.data(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distance_scores_ssbo_id);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
