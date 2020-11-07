@@ -90,19 +90,3 @@ const Fiber& DistanceTable::GetCenterline() const
 {
     return entries.at(0).fiber;
 }
-
-std::vector<DistanceEntryGL> DistanceTable::ToGLFormat() const
-{
-    std::vector<DistanceEntryGL> distanceTable;
-
-    for(const DistanceEntry& distanceEntry : entries)
-    {
-        distanceTable.emplace_back(DistanceEntryGL {
-            distanceEntry.distance,
-            distanceEntry.fiber.get().GetId(),
-            seedPointId
-        });
-    }
-
-    return distanceTable;
-}

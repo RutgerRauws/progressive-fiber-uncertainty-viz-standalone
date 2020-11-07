@@ -1,7 +1,7 @@
 #version 430
 
 //!Changing this definition also requires changing the definition in the shader code!
-#define NUMBER_OF_REPRESENTATIVE_FIBERS 50
+#define NUMBER_OF_REPRESENTATIVE_FIBERS 25
 
 //
 //
@@ -49,7 +49,7 @@ out vec4 outColor;
 const float stepSize = .05;
 const float gradCalcRadius = 3; //0.75;
 
-const float INF_POS =  1. / 0.;
+const float INF_POS =  1. / 0.; //works from OpenGL 4.1 and on
 const float INF_NEG = -1. / 0.;
 
 //
@@ -63,8 +63,9 @@ uniform mat4 projMat;
 
 uniform vec3 cameraPosition;
 
-//uniform float isovalueThreshold;
-uniform uint isovalueThreshold;
+uniform bool useFrequencyIsovalue;
+uniform uint frequencyIsovalueThreshold;
+uniform double maxDistanceScoreIsovalueThreshold;
 uniform VisitationMapProperties vmp; //visitationMapProp
 
 //
@@ -80,6 +81,11 @@ layout(std430, binding = 0) coherent buffer visitationMap
 layout(std430, binding = 1) buffer regionsOfInterest
 {
     AxisAlignedBoundingBox ROIs[]; //these AABBBs will continuously change during execution, when new fibers are added
+};
+
+layout(std430, binding = 3) buffer DistanceScores
+{
+    double distanceScores[]; //sorted by fiber IDs in ascending order
 };
 
 //
@@ -177,6 +183,25 @@ bool InAABBs(in vec3 position)
     return false;
 }
 
+bool isMinimumDistanceScoreLowerThanThreshold(in uint cellIndex)
+{
+    Cell cell = cells[cellIndex];
+
+    for(uint i = 0; i < NUMBER_OF_REPRESENTATIVE_FIBERS; i++)
+    {
+        if(cell.representativeFibers[i] == 0) { break; }
+
+        double distanceScore = distanceScores[cell.representativeFibers[i]];
+
+        if(distanceScore <= maxDistanceScoreIsovalueThreshold)
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
 bool isVoxelInIsosurface(in uint cellIndex)
 {
     //Out of bounds checking
@@ -185,9 +210,15 @@ bool isVoxelInIsosurface(in uint cellIndex)
         return false;
     }
 
-    uint isovalue = cells[cellIndex].numberOfFibers;
-
-    return isovalue > isovalueThreshold; //TODO: should this be geq?
+    if(useFrequencyIsovalue)
+    {
+        uint isovalue = cells[cellIndex].numberOfFibers;
+        return isovalue > frequencyIsovalueThreshold;//TODO: should this be geq?
+    }
+    else
+    {
+        return isMinimumDistanceScoreLowerThanThreshold(cellIndex);
+    }
 }
 
 bool isVoxelInIsosurface(in vec3 position)

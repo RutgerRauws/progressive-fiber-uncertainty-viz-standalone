@@ -25,8 +25,11 @@ class VisitationMapUpdater : public FiberObserver
 
         std::mutex queueLock;
         std::vector<Fiber*> fiberQueue;
+
         GLuint fiber_segments_ssbo_id;
+
         GLint maxNrOfWorkGroups;
+
 
         void initialize();
         void fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments);

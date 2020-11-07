@@ -12,7 +12,7 @@ class VisitationMap
 {
 private:
     //!Changing these definitions also requires changing the definitions in the shader code!
-    static const unsigned int NUMBER_OF_REPRESENTATIVE_FIBERS = 50;
+    static const unsigned int NUMBER_OF_REPRESENTATIVE_FIBERS = 25;
     struct Cell
     {
         GLuint numberOfFibers = 0;                                      // 4 bytes

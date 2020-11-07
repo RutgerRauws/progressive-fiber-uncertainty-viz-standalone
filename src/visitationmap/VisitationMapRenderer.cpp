@@ -7,11 +7,15 @@
 
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
                                              RegionsOfInterest& regionsOfInterest,
+                                             const DistanceTableCollection& distanceTables,
                                              const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
       visitationMap(visitationMap),
       regionsOfInterest(regionsOfInterest),
-      isovaluePercentage(0),
+      distanceTables(distanceTables),
+      useFrequencyIsovalue(true),
+      maxDistanceScoreIsovalue(0),
+      minFrequencyPercentageIsovalue(0),
       numberOfFibers(0)
 {
     createVertices();
@@ -88,6 +92,11 @@ void VisitationMapRenderer::initialize()
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 1, regionsOfInterest.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
+    glGenBuffers(1, &distance_scores_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distance_scores_ssbo_id);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distance_scores_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
@@ -133,23 +142,30 @@ void VisitationMapRenderer::initialize()
 
     cameraPos_loc = glGetUniformLocation(programId, "cameraPosition");
 
-    isovalue_loc = glGetUniformLocation(programId, "isovalueThreshold");
-//    glProgramUniform1f(programId, isovalue_loc, 0);
-    glProgramUniform1ui(programId, isovalue_loc, 0);
+    frequency_isovalue_loc = glGetUniformLocation(programId, "frequencyIsovalueThreshold");
+    glProgramUniform1ui(programId, frequency_isovalue_loc, minFrequencyPercentageIsovalue);
+
+    distance_score_isovalue_loc = glGetUniformLocation(programId, "maxDistanceScoreIsovalueThreshold");
+    glProgramUniform1d(programId, distance_score_isovalue_loc, maxDistanceScoreIsovalue);
+
+    use_frequency_isovalue_loc = glGetUniformLocation(programId, "useFrequencyIsovalue");
+    glProgramUniform1i(programId, use_frequency_isovalue_loc, useFrequencyIsovalue);
 }
 
-void VisitationMapRenderer::updateIsovaluePercentage(float delta)
+void VisitationMapRenderer::updateMinFrequencyIsovaluePercentage(float delta)
 {
-    if(isovaluePercentage + delta >= 0.0f
-    && isovaluePercentage + delta <= 1.0f)
+    if(minFrequencyPercentageIsovalue + delta >= 0.0f
+       && minFrequencyPercentageIsovalue + delta <= 1.0f)
     {
-        isovaluePercentage += delta;
+        minFrequencyPercentageIsovalue += delta;
     }
+
+    std::cout << "Percentage at " << minFrequencyPercentageIsovalue * 100 << "% and isovalue threshold at " << numberOfFibers * minFrequencyPercentageIsovalue << std::endl;
 }
 
-unsigned int VisitationMapRenderer::computeIsovalue()
+unsigned int VisitationMapRenderer::computeFrequencyIsovalue()
 {
-    return std::ceil((float)numberOfFibers * isovaluePercentage);
+    return std::ceil((float)numberOfFibers * minFrequencyPercentageIsovalue);
 }
 
 void VisitationMapRenderer::Render()
@@ -164,29 +180,62 @@ void VisitationMapRenderer::Render()
 
     glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
 
-    glProgramUniform1ui(shaderProgram->GetId(), isovalue_loc, computeIsovalue());
+    glProgramUniform1i(shaderProgram->GetId(), use_frequency_isovalue_loc, useFrequencyIsovalue);
+    glProgramUniform1ui(shaderProgram->GetId(), frequency_isovalue_loc, computeFrequencyIsovalue());
+    glProgramUniform1d(shaderProgram->GetId(), distance_score_isovalue_loc, maxDistanceScoreIsovalue);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
+
+    std::vector<double> distanceScores = distanceTables.GetDistanceScoreCopy();
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distance_scores_ssbo_id);
+    glBufferData(GL_SHADER_STORAGE_BUFFER, distanceTables.GetNumberOfBytes(), distanceScores.data(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distance_scores_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
 }
 
 void VisitationMapRenderer::KeyPressed(const sf::Keyboard::Key &key)
 {
+    //Switch isovalue type
+    if(key == sf::Keyboard::I)
+    {
+        useFrequencyIsovalue = !useFrequencyIsovalue;
+
+        std::cout << "Switched to using "
+                  << (useFrequencyIsovalue ? "frequency" : "distance scores")
+                  << " as isovalue metric."
+                  << std::endl;
+    }
+
     //Increase isovalue
     if(key == sf::Keyboard::U)
     {
-        updateIsovaluePercentage(PERCENTAGE_DELTA);
+        if(useFrequencyIsovalue)
+        {
+            updateMinFrequencyIsovaluePercentage(FREQUENCY_PERCENTAGE_DELTA);
+        }
+        else
+        {
+            maxDistanceScoreIsovalue += MAX_DISTANCE_SCORE_DELTA;
+            std::cout << "Maximum distance score " << maxDistanceScoreIsovalue << std::endl;
+        }
     }
 
     //Decrease isovalue
     if(key == sf::Keyboard::J)
     {
-        updateIsovaluePercentage(-PERCENTAGE_DELTA);
+        if(useFrequencyIsovalue)
+        {
+            updateMinFrequencyIsovaluePercentage(-FREQUENCY_PERCENTAGE_DELTA);
+        }
+        else
+        {
+            maxDistanceScoreIsovalue -= MAX_DISTANCE_SCORE_DELTA;
+            std::cout << "Maximum distance score " << maxDistanceScoreIsovalue << std::endl;
+        }
     }
-
-    std::cout << "Percentage at " << isovaluePercentage * 100 << "% and isovalue threshold at " << numberOfFibers * isovaluePercentage << std::endl;
 }
 
 void VisitationMapRenderer::NewFiber(Fiber *fiber)

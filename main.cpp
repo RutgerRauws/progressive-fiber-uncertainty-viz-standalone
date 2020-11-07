@@ -111,6 +111,12 @@ int main()
     movementHandler.SetCameraFront(CAMERA_FRT);
 
     /*
+    * Distance score calculations
+    */
+    DistanceTablesUpdater distanceTablesUpdater(fiberPublisher.GetNumberOfSeedPoints());
+    fiberPublisher.RegisterObserver(distanceTablesUpdater);
+
+    /*
      * Visitation map handling
      */
     std::cout << "Initializing visitation map... " << std::flush;
@@ -122,20 +128,18 @@ int main()
     VisitationMapUpdater visitationMapUpdater(visitationMap, regionsOfInterest);
     fiberPublisher.RegisterObserver(visitationMapUpdater);
 
-    VisitationMapRenderer visitationMapRenderer(visitationMap, regionsOfInterest, movementHandler.GetCameraState());
+    VisitationMapRenderer visitationMapRenderer(visitationMap,
+                                                regionsOfInterest,
+                                                distanceTablesUpdater.GetDistanceTables(),
+                                                movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(visitationMapRenderer);
     interactionManager.AddObserver(sf::Keyboard::U, &visitationMapRenderer);
     interactionManager.AddObserver(sf::Keyboard::J, &visitationMapRenderer);
+    interactionManager.AddObserver(sf::Keyboard::I, &visitationMapRenderer);
 
     FiberRenderer fiberRenderer(movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(fiberRenderer);
     interactionManager.AddObserver(sf::Keyboard::F, &fiberRenderer);
-
-    /*
-     * Distance score calculations
-     */
-    DistanceTablesUpdater distanceTablesUpdater(fiberPublisher.GetNumberOfSeedPoints());
-    fiberPublisher.RegisterObserver(distanceTablesUpdater);
 
     CenterlineRenderer centerlineRenderer(distanceTablesUpdater.GetDistanceTables(), movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(centerlineRenderer);

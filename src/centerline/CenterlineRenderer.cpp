@@ -10,7 +10,7 @@ CenterlineRenderer::CenterlineRenderer(const DistanceTableCollection& distanceTa
                                        const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
       distanceTables(distanceTables),
-      numberOfSeedPoints(distanceTables.size()),
+      numberOfSeedPoints(distanceTables.GetNumberOfSeedPoints()),
       showCenterlineLoc(-1),
       showCenterline(true),
       numberOfFibers(0)
@@ -89,7 +89,7 @@ void CenterlineRenderer::sendData()
 
 void CenterlineRenderer::NewFiber(Fiber* fiber)
 {
-    const DistanceTable& distanceTable = distanceTables.at(fiber->GetSeedPointId());
+    const DistanceTable& distanceTable = distanceTables.GetDistanceTable(fiber->GetSeedPointId());
     const Fiber* currentCenterFiber = centerFibers.at(fiber->GetSeedPointId());
 
     if(currentCenterFiber == nullptr || distanceTable.GetCenterline().GetId() != currentCenterFiber->GetId())
