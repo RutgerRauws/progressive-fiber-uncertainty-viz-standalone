@@ -33,7 +33,7 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
         unsigned int computeIsovalue();
 
     public:
-        VisitationMapRenderer(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest, const CameraState& cameraState);
+        VisitationMapRenderer(VisitationMap& visitationMap, RegionsOfInterest& regionsOfInterest,  const CameraState& cameraState);
         ~VisitationMapRenderer();
 
         void Render() override;

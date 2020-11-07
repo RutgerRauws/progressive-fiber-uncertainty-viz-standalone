@@ -18,9 +18,18 @@ struct DistanceEntry
     DistanceEntry(double distance, const Fiber& fiber) : distance(distance), fiber(fiber) {};
 };
 
+struct DistanceEntryGL
+{
+    GLdouble distance;           //16 bytes
+    GLuint   fiberId;            // 4 bytes
+    GLuint   seedPointId;        // 4 bytes
+    GLuint   padding1, padding2; // 8 bytes
+};
+
 class DistanceTable
 {
     private:
+        unsigned int seedPointId;
         std::vector<DistanceEntry> entries;
 
         static double calculateMinimumDistanceScore(const Fiber& fiber1, const Fiber& fiber2);
@@ -29,8 +38,12 @@ class DistanceTable
         void printTable() const;
 
     public:
-        void InsertNewFiber(const Fiber& fiber);
+        explicit DistanceTable(unsigned int seedPointId) : seedPointId(seedPointId) {}
+
+        DistanceEntry& InsertNewFiber(const Fiber& fiber);
         const Fiber& GetCenterline() const;
+
+        std::vector<DistanceEntryGL> ToGLFormat() const;
 };
 
 

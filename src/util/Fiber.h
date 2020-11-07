@@ -13,7 +13,7 @@
 class Fiber
 {
     public:
-        class __attribute__((__packed__)) LineSegment
+        class LineSegment
         {
             private:
                 glm::vec4 p1;               // 16 bytes

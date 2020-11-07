@@ -55,7 +55,7 @@ void DistanceTable::printTable() const
 }
 
 
-void DistanceTable::InsertNewFiber(const Fiber& newFiber)
+DistanceEntry& DistanceTable::InsertNewFiber(const Fiber& newFiber)
 {
     double newFiberDistance = 0;
 
@@ -82,9 +82,27 @@ void DistanceTable::InsertNewFiber(const Fiber& newFiber)
     entries.emplace_back(entry);
 
     std::sort(entries.begin(), entries.end(), compareFunc);
+
+    return entries.back();
 }
 
 const Fiber& DistanceTable::GetCenterline() const
 {
     return entries.at(0).fiber;
+}
+
+std::vector<DistanceEntryGL> DistanceTable::ToGLFormat() const
+{
+    std::vector<DistanceEntryGL> distanceTable;
+
+    for(const DistanceEntry& distanceEntry : entries)
+    {
+        distanceTable.emplace_back(DistanceEntryGL {
+            distanceEntry.distance,
+            distanceEntry.fiber.get().GetId(),
+            seedPointId
+        });
+    }
+
+    return distanceTable;
 }

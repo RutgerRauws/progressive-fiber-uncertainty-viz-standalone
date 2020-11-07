@@ -32,6 +32,9 @@ MessageCallback( GLenum source,
 
 int main()
 {
+    /*
+     * Context and window setup
+     */
     std::cout << "Application started..." << std::endl;
 
 //    FiberPublisher fiberPublisher(INPUT_FILE_NAME);
@@ -83,6 +86,9 @@ int main()
     glDebugMessageCallback(MessageCallback, 0);
     #endif
 
+    /*
+     * View setup
+     */
     glm::mat4 modelMat = glm::mat4(1.0f);
 
     glm::mat4 viewMat = glm::mat4(1.0f);
@@ -104,6 +110,9 @@ int main()
     movementHandler.SetCameraPosition(CAMERA_POS);
     movementHandler.SetCameraFront(CAMERA_FRT);
 
+    /*
+     * Visitation map handling
+     */
     std::cout << "Initializing visitation map... " << std::flush;
     VisitationMap visitationMap = VisitationMap::CreateTest();
     std::cout << "Complete." << std::endl;
@@ -122,13 +131,22 @@ int main()
     fiberPublisher.RegisterObserver(fiberRenderer);
     interactionManager.AddObserver(sf::Keyboard::F, &fiberRenderer);
 
-    CenterlineRenderer centerlineRenderer(movementHandler.GetCameraState(), fiberPublisher.GetNumberOfSeedPoints());
+    /*
+     * Distance score calculations
+     */
+    DistanceTablesUpdater distanceTablesUpdater(fiberPublisher.GetNumberOfSeedPoints());
+    fiberPublisher.RegisterObserver(distanceTablesUpdater);
+
+    CenterlineRenderer centerlineRenderer(distanceTablesUpdater.GetDistanceTables(), movementHandler.GetCameraState());
     fiberPublisher.RegisterObserver(centerlineRenderer);
     interactionManager.AddObserver(sf::Keyboard::C, &centerlineRenderer);
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
 
+    /*
+     * Start render loop
+     */
     window.display();
     fiberPublisher.Start();
 

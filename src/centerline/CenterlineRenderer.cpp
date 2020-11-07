@@ -4,10 +4,14 @@
 
 #include <GL/glew.h>
 #include "CenterlineRenderer.h"
+#include "DistanceTablesUpdater.h"
 
-CenterlineRenderer::CenterlineRenderer(const CameraState& cameraState, unsigned int numberOfSeedPoints)
+CenterlineRenderer::CenterlineRenderer(const DistanceTableCollection& distanceTables,
+                                       const CameraState& cameraState)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
-      numberOfSeedPoints(numberOfSeedPoints),
+      distanceTables(distanceTables),
+      numberOfSeedPoints(distanceTables.size()),
+      showCenterlineLoc(-1),
       showCenterline(true),
       numberOfFibers(0)
 {
@@ -16,12 +20,10 @@ CenterlineRenderer::CenterlineRenderer(const CameraState& cameraState, unsigned 
 
 void CenterlineRenderer::initialize()
 {
-    distanceTables.reserve(numberOfSeedPoints);
     centerFibers.reserve(numberOfSeedPoints);
 
     for(unsigned int i = 0; i < numberOfSeedPoints; i++)
     {
-        distanceTables.emplace_back(DistanceTable());
         centerFibers.push_back(nullptr);
     }
 
@@ -87,10 +89,8 @@ void CenterlineRenderer::sendData()
 
 void CenterlineRenderer::NewFiber(Fiber* fiber)
 {
-    DistanceTable& distanceTable = distanceTables.at(fiber->GetSeedPointId());
+    const DistanceTable& distanceTable = distanceTables.at(fiber->GetSeedPointId());
     const Fiber* currentCenterFiber = centerFibers.at(fiber->GetSeedPointId());
-
-    distanceTable.InsertNewFiber(*fiber);
 
     if(currentCenterFiber == nullptr || distanceTable.GetCenterline().GetId() != currentCenterFiber->GetId())
     {

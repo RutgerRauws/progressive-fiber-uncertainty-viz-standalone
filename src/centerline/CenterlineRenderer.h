@@ -8,11 +8,11 @@
 
 #include <functional>
 #include <mutex>
-#include "DistanceTable.h"
 #include "../interaction/KeyPressObserver.h"
 #include "../util/Fiber.h"
 #include "../util/FiberObserver.h"
 #include "../util/RenderElement.h"
+#include "DistanceTablesUpdater.h"
 
 class CenterlineRenderer : public FiberObserver, public KeyPressObserver, RenderElement
 {
@@ -25,8 +25,9 @@ class CenterlineRenderer : public FiberObserver, public KeyPressObserver, Render
         GLint showCenterlineLoc;
         bool showCenterline;
 
-        std::vector<DistanceTable> distanceTables;
         std::vector<const Fiber*> centerFibers;
+
+        const DistanceTableCollection& distanceTables;
 
         //Vertex storage
         unsigned int numberOfFibers;
@@ -42,7 +43,8 @@ class CenterlineRenderer : public FiberObserver, public KeyPressObserver, Render
 
 
 public:
-        CenterlineRenderer(const CameraState& cameraState, unsigned int numberOfSeedPoints);
+        CenterlineRenderer(const DistanceTableCollection& distanceTables,
+                           const CameraState& cameraState);
 
         void NewFiber(Fiber* fiber) override;
         void Render() override;
