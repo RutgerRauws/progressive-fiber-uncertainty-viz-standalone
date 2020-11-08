@@ -24,13 +24,13 @@ void DistanceTableCollection::InsertFiber(unsigned int seedPointId, Fiber* fiber
     DistanceEntry& newDistanceEntry = distanceTable.InsertNewFiber(*fiber);
 
     distanceScores.resize(fiber->GetId() + 1, nullptr);
-    distanceScores.at(fiber->GetId()) = &newDistanceEntry.distance;
+    distanceScores.at(fiber->GetId()) = &(newDistanceEntry.distance);
 }
 
 const DistanceTable& DistanceTableCollection::GetDistanceTable(unsigned int seedPointId) const
 {
     return distanceTables.at(seedPointId);
-};
+}
 
 unsigned int DistanceTableCollection::GetNumberOfSeedPoints() const
 {
@@ -59,8 +59,9 @@ std::vector<double> DistanceTableCollection::GetDistanceScoreCopy() const
     }
 
     return distanceScoresCopy;
-};
+}
 
-unsigned int DistanceTableCollection::GetNumberOfBytes() const {
+unsigned int DistanceTableCollection::GetNumberOfBytes() const
+{
     return distanceScores.size() * sizeof(double);
-};
+}

@@ -193,6 +193,10 @@ bool isMinimumDistanceScoreLowerThanThreshold(in uint cellIndex)
 
         double distanceScore = distanceScores[cell.representativeFibers[i]];
 
+        //TODO: This is a temproary hack to avoid flickering and glitches later. I am not proud of it.
+        //This should never be necessary as distance scores are always >= 0
+        if(distanceScore <= 0) { continue; }
+
         if(distanceScore <= maxDistanceScoreIsovalueThreshold)
         {
             return true;

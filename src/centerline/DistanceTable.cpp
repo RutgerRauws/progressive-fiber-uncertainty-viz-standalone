@@ -3,7 +3,6 @@
 //
 
 #include "DistanceTable.h"
-#include <functional>
 #include <algorithm>
 
 //Mean of Closest-Point Distances
@@ -23,6 +22,7 @@ double DistanceTable::calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fi
     for(const glm::vec3& p_r : Fi.GetUniquePoints())
     {
         auto min_distance = VTK_DOUBLE_MAX;
+
         for(const glm::vec3& p_s : Fj.GetUniquePoints())
         {
             double distance = glm::distance(p_r, p_s);
@@ -81,6 +81,7 @@ DistanceEntry& DistanceTable::InsertNewFiber(const Fiber& newFiber)
     DistanceEntry entry(newFiberDistance, newFiber);
     entries.emplace_back(entry);
 
+    //Todo: We can sort more efficiently by realising that `entries` was already sorted before
     std::sort(entries.begin(), entries.end(), compareFunc);
 
     return entries.back();
