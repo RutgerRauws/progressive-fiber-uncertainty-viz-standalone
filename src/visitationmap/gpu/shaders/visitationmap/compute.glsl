@@ -289,6 +289,32 @@ void splatLineSegment(in FiberSegment segment, in uint cellIndex, in vec3 curren
     }
 }
 
+//Basic insertion sort algorithm
+void sortRepresentativeFibers(in uint cellIndex)
+{
+    uint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS] = cells[cellIndex].representativeFibers;
+
+    uint i = 1;
+    while(i < NUMBER_OF_REPRESENTATIVE_FIBERS)
+    {
+        uint j = i;
+
+        //while j > 0 and A[j-1] > A[j]
+        while(j > 0 && distanceScores[representativeFibers[j - 1]] > distanceScores[representativeFibers[j]])
+        {
+            //swap A[j] and A[j-1]
+            uint fiberId_j1 = cells[cellIndex].representativeFibers[j - 1];
+            uint fiberId_j  = cells[cellIndex].representativeFibers[j];
+
+            cells[cellIndex].representativeFibers[j - 1] = fiberId_j;
+            cells[cellIndex].representativeFibers[j]     = fiberId_j1;
+
+            j--;
+        }
+        i++;
+    }
+}
+
 //
 //
 // Main loop
@@ -316,4 +342,6 @@ void main()
         splatLineSegment(segments[i], cellIndex, currentPos);
         memoryBarrier(); barrier();
     }
+
+    sortRepresentativeFibers(cellIndex);
 }
