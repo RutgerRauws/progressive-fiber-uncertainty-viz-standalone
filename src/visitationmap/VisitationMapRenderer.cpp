@@ -16,7 +16,8 @@ VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
       useFrequencyIsovalue(true),
       maxDistanceScoreIsovalue(0),
       minFrequencyPercentageIsovalue(0),
-      numberOfFibers(0)
+      numberOfFibers(0),
+      useInterpolation(false)
 {
     createVertices();
     initialize();
@@ -149,6 +150,9 @@ void VisitationMapRenderer::initialize()
 
     use_frequency_isovalue_loc = glGetUniformLocation(programId, "useFrequencyIsovalue");
     glProgramUniform1i(programId, use_frequency_isovalue_loc, useFrequencyIsovalue);
+
+    use_interpolcation_loc = glGetUniformLocation(programId, "useInterpolation");
+    glProgramUniform1i(programId, use_interpolcation_loc, useInterpolation);
 }
 
 void VisitationMapRenderer::updateMinFrequencyIsovaluePercentage(float delta)
@@ -180,6 +184,7 @@ void VisitationMapRenderer::Render()
     glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
 
     glProgramUniform1i(shaderProgram->GetId(), use_frequency_isovalue_loc, useFrequencyIsovalue);
+    glProgramUniform1i(shaderProgram->GetId(), use_interpolcation_loc, useInterpolation);
     glProgramUniform1ui(shaderProgram->GetId(), frequency_isovalue_loc, computeFrequencyIsovalue());
     glProgramUniform1d(shaderProgram->GetId(), distance_score_isovalue_loc, maxDistanceScoreIsovalue);
 
@@ -234,6 +239,12 @@ void VisitationMapRenderer::KeyPressed(const sf::Keyboard::Key &key)
             maxDistanceScoreIsovalue -= MAX_DISTANCE_SCORE_DELTA;
             std::cout << "Maximum distance score " << maxDistanceScoreIsovalue << std::endl;
         }
+    }
+
+    if(key == sf::Keyboard::T)
+    {
+        useInterpolation = !useInterpolation;
+        std::cout << "Turned trilinear interpolation " << (useInterpolation ? "on" : "off") << std::endl;
     }
 }
 

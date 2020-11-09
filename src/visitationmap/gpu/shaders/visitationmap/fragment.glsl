@@ -68,6 +68,8 @@ uniform uint frequencyIsovalueThreshold;
 uniform double maxDistanceScoreIsovalueThreshold;
 uniform VisitationMapProperties vmp; //visitationMapProp
 
+uniform bool useInterpolation;
+
 //
 //
 // SSBOs

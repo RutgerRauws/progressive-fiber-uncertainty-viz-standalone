@@ -28,8 +28,10 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
         GLint frequency_isovalue_loc = -1;
         GLint distance_score_isovalue_loc = -1;
         GLint use_frequency_isovalue_loc = -1;
+        GLint use_interpolcation_loc = -1;
 
         bool useFrequencyIsovalue;
+        bool useInterpolation;
         double maxDistanceScoreIsovalue;
         float minFrequencyPercentageIsovalue;
         unsigned int numberOfFibers;
