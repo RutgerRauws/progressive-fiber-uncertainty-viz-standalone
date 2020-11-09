@@ -14,6 +14,7 @@
 #include "src/visitationmap/VisitationMapRenderer.h"
 #include "src/visitationmap/VisitationMapUpdater.h"
 #include "src/interaction/WindowHandler.h"
+#include "src/util/DWIDataReader.h"
 
 
 void GLAPIENTRY
@@ -32,6 +33,8 @@ MessageCallback( GLenum source,
 
 int main()
 {
+    DWIDataReader dataReader("/home/rutger/Desktop/Graduation/Datasets/combined/Output DTI Volume.nhdr");
+
     /*
      * Context and window setup
      */
