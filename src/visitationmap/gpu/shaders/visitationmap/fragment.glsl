@@ -198,7 +198,7 @@ bool isMinimumDistanceScoreLowerThanThreshold(in uint cellIndex)
 //        return false;
 //    }
 
-    if(fiberId != 0 && distanceScore < maxDistanceScoreIsovalueThreshold)
+    if(fiberId != 0 && distanceScore <= maxDistanceScoreIsovalueThreshold)
     {
         return true;
     }

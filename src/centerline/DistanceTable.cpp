@@ -6,16 +6,16 @@
 #include <algorithm>
 
 //Mean of Closest-Point Distances
-double DistanceTable::calculateMinimumDistanceScore(const Fiber& fiber1, const Fiber& fiber2)
+double DistanceTable::calculateMinimumDistance(const Fiber& fiber1, const Fiber& fiber2)
 {
     return
-        (calculateMinimumDistanceScore_dm(fiber1, fiber2) + calculateMinimumDistanceScore_dm(fiber2, fiber1))
+        (calculateMinimumDistance_dm(fiber1, fiber2) + calculateMinimumDistance_dm(fiber2, fiber1))
         /
         2.0f;
 }
 
 //Mean of Closest-Point Distances, for internal use only!
-double DistanceTable::calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fiber& Fj)
+double DistanceTable::calculateMinimumDistance_dm(const Fiber& Fi, const Fiber& Fj)
 {
     double sum = 0;
 
@@ -25,7 +25,7 @@ double DistanceTable::calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fi
 
         for(const glm::vec3& p_s : Fj.GetUniquePoints())
         {
-            double distance = glm::distance(p_r, p_s);
+            double distance = glm::distance(p_r, p_s) / 100.0f; //convert distance scores to micrometers
             if(distance < min_distance)
             {
                 min_distance = distance;
@@ -63,7 +63,7 @@ DistanceEntry& DistanceTable::InsertNewFiber(const Fiber& newFiber)
     {
         const Fiber& otherFiber = entries[i].fiber;
 
-        double newDistance = calculateMinimumDistanceScore(newFiber, otherFiber);
+        double newDistance = calculateMinimumDistance(newFiber, otherFiber);
 
 //        if(newDistance < DISTANCE_THRESHOLD)
 //        {

@@ -32,8 +32,8 @@ class DistanceTable
         unsigned int seedPointId;
         std::vector<DistanceEntry> entries;
 
-        static double calculateMinimumDistanceScore(const Fiber& fiber1, const Fiber& fiber2);
-        static double calculateMinimumDistanceScore_dm(const Fiber& Fi, const Fiber& Fj);
+        static double calculateMinimumDistance(const Fiber& fiber1, const Fiber& fiber2);
+        static double calculateMinimumDistance_dm(const Fiber& Fi, const Fiber& Fj);
 
         void printTable() const;
 
