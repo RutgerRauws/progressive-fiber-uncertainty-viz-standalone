@@ -78,9 +78,6 @@ void VisitationMapUpdater::initialize()
     GLuint visitation_map_ssbo_id = visitationMap.GetSSBOId();
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitation_map_ssbo_id);
-//    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), 0, GL_DYNAMIC_DRAW);
-//    glBufferSubData(GL_SHADER_STORAGE_BUFFER, 0, sizeof(visitationMap.GetAABB()), (GLint*)&visitationMap.GetAABB());
-//    glBufferSubData(GL_SHADER_STORAGE_BUFFER, sizeof(visitationMap.GetAABB()), visitationMap.GetNumberOfBytes(), visitationMap.GetData());
     glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitation_map_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
@@ -92,6 +89,12 @@ void VisitationMapUpdater::initialize()
     glGenBuffers(1, &fiber_segments_ssbo_id);
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+    std::vector<double> distanceScores = distanceTables.GetDistanceScoreCopy();
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
+    glBufferData(GL_SHADER_STORAGE_BUFFER, distanceScores.size() * sizeof(double), distanceScores.data(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     //Get the limitations on the number of work groups the GPU supports
@@ -131,6 +134,12 @@ void VisitationMapUpdater::Update()
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Fiber::LineSegment) * segments.size(), segments.data(), GL_DYNAMIC_DRAW);
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+
+    std::vector<double> distanceScores = distanceTables.GetDistanceScoreCopy();
+    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
+    glBufferData(GL_SHADER_STORAGE_BUFFER, distanceScores.size() * sizeof(double), distanceScores.data(), GL_DYNAMIC_DRAW);
+    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());

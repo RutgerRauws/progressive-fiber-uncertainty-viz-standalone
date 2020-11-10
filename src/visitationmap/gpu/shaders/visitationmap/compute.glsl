@@ -202,12 +202,12 @@ void insertIntoMultiMap(in uint cellIndex, in FiberSegment segment)
         //we remove the existing fiber from the cell's fiber set and replace it with the new fiber.
         //Why replace it? This is done to make sure that other line segments of the same fiber splatting into this cell
         //do not increment the frequency.
-        if(presentFiberId != 0 && abs(distanceScores[presentFiberId] - distanceScores[newFiberId]) < cutOffDistance)
-        {
-            cells[cellIndex].representativeFibers[i] = newFiberId;
-            inserted = true;
-            break;
-        }
+//        if(presentFiberId != 0 && abs(distanceScores[presentFiberId] - distanceScores[newFiberId]) < cutOffDistance)
+//        {
+//            cells[cellIndex].representativeFibers[i] = newFiberId;
+//            inserted = true;
+//            break;
+//        }
 
         //We found an empty slot in the fiber set, meaning we are at the end of the list.
         //This means we will insert the fiber in the empty slot and stop.

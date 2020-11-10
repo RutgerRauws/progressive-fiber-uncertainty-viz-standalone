@@ -14,6 +14,14 @@ double DistanceTable::calculateMinimumDistance(const Fiber& fiber1, const Fiber&
         2.0f;
 }
 
+DistanceTable::~DistanceTable()
+{
+    for(DistanceEntry* entry : entries)
+    {
+        delete entry;
+    }
+}
+
 //Mean of Closest-Point Distances, for internal use only!
 double DistanceTable::calculateMinimumDistance_dm(const Fiber& Fi, const Fiber& Fj)
 {
@@ -38,30 +46,30 @@ double DistanceTable::calculateMinimumDistance_dm(const Fiber& Fi, const Fiber& 
     return sum / ((double)Fi.GetUniquePoints().size());
 }
 
-bool compareFunc(const DistanceEntry& entry1, const DistanceEntry& entry2)
+bool compareFunc(const DistanceEntry* entry1, const DistanceEntry* entry2)
 {
-    return entry1.distance < entry2.distance;
+    return entry1->distance < entry2->distance;
 }
 
 void DistanceTable::printTable() const
 {
     std::cout << "Distance | ID" << std::endl;
     std::cout << "--------------" << std::endl;
-    for(const DistanceEntry& entry : entries)
+    for(const DistanceEntry* entry : entries)
     {
-        std::cout << entry.distance << " - " << entry.fiber.get().GetId() << std::endl;
+        std::cout << entry->distance << " - " << entry->fiber.get().GetId() << std::endl;
     }
     std::cout << "--------------" << std::endl;
 }
 
 
-DistanceEntry& DistanceTable::InsertNewFiber(const Fiber& newFiber)
+DistanceEntry* DistanceTable::InsertNewFiber(const Fiber& newFiber)
 {
     double newFiberDistance = 0;
 
     for(int i = 0; i < entries.size(); i++)
     {
-        const Fiber& otherFiber = entries[i].fiber;
+        const Fiber& otherFiber = entries[i]->fiber;
 
         double newDistance = calculateMinimumDistance(newFiber, otherFiber);
 
@@ -75,19 +83,19 @@ DistanceEntry& DistanceTable::InsertNewFiber(const Fiber& newFiber)
 //        }
 
         newFiberDistance += newDistance;
-        entries[i].distance += newDistance;
+        entries[i]->distance += newDistance;
     }
 
-    DistanceEntry entry(newFiberDistance, newFiber);
+    auto entry = new DistanceEntry(newFiberDistance, newFiber);
     entries.emplace_back(entry);
 
     //Todo: We can sort more efficiently by realising that `entries` was already sorted before
     std::sort(entries.begin(), entries.end(), compareFunc);
 
-    return entries.back();
+    return entry;
 }
 
 const Fiber& DistanceTable::GetCenterline() const
 {
-    return entries.at(0).fiber;
+    return entries.at(0)->fiber;
 }

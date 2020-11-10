@@ -30,7 +30,7 @@ class DistanceTable
 {
     private:
         unsigned int seedPointId;
-        std::vector<DistanceEntry> entries;
+        std::vector<DistanceEntry*> entries;
 
         static double calculateMinimumDistance(const Fiber& fiber1, const Fiber& fiber2);
         static double calculateMinimumDistance_dm(const Fiber& Fi, const Fiber& Fj);
@@ -39,8 +39,9 @@ class DistanceTable
 
     public:
         explicit DistanceTable(unsigned int seedPointId) : seedPointId(seedPointId) {}
+        ~DistanceTable();
 
-        DistanceEntry& InsertNewFiber(const Fiber& fiber);
+        DistanceEntry* InsertNewFiber(const Fiber& fiber);
         const Fiber& GetCenterline() const;
 
         std::vector<DistanceEntryGL> ToGLFormat() const;

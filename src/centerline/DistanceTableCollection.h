@@ -7,11 +7,14 @@
 
 
 #include <vector>
+#include <mutex>
 #include "DistanceTable.h"
 
 class DistanceTableCollection
 {
 private:
+    std::mutex mtx;
+
     std::vector<DistanceTable> distanceTables;
     std::vector<double*> distanceScores;
 
@@ -26,7 +29,6 @@ public:
     unsigned int GetNumberOfSeedPoints() const;
 
     std::vector<double> GetDistanceScoreCopy() const;
-    unsigned int GetNumberOfBytes() const;
 
     GLuint GetSSBOId() const { return distance_scores_ssbo_id; };
 };

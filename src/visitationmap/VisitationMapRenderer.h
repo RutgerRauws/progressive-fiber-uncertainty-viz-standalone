@@ -18,7 +18,7 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
         static constexpr auto   VERTEX_SHADER_PATH         = "./shaders/visitationmap/vertex.glsl";
         static constexpr auto   FRAGMENT_SHADER_PATH       = "./shaders/visitationmap/fragment.glsl";
         static constexpr float  FREQUENCY_PERCENTAGE_DELTA = 0.01f;
-        static constexpr double MAX_DISTANCE_SCORE_DELTA   = 0.001f;
+        static constexpr double MAX_DISTANCE_SCORE_DELTA   = 0.01f;
 
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;

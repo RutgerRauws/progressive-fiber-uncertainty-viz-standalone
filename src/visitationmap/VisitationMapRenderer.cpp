@@ -190,12 +190,7 @@ void VisitationMapRenderer::Render()
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
-
-    std::vector<double> distanceScores = distanceTables.GetDistanceScoreCopy();
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
-    glBufferData(GL_SHADER_STORAGE_BUFFER, distanceTables.GetNumberOfBytes(), distanceScores.data(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     glDrawArrays(GL_TRIANGLES, 0, GetNumberOfVertices());
 }

@@ -190,6 +190,12 @@ bool isMinimumDistanceScoreLowerThanThreshold(in uint cellIndex)
     Cell cell = cells[cellIndex];
 
     uint fiberId = cell.representativeFibers[0];
+
+    if(fiberId == 0) //There is no fiber in the representative fibers list
+    {
+        return false;
+    }
+
     double distanceScore = distanceScores[fiberId];
 
 //    TODO: This was a temproary hack to avoid flickering and glitches longer into the the rendering
@@ -198,13 +204,14 @@ bool isMinimumDistanceScoreLowerThanThreshold(in uint cellIndex)
 //        return false;
 //    }
 
-    if(fiberId != 0 && distanceScore <= maxDistanceScoreIsovalueThreshold)
+    if(distanceScore <= maxDistanceScoreIsovalueThreshold)
     {
         return true;
     }
-
-
-    return false;
+    else
+    {
+        return false;
+    }
 }
 
 bool isVoxelInIsosurface(in uint cellIndex)
