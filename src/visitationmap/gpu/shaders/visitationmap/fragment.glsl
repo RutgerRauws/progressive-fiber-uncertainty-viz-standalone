@@ -46,7 +46,7 @@ out vec4 outColor;
 //
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
-const float stepSize = .05;
+const float stepSize = .5;
 const float gradCalcRadius = 3; //0.75;
 
 const float INF_POS =  1. / 0.; //works from OpenGL 4.1 and on
@@ -98,6 +98,15 @@ layout(std430, binding = 3) buffer DistanceScores
 uint GetCellIndex(in uint x_index, in uint y_index, in uint z_index)
 {
     return x_index + vmp.width * (y_index + z_index * vmp.height);
+}
+
+vec3 GetPosition(in uint x_index, in uint y_index, in uint z_index)
+{
+    return vec3(
+        (vmp.dataset_aabb.xmin + int(x_index)) * vmp.cellSize,
+        (vmp.dataset_aabb.ymin + int(y_index)) * vmp.cellSize,
+        (vmp.dataset_aabb.zmin + int(z_index)) * vmp.cellSize
+    );
 }
 
 void GetIndices(in vec3 point, out uint x_index, out uint y_index, out uint z_index)
@@ -298,6 +307,124 @@ vec4 computeShading(in vec3 position, in vec3 eyeVec)
     return vec4(color, 1);
 }
 
+float trilinearInterpolation(in vec3 position)
+{
+    uint x_index, y_index, z_index;
+    GetIndices(position, x_index, y_index, z_index);
+
+    vec3 P000 = GetPosition(x_index,     y_index,     z_index    );
+    vec3 P100 = GetPosition(x_index + 1, y_index,     z_index    );
+    vec3 P010 = GetPosition(x_index,     y_index + 1, z_index    );
+    vec3 P001 = GetPosition(x_index,     y_index,     z_index + 1);
+    vec3 P101 = GetPosition(x_index + 1, y_index,     z_index + 1);
+    vec3 P011 = GetPosition(x_index,     y_index + 1, z_index + 1);
+    vec3 P110 = GetPosition(x_index + 1, y_index + 1, z_index    );
+    vec3 P111 = GetPosition(x_index + 1, y_index + 1, z_index + 1);
+
+    uint c000 = cells[GetCellIndex(x_index,     y_index,     z_index    )].numberOfFibers;
+    uint c100 = cells[GetCellIndex(x_index + 1, y_index,     z_index    )].numberOfFibers;
+    uint c010 = cells[GetCellIndex(x_index,     y_index + 1, z_index    )].numberOfFibers;
+    uint c001 = cells[GetCellIndex(x_index,     y_index,     z_index + 1)].numberOfFibers;
+    uint c101 = cells[GetCellIndex(x_index + 1, y_index,     z_index + 1)].numberOfFibers;
+    uint c011 = cells[GetCellIndex(x_index,     y_index + 1, z_index + 1)].numberOfFibers;
+    uint c110 = cells[GetCellIndex(x_index + 1, y_index + 1, z_index    )].numberOfFibers;
+    uint c111 = cells[GetCellIndex(x_index + 1, y_index + 1, z_index + 1)].numberOfFibers;
+
+    float x_d = (position.x - P000.x) / (P111.x - P000.x);
+    float y_d = (position.y - P000.y) / (P111.y - P000.y);
+    float z_d = (position.z - P000.z) / (P111.z - P000.z);
+
+    float c00 = c000 * (1 - x_d) + c100 * x_d;
+    float c01 = c001 * (1 - x_d) + c101 * x_d;
+    float c10 = c010 * (1 - x_d) + c110 * x_d;
+    float c11 = c011 * (1 - x_d) + c111 * x_d;
+
+    float c0 = c00 * (1 - y_d) + c10 * y_d;
+    float c1 = c01 * (1 - y_d) + c11 * y_d;
+
+    float c = c0 * (1 - z_d) + c1 * z_d;
+
+    return c;
+}
+
+float calculateIsovalue(in vec3 positionWC)
+{
+    float isovalue;
+
+    //if(useInterpolation)
+    if(true)
+    {
+        isovalue = trilinearInterpolation(positionWC);
+    }
+    else
+    {
+        uint cellIndex = GetCellIndex(positionWC);
+        isovalue = cells[cellIndex].numberOfFibers;
+    }
+
+    return isovalue;
+}
+
+//Tterative  bisection procedure
+//Based on https://cgl.ethz.ch/people/archive/siggc/publications/eg05.pdf
+const uint numberOfRefinementIterationSteps = 4;
+void intersectionRefinement(in vec3 x_near, in vec3 x_far, out vec3 refinedIntersection, out float isovalue)
+{
+    vec3 x_new;
+    float f_near, f_far, f_new;
+
+    f_near = calculateIsovalue(x_near);
+    f_far = calculateIsovalue(x_far);
+
+    for(uint i = 0; i < numberOfRefinementIterationSteps; i++)
+    {
+        x_new = (f_far - f_near) * (frequencyIsovalueThreshold - f_near) / (f_far - f_near) + x_near;
+        f_new = calculateIsovalue(x_new);
+
+        if(f_new > frequencyIsovalueThreshold)
+        {
+            // new point lies in front of the isosurface
+            //todo I THINK IT'S THE OTHER WAY AROUND? BECAUSE WE USE THE INVERSE OF THE DEFINITION OF ISOVALUES?
+
+            x_near = x_new;
+            f_near = f_new;
+        }
+        else
+        {
+            x_far = x_new;
+            f_far = f_new;
+        }
+    }
+
+    refinedIntersection = x_new;
+    isovalue = f_new;
+}
+
+bool nearIsosurface(in uint x_index, in uint y_index, in uint z_index)
+{
+    return (
+        cells[GetCellIndex(x_index + 1, y_index,     z_index    )].numberOfFibers >= frequencyIsovalueThreshold
+    ||  cells[GetCellIndex(x_index,     y_index + 1, z_index    )].numberOfFibers >= frequencyIsovalueThreshold
+    ||  cells[GetCellIndex(x_index,     y_index,     z_index + 1)].numberOfFibers >= frequencyIsovalueThreshold
+    ||  cells[GetCellIndex(x_index - 1, y_index,     z_index    )].numberOfFibers >= frequencyIsovalueThreshold
+    ||  cells[GetCellIndex(x_index,     y_index - 1, z_index    )].numberOfFibers >= frequencyIsovalueThreshold
+    ||  cells[GetCellIndex(x_index,     y_index,     z_index - 1)].numberOfFibers >= frequencyIsovalueThreshold
+//    ||  cells[GetCellIndex(x_index + 1, y_index,     z_index + 1)].numberOfFibers
+//    ||  cells[GetCellIndex(x_index,     y_index + 1, z_index + 1)].numberOfFibers
+//    ||  cells[GetCellIndex(x_index + 1, y_index + 1, z_index    )].numberOfFibers
+//    ||  cells[GetCellIndex(x_index + 1, y_index + 1, z_index + 1)].numberOfFibers
+    );
+}
+
+void getCellMinMax(in uint x_index, in uint y_index, in uint z_index, out vec3 cellMin, out vec3 cellMax)
+{
+    vec3 cellCenter = GetPosition(x_index, y_index, z_index);
+    float halfSize = vmp.cellSize / 2.0f;
+
+    cellMin = cellCenter - vec3(halfSize, halfSize, halfSize);
+    cellMax = cellCenter + vec3(halfSize, halfSize, halfSize);
+}
+
 //
 //
 // Main loop
@@ -338,6 +465,8 @@ void main()
 
     float s = tNear;
 
+    bool inVolume = false;
+
     //Start ray traversal
     while(fragmentColor.w < 1.0f)
     {
@@ -347,16 +476,44 @@ void main()
             break;
         }
 
-        if(isVoxelInIsosurface(currentPosition))
+        uint x_index = 0; uint y_index = 0; uint z_index = 0;
+        GetIndices(currentPosition, x_index, y_index, z_index);
+        uint cellIndex = GetCellIndex(x_index, y_index, z_index);
+
+        //INTERPOLATION MODE:
+        //if one of the cells around the sampling point has an isovalue >= threshold, but we were not in the isovalue already,
+        //      set 'in_isovalue' to true
+        //
+
+        if(!inVolume && nearIsosurface(x_index, y_index, z_index))// isVoxelInIsosurface(currentPosition))
         {
-            fragmentColor += computeShading(currentPosition, -stepDir);
+            vec3 cellMin, cellMax;
+            getCellMinMax(x_index, y_index, z_index, cellMin, cellMax);
+            BoxIntersection intersection = intersectAABB(cameraPosition, stepDir, cellMin, cellMax);
+
+            vec3 x_near = cameraPosition + intersection.Near * stepDir;
+            vec3 x_far  = cameraPosition + intersection.Far * stepDir;
+
+            vec3 refinedIntersection; float isovalue;
+            intersectionRefinement(x_near, x_far, refinedIntersection, isovalue);
+
+            if(isovalue >= frequencyIsovalueThreshold)
+            {
+                inVolume = true;
+//                fragmentColor += computeShading(refinedIntersection, -stepDir);
+                fragmentColor += vec4(1);
+                gl_FragDepth = 0.5; //not correct, but works for now;
+            }
 
 //            TODO: properly implement depth values
 //            vec4 depth_vec = viewMat * projMat * vec4(currentPosition, 1.0);
 //            float depth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
 //            gl_FragDepth = depth;
-            gl_FragDepth = 0.5; //not correct, but works for now;
         }
+//        else if(inVolume)
+//        {
+//
+//        }
         else
         {
             gl_FragDepth = 1;
