@@ -8,7 +8,7 @@
 
 CenterlineRenderer::CenterlineRenderer(const DistanceTableCollection& distanceTables,
                                        const CameraState& cameraState)
-    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
+    : RenderElement(VERTEX_SHADER_PATH, GEOMETRY_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
       distanceTables(distanceTables),
       numberOfSeedPoints(distanceTables.GetNumberOfSeedPoints()),
       showCenterlineLoc(-1),
@@ -36,6 +36,8 @@ void CenterlineRenderer::initialize()
     modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
     viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
     projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
+
+    cameraPosLoc = glGetUniformLocation(shaderProgram->GetId(), "cameraPosition");
 
     showCenterlineLoc = glGetUniformLocation(shaderProgram->GetId(), "showFibers");
 }
@@ -121,6 +123,8 @@ void CenterlineRenderer::Render()
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
 
     glUniform1i(showCenterlineLoc, showCenterline);
+
+    glUniform3f(cameraPosLoc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
 
     glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
     mtx.unlock();

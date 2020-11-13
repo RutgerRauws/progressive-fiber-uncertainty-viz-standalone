@@ -21,6 +21,7 @@ class RenderElement
 
         //Shader variables
         Shader* vertexShader = nullptr;
+        Shader* geometryShader = nullptr;
         Shader* fragmentShader = nullptr;
         ShaderProgram* shaderProgram = nullptr;
 
@@ -33,7 +34,12 @@ class RenderElement
         GLint projMatLoc = -1;
 
 public:
+        RenderElement(const std::string& vertexShaderPath, const std::string fragmentShaderPath, const CameraState& cameraState)
+            : RenderElement(vertexShaderPath, "", fragmentShaderPath, cameraState)
+        {}
+
         RenderElement(const std::string& vertexShaderPath,
+                      const std::string& geometryShaderPath,
                       const std::string& fragmentShaderPath,
                       const CameraState& cameraState
         )
@@ -53,6 +59,20 @@ public:
                 throw e;
             }
 
+            if(!geometryShaderPath.empty())
+            {
+                try
+                {
+                    geometryShader = Shader::LoadFromFile(geometryShaderPath, GL_GEOMETRY_SHADER);
+                    geometryShader->Compile();
+                }
+                catch(const ShaderError& e)
+                {
+                    std::cerr << "Could not compile geometry shader: " << e.what() << std::endl;
+                    throw e;
+                }
+            }
+
             try
             {
                 fragmentShader = Shader::LoadFromFile(fragmentShaderPath, GL_FRAGMENT_SHADER);
@@ -64,8 +84,17 @@ public:
                 throw e;
             }
 
-            Shader* shaders[2] = {vertexShader, fragmentShader};
-            shaderProgram = new ShaderProgram(shaders, 2);
+
+            if(geometryShaderPath.empty())
+            {
+                Shader *shaders[2] = {vertexShader, fragmentShader};
+                shaderProgram = new ShaderProgram(shaders, 2);
+            }
+            else
+            {
+                Shader *shaders[3] = {vertexShader, geometryShader, fragmentShader};
+                shaderProgram = new ShaderProgram(shaders, 3);
+            }
 
             //Setup buffers
             vertices = nullptr;
@@ -76,6 +105,7 @@ public:
             delete shaderProgram;
 
             delete vertexShader;
+            delete geometryShader;
             delete fragmentShader;
         }
 

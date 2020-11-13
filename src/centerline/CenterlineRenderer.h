@@ -18,12 +18,16 @@ class CenterlineRenderer : public FiberObserver, public KeyPressObserver, Render
 {
     private:
         static constexpr auto VERTEX_SHADER_PATH   = "./shaders/centerline/vertex.glsl";
+        static constexpr auto GEOMETRY_SHADER_PATH   = "./shaders/centerline/geometry.glsl";
         static constexpr auto FRAGMENT_SHADER_PATH = "./shaders/centerline/fragment.glsl";
 
         unsigned int numberOfSeedPoints;
 
         GLint showCenterlineLoc;
         bool showCenterline;
+
+        GLint cameraPosLoc;
+
 
         std::vector<const Fiber*> centerFibers;
 
