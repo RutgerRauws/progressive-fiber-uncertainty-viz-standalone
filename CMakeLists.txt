@@ -28,6 +28,8 @@ add_executable(${EXECUTABLE_NAME}
         src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
         src/centerline/DistanceTablesUpdater.cpp src/centerline/DistanceTablesUpdater.h src/centerline/DistanceTableCollection.cpp src/centerline/DistanceTableCollection.h)
 
+INCLUDE_DIRECTORIES("libs")
+
 #Find any version 2.X of SFML
 #See the FindSFML.cmake file for additional details and instructions
 find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)

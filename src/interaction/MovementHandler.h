@@ -5,7 +5,7 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_MOVEMENT_HANDLER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_MOVEMENT_HANDLER_H
 
-#include "../util/glm/mat4x4.hpp"
+#include "glm/mat4x4.hpp"
 #include <SFML/Window.hpp>
 
 struct CameraState

@@ -5,7 +5,7 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_H
 
-#include "../util/glm/vec3.hpp"
+#include "glm/vec3.hpp"
 #include "AxisAlignedBoundingBox.h"
 
 class VisitationMap

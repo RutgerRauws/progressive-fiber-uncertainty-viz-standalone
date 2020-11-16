@@ -8,7 +8,7 @@
 #include <string>
 #include <vector>
 #include <vtkObject.h>
-#include "src/util/glm/vec3.hpp"
+#include "glm/vec3.hpp"
 
 /*
  * Temporary hardcoded test input files

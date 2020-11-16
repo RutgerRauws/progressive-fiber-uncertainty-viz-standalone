@@ -7,7 +7,7 @@
 #include <iostream>
 #include <GL/glew.h>
 #include "MovementHandler.h"
-#include "../util/glm/ext.hpp"
+#include "glm/ext.hpp"
 
 
 MovementHandler::MovementHandler(sf::Window& window,

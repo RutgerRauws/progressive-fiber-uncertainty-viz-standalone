@@ -5,12 +5,13 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_RENDERER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_RENDERER_H
 
+#include "glm/vec3.hpp"
+
 #include "../util/RenderElement.h"
-#include "../util/glm/vec3.hpp"
 #include "../interaction/KeyPressObserver.h"
-#include "VisitationMap.h"
 #include "../util/FiberObserver.h"
 #include "../centerline/DistanceTableCollection.h"
+#include "VisitationMap.h"
 
 class VisitationMapRenderer : public RenderElement, public KeyPressObserver, public FiberObserver
 {

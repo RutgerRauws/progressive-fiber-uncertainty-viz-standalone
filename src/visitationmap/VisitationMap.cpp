@@ -8,7 +8,7 @@
 #include <iostream>
 #include <cstring>
 #include "VisitationMap.h"
-#include "../util/glm/glm.hpp"
+#include "glm/glm.hpp"
 
 VisitationMap::VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing)
     : xmin(std::floor(xmin / spacing)),

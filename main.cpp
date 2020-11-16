@@ -1,19 +1,18 @@
 #include "main.h"
 
 #include <GL/glew.h>
+#include <SFML/Window.hpp>
+#include <SFML/Graphics.hpp>
+#include "glm/glm.hpp"
 
 #include "src/interaction/InteractionManager.h"
+#include "src/interaction/MovementHandler.h"
+#include "src/interaction/WindowHandler.h"
 #include "src/util/FiberPublisher.h"
 #include "src/util/FiberRenderer.h"
 #include "src/centerline/CenterlineRenderer.h"
-#include <SFML/Window.hpp>
-#include <SFML/Graphics.hpp>
-
-#include "src/util/glm/glm.hpp"
-#include "src/interaction/MovementHandler.h"
 #include "src/visitationmap/VisitationMapRenderer.h"
 #include "src/visitationmap/VisitationMapUpdater.h"
-#include "src/interaction/WindowHandler.h"
 
 
 void GLAPIENTRY
