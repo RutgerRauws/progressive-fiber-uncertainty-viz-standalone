@@ -45,17 +45,6 @@ const std::vector<std::string> INPUT_FILE_NAMES = {
         "./data/cst-10/10.vtk",
 };
 
-/*
- * RENDERING
- */
-const unsigned int SCREEN_WIDTH  = 900; //pixels
-const unsigned int SCREEN_HEIGHT = 700; //pixels
-const unsigned int RENDER_INTERVAL_MS = 33; //30fps
-
-const glm::vec3 CAMERA_POS(367.59, 197.453, 328.134);
-const glm::vec3 CAMERA_FRT(-0.678897, -0.406737, -0.611281);
-const glm::vec3 CAMERA_UP(0, 1, 0);
-
 #define DEBUG
 
 #endif //PROGRESSIVEFIBERUNCERTAINTYVIZ_MAIN_H

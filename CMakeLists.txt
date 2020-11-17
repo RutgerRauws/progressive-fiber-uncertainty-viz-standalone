@@ -10,29 +10,40 @@ INCLUDE(${VTK_USE_FILE})
 
 add_definitions(-DSTANDALONE)
 
+## Qt5
+set(CMAKE_INCLUDE_CURRENT_DIR ON)
+set(CMAKE_AUTOMOC ON)
+find_package(Qt5Widgets REQUIRED)
+
 add_executable(${EXECUTABLE_NAME}
-        main.cpp
-        src/interaction/InteractionManager.h
-        src/util/FiberObserver.h
-        src/util/FiberRenderer.cpp src/util/FiberRenderer.h
-        src/util/FiberPublisher.cpp src/util/FiberPublisher.h
-        src/util/Fiber.cpp src/util/Fiber.h
-        src/interaction/KeyPressObserver.h
-        src/centerline/CenterlineRenderer.cpp src/centerline/CenterlineRenderer.h
-        src/centerline/DistanceTable.cpp src/centerline/DistanceTable.h
-        src/visitationmap/VisitationMap.cpp src/visitationmap/VisitationMap.h
-        src/visitationmap/VisitationMapUpdater.cpp src/visitationmap/VisitationMapUpdater.h
-        src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
-        src/util/Shader.cpp src/util/Shader.h
-        src/util/ShaderProgram.cpp src/util/ShaderProgram.h
-        src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
-        src/centerline/DistanceTablesUpdater.cpp src/centerline/DistanceTablesUpdater.h src/centerline/DistanceTableCollection.cpp src/centerline/DistanceTableCollection.h)
+    main.cpp
+#    src/interaction/InteractionManager.h
+    src/util/FiberObserver.h
+    src/util/FiberRenderer.cpp src/util/FiberRenderer.h
+    src/util/FiberPublisher.cpp src/util/FiberPublisher.h
+    src/util/Fiber.cpp src/util/Fiber.h
+    src/interaction/KeyPressObserver.h
+    src/centerline/CenterlineRenderer.cpp src/centerline/CenterlineRenderer.h
+    src/centerline/DistanceTable.cpp src/centerline/DistanceTable.h
+    src/visitationmap/VisitationMap.cpp src/visitationmap/VisitationMap.h
+    src/visitationmap/VisitationMapUpdater.cpp src/visitationmap/VisitationMapUpdater.h
+    src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
+    src/util/Shader.cpp src/util/Shader.h
+    src/util/ShaderProgram.cpp src/util/ShaderProgram.h
+    src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
+    src/centerline/DistanceTablesUpdater.cpp src/centerline/DistanceTablesUpdater.h
+    src/centerline/DistanceTableCollection.cpp src/centerline/DistanceTableCollection.h
+    src/gui/UserInterface.cpp src/gui/UserInterface.h
+    src/gui/OGLWidget.cpp src/gui/OGLWidget.h
+)
+
+qt5_use_modules(${EXECUTABLE_NAME} Widgets)
 
 INCLUDE_DIRECTORIES("libs")
 
 #Find any version 2.X of SFML
 #See the FindSFML.cmake file for additional details and instructions
-find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
+#find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 
 ## OpenGL
 #find_package(OpenGL REQUIRED)
@@ -43,7 +54,13 @@ find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
 #    target_link_libraries(${EXECUTABLE_NAME} m)  # if you use maths.h
 #endif()
 
-target_link_libraries(progressive_fiber_uncertainty_viz ${VTK_LIBRARIES} -lGL -lGLU -lGLEW sfml-graphics sfml-window sfml-system)
+
+target_link_libraries(progressive_fiber_uncertainty_viz
+    ${VTK_LIBRARIES}
+    -lGL -lGLU -lGLEW
+    #sfml-graphics sfml-window sfml-system
+    Qt5::Core Qt5::Gui Qt5::Widgets
+)
 
 file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION data/)
 

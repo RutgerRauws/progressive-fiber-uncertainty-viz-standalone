@@ -6,7 +6,6 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_MOVEMENT_HANDLER_H
 
 #include "glm/mat4x4.hpp"
-#include <SFML/Window.hpp>
 
 struct CameraState
 {
@@ -43,16 +42,14 @@ class MovementHandler
         const float MOVEMENT_SPEED = 8.0f;
         const float ROTATE_SPEED = 0.8f;
 
-        sf::Window& window;
-        sf::Vector2i centerPos;
+        const glm::vec3 CAMERA_POS = glm::vec3(367.59, 197.453, 328.134);
+        const glm::vec3 CAMERA_FRT = glm::vec3(-0.678897, -0.406737, -0.611281);
+        const glm::vec3 CAMERA_UP = glm::vec3(0, 1, 0);
 
         CameraState cameraState;
 
-        sf::Vector2i getMouseDeltaAndReset();
-
     public:
         MovementHandler(
-            sf::Window& window,
             glm::mat4& modelMatrix,
             glm::mat4& viewMatrix,
             glm::mat4& projectionMatrix
@@ -62,6 +59,8 @@ class MovementHandler
 
         void SetCameraPosition(glm::vec3 position);
         void SetCameraFront(glm::vec3 direction);
+
+        void MouseMovement(const glm::ivec2& mouseDelta);
 
         const CameraState& GetCameraState();
 };

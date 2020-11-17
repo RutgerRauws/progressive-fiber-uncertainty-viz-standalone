@@ -174,7 +174,6 @@ unsigned int VisitationMapRenderer::computeFrequencyIsovalue()
 void VisitationMapRenderer::Render()
 {
     shaderProgram->Use();
-
     glBindVertexArray(vao);
 
     glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
