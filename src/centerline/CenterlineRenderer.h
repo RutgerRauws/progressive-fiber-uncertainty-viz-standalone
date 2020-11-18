@@ -14,7 +14,7 @@
 #include "../util/RenderElement.h"
 #include "DistanceTablesUpdater.h"
 
-class CenterlineRenderer : public FiberObserver, public KeyPressObserver, RenderElement
+class CenterlineRenderer : public FiberObserver, RenderElement
 {
     private:
         static constexpr auto VERTEX_SHADER_PATH   = "./shaders/centerline/vertex.glsl";
@@ -24,10 +24,7 @@ class CenterlineRenderer : public FiberObserver, public KeyPressObserver, Render
         unsigned int numberOfSeedPoints;
 
         GLint showCenterlineLoc;
-        bool showCenterline;
-
         GLint cameraPosLoc;
-
 
         std::vector<const Fiber*> centerFibers;
 
@@ -55,8 +52,6 @@ public:
 
         unsigned int GetNumberOfVertices() override;
         unsigned int GetNumberOfBytes() override;
-
-        void KeyPressed(const sf::Keyboard::Key& key) override;
 };
 
 

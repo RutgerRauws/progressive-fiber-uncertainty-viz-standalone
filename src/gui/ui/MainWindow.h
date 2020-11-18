@@ -48,38 +48,46 @@ public:
     QWidget *dockWidgetContents;
     QVBoxLayout *verticalLayout_6;
     QTabWidget *tabWidget;
-    QWidget *tab_3;
+    QWidget *setupTab;
     QVBoxLayout *verticalLayout_7;
-    QGroupBox *groupBox_5;
+    QGroupBox *cellPropertiesGroupBox;
     QVBoxLayout *verticalLayout_5;
-    QHBoxLayout *horizontalLayout_4;
+    QHBoxLayout *sideSizeLayout;
     QLabel *label_2;
     QSpacerItem *horizontalSpacer;
     QDoubleSpinBox *sideSizeDoubleSpinBox;
     QLabel *label_3;
-    QHBoxLayout *horizontalLayout;
+    QHBoxLayout *numberOfRepresentativeFibersLayout;
     QLabel *label;
     QSpacerItem *horizontalSpacer_2;
     QSpinBox *numberOfRepresentativeFibersSpinBox;
     QSpacerItem *verticalSpacer_3;
     QPushButton *startButton;
-    QWidget *tab_4;
+    QWidget *renderingTab;
     QVBoxLayout *verticalLayout;
-    QGroupBox *groupBox;
+    QGroupBox *generalGroupBox;
     QVBoxLayout *verticalLayout_2;
     QCheckBox *showFiberSamplesCheckBox;
     QCheckBox *showRepresentativeFibersCheckBox;
-    QGroupBox *groupBox_2;
+    QGroupBox *visitationMapGroupBox;
     QVBoxLayout *verticalLayout_3;
     QCheckBox *useTrilinearInterpolationCheckBox;
     QLabel *label_4;
-    QHBoxLayout *horizontalLayout_6;
+    QHBoxLayout *preferredMetricLayout;
     QRadioButton *fiberFrequenciesRadioButton;
     QRadioButton *distanceScoresRadioButton;
     QLabel *label_5;
-    QSlider *isovalueSlider;
+    QHBoxLayout *fiberFrequencyLayout;
+    QSlider *fiberFrequencySlider;
+    QLabel *label_8;
+    QLabel *fiberFrequencyLabel;
+    QLabel *label_7;
     QLabel *label_6;
+    QHBoxLayout *horizontalLayout;
     QSlider *distanceScoreSlider;
+    QLabel *label_11;
+    QLabel *label_10;
+    QLabel *label_9;
     QSpacerItem *verticalSpacer;
     QButtonGroup *buttonGroup;
 
@@ -138,169 +146,227 @@ public:
         tabWidget->setElideMode(Qt::ElideNone);
         tabWidget->setUsesScrollButtons(false);
         tabWidget->setTabBarAutoHide(false);
-        tab_3 = new QWidget();
-        tab_3->setObjectName(QString::fromUtf8("tab_3"));
-        verticalLayout_7 = new QVBoxLayout(tab_3);
+        setupTab = new QWidget();
+        setupTab->setObjectName(QString::fromUtf8("setupTab"));
+        verticalLayout_7 = new QVBoxLayout(setupTab);
         verticalLayout_7->setObjectName(QString::fromUtf8("verticalLayout_7"));
-        groupBox_5 = new QGroupBox(tab_3);
-        groupBox_5->setObjectName(QString::fromUtf8("groupBox_5"));
-        verticalLayout_5 = new QVBoxLayout(groupBox_5);
+        cellPropertiesGroupBox = new QGroupBox(setupTab);
+        cellPropertiesGroupBox->setObjectName(QString::fromUtf8("cellPropertiesGroupBox"));
+        verticalLayout_5 = new QVBoxLayout(cellPropertiesGroupBox);
         verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
-        horizontalLayout_4 = new QHBoxLayout();
-        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
-        label_2 = new QLabel(groupBox_5);
+        sideSizeLayout = new QHBoxLayout();
+        sideSizeLayout->setObjectName(QString::fromUtf8("sideSizeLayout"));
+        label_2 = new QLabel(cellPropertiesGroupBox);
         label_2->setObjectName(QString::fromUtf8("label_2"));
 
-        horizontalLayout_4->addWidget(label_2);
+        sideSizeLayout->addWidget(label_2);
 
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout_4->addItem(horizontalSpacer);
+        sideSizeLayout->addItem(horizontalSpacer);
 
-        sideSizeDoubleSpinBox = new QDoubleSpinBox(groupBox_5);
+        sideSizeDoubleSpinBox = new QDoubleSpinBox(cellPropertiesGroupBox);
         sideSizeDoubleSpinBox->setObjectName(QString::fromUtf8("sideSizeDoubleSpinBox"));
         sideSizeDoubleSpinBox->setDecimals(3);
         sideSizeDoubleSpinBox->setSingleStep(0.250000000000000);
         sideSizeDoubleSpinBox->setValue(1.000000000000000);
 
-        horizontalLayout_4->addWidget(sideSizeDoubleSpinBox);
+        sideSizeLayout->addWidget(sideSizeDoubleSpinBox);
 
-        label_3 = new QLabel(groupBox_5);
+        label_3 = new QLabel(cellPropertiesGroupBox);
         label_3->setObjectName(QString::fromUtf8("label_3"));
 
-        horizontalLayout_4->addWidget(label_3);
+        sideSizeLayout->addWidget(label_3);
 
 
-        verticalLayout_5->addLayout(horizontalLayout_4);
+        verticalLayout_5->addLayout(sideSizeLayout);
 
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        label = new QLabel(groupBox_5);
+        numberOfRepresentativeFibersLayout = new QHBoxLayout();
+        numberOfRepresentativeFibersLayout->setObjectName(QString::fromUtf8("numberOfRepresentativeFibersLayout"));
+        label = new QLabel(cellPropertiesGroupBox);
         label->setObjectName(QString::fromUtf8("label"));
 
-        horizontalLayout->addWidget(label);
+        numberOfRepresentativeFibersLayout->addWidget(label);
 
         horizontalSpacer_2 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
 
-        horizontalLayout->addItem(horizontalSpacer_2);
+        numberOfRepresentativeFibersLayout->addItem(horizontalSpacer_2);
 
-        numberOfRepresentativeFibersSpinBox = new QSpinBox(groupBox_5);
+        numberOfRepresentativeFibersSpinBox = new QSpinBox(cellPropertiesGroupBox);
         numberOfRepresentativeFibersSpinBox->setObjectName(QString::fromUtf8("numberOfRepresentativeFibersSpinBox"));
         numberOfRepresentativeFibersSpinBox->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
         numberOfRepresentativeFibersSpinBox->setValue(15);
 
-        horizontalLayout->addWidget(numberOfRepresentativeFibersSpinBox);
+        numberOfRepresentativeFibersLayout->addWidget(numberOfRepresentativeFibersSpinBox);
 
 
-        verticalLayout_5->addLayout(horizontalLayout);
+        verticalLayout_5->addLayout(numberOfRepresentativeFibersLayout);
 
 
-        verticalLayout_7->addWidget(groupBox_5);
+        verticalLayout_7->addWidget(cellPropertiesGroupBox);
 
         verticalSpacer_3 = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_7->addItem(verticalSpacer_3);
 
-        startButton = new QPushButton(tab_3);
+        startButton = new QPushButton(setupTab);
         startButton->setObjectName(QString::fromUtf8("startButton"));
 
         verticalLayout_7->addWidget(startButton);
 
-        tabWidget->addTab(tab_3, QString());
-        tab_4 = new QWidget();
-        tab_4->setObjectName(QString::fromUtf8("tab_4"));
-        verticalLayout = new QVBoxLayout(tab_4);
+        tabWidget->addTab(setupTab, QString());
+        renderingTab = new QWidget();
+        renderingTab->setObjectName(QString::fromUtf8("renderingTab"));
+        verticalLayout = new QVBoxLayout(renderingTab);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        groupBox = new QGroupBox(tab_4);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        verticalLayout_2 = new QVBoxLayout(groupBox);
+        generalGroupBox = new QGroupBox(renderingTab);
+        generalGroupBox->setObjectName(QString::fromUtf8("generalGroupBox"));
+        verticalLayout_2 = new QVBoxLayout(generalGroupBox);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        showFiberSamplesCheckBox = new QCheckBox(groupBox);
+        showFiberSamplesCheckBox = new QCheckBox(generalGroupBox);
         showFiberSamplesCheckBox->setObjectName(QString::fromUtf8("showFiberSamplesCheckBox"));
         showFiberSamplesCheckBox->setChecked(false);
 
         verticalLayout_2->addWidget(showFiberSamplesCheckBox);
 
-        showRepresentativeFibersCheckBox = new QCheckBox(groupBox);
+        showRepresentativeFibersCheckBox = new QCheckBox(generalGroupBox);
         showRepresentativeFibersCheckBox->setObjectName(QString::fromUtf8("showRepresentativeFibersCheckBox"));
         showRepresentativeFibersCheckBox->setChecked(false);
 
         verticalLayout_2->addWidget(showRepresentativeFibersCheckBox);
 
 
-        verticalLayout->addWidget(groupBox);
+        verticalLayout->addWidget(generalGroupBox);
 
-        groupBox_2 = new QGroupBox(tab_4);
-        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
-        verticalLayout_3 = new QVBoxLayout(groupBox_2);
+        visitationMapGroupBox = new QGroupBox(renderingTab);
+        visitationMapGroupBox->setObjectName(QString::fromUtf8("visitationMapGroupBox"));
+        verticalLayout_3 = new QVBoxLayout(visitationMapGroupBox);
         verticalLayout_3->setObjectName(QString::fromUtf8("verticalLayout_3"));
-        useTrilinearInterpolationCheckBox = new QCheckBox(groupBox_2);
+        useTrilinearInterpolationCheckBox = new QCheckBox(visitationMapGroupBox);
         useTrilinearInterpolationCheckBox->setObjectName(QString::fromUtf8("useTrilinearInterpolationCheckBox"));
 
         verticalLayout_3->addWidget(useTrilinearInterpolationCheckBox);
 
-        label_4 = new QLabel(groupBox_2);
+        label_4 = new QLabel(visitationMapGroupBox);
         label_4->setObjectName(QString::fromUtf8("label_4"));
 
         verticalLayout_3->addWidget(label_4);
 
-        horizontalLayout_6 = new QHBoxLayout();
-        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
-        fiberFrequenciesRadioButton = new QRadioButton(groupBox_2);
+        preferredMetricLayout = new QHBoxLayout();
+        preferredMetricLayout->setObjectName(QString::fromUtf8("preferredMetricLayout"));
+        fiberFrequenciesRadioButton = new QRadioButton(visitationMapGroupBox);
         buttonGroup = new QButtonGroup(MainWindow);
         buttonGroup->setObjectName(QString::fromUtf8("buttonGroup"));
         buttonGroup->addButton(fiberFrequenciesRadioButton);
         fiberFrequenciesRadioButton->setObjectName(QString::fromUtf8("fiberFrequenciesRadioButton"));
 
-        horizontalLayout_6->addWidget(fiberFrequenciesRadioButton);
+        preferredMetricLayout->addWidget(fiberFrequenciesRadioButton);
 
-        distanceScoresRadioButton = new QRadioButton(groupBox_2);
+        distanceScoresRadioButton = new QRadioButton(visitationMapGroupBox);
         buttonGroup->addButton(distanceScoresRadioButton);
         distanceScoresRadioButton->setObjectName(QString::fromUtf8("distanceScoresRadioButton"));
 
-        horizontalLayout_6->addWidget(distanceScoresRadioButton);
+        preferredMetricLayout->addWidget(distanceScoresRadioButton);
 
 
-        verticalLayout_3->addLayout(horizontalLayout_6);
+        verticalLayout_3->addLayout(preferredMetricLayout);
 
-        label_5 = new QLabel(groupBox_2);
+        label_5 = new QLabel(visitationMapGroupBox);
         label_5->setObjectName(QString::fromUtf8("label_5"));
 
         verticalLayout_3->addWidget(label_5);
 
-        isovalueSlider = new QSlider(groupBox_2);
-        isovalueSlider->setObjectName(QString::fromUtf8("isovalueSlider"));
+        fiberFrequencyLayout = new QHBoxLayout();
+        fiberFrequencyLayout->setObjectName(QString::fromUtf8("fiberFrequencyLayout"));
+        fiberFrequencySlider = new QSlider(visitationMapGroupBox);
+        fiberFrequencySlider->setObjectName(QString::fromUtf8("fiberFrequencySlider"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(isovalueSlider->sizePolicy().hasHeightForWidth());
-        isovalueSlider->setSizePolicy(sizePolicy);
-        isovalueSlider->setMaximumSize(QSize(16777215, 16777215));
-        isovalueSlider->setMaximum(100);
-        isovalueSlider->setOrientation(Qt::Horizontal);
-        isovalueSlider->setInvertedAppearance(true);
+        sizePolicy.setHeightForWidth(fiberFrequencySlider->sizePolicy().hasHeightForWidth());
+        fiberFrequencySlider->setSizePolicy(sizePolicy);
+        fiberFrequencySlider->setMaximumSize(QSize(16777215, 16777215));
+        fiberFrequencySlider->setMinimum(0);
+        fiberFrequencySlider->setMaximum(100);
+        fiberFrequencySlider->setValue(0);
+        fiberFrequencySlider->setOrientation(Qt::Horizontal);
+        fiberFrequencySlider->setInvertedAppearance(true);
+        fiberFrequencySlider->setInvertedControls(false);
 
-        verticalLayout_3->addWidget(isovalueSlider);
+        fiberFrequencyLayout->addWidget(fiberFrequencySlider);
 
-        label_6 = new QLabel(groupBox_2);
+        label_8 = new QLabel(visitationMapGroupBox);
+        label_8->setObjectName(QString::fromUtf8("label_8"));
+        QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Maximum);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
+        label_8->setSizePolicy(sizePolicy1);
+
+        fiberFrequencyLayout->addWidget(label_8);
+
+        fiberFrequencyLabel = new QLabel(visitationMapGroupBox);
+        fiberFrequencyLabel->setObjectName(QString::fromUtf8("fiberFrequencyLabel"));
+        sizePolicy1.setHeightForWidth(fiberFrequencyLabel->sizePolicy().hasHeightForWidth());
+        fiberFrequencyLabel->setSizePolicy(sizePolicy1);
+
+        fiberFrequencyLayout->addWidget(fiberFrequencyLabel);
+
+        label_7 = new QLabel(visitationMapGroupBox);
+        label_7->setObjectName(QString::fromUtf8("label_7"));
+        sizePolicy1.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
+        label_7->setSizePolicy(sizePolicy1);
+
+        fiberFrequencyLayout->addWidget(label_7);
+
+
+        verticalLayout_3->addLayout(fiberFrequencyLayout);
+
+        label_6 = new QLabel(visitationMapGroupBox);
         label_6->setObjectName(QString::fromUtf8("label_6"));
 
         verticalLayout_3->addWidget(label_6);
 
-        distanceScoreSlider = new QSlider(groupBox_2);
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        distanceScoreSlider = new QSlider(visitationMapGroupBox);
         distanceScoreSlider->setObjectName(QString::fromUtf8("distanceScoreSlider"));
         distanceScoreSlider->setOrientation(Qt::Horizontal);
 
-        verticalLayout_3->addWidget(distanceScoreSlider);
+        horizontalLayout->addWidget(distanceScoreSlider);
+
+        label_11 = new QLabel(visitationMapGroupBox);
+        label_11->setObjectName(QString::fromUtf8("label_11"));
+        sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
+        label_11->setSizePolicy(sizePolicy1);
+
+        horizontalLayout->addWidget(label_11);
+
+        label_10 = new QLabel(visitationMapGroupBox);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+        sizePolicy1.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
+        label_10->setSizePolicy(sizePolicy1);
+
+        horizontalLayout->addWidget(label_10);
+
+        label_9 = new QLabel(visitationMapGroupBox);
+        label_9->setObjectName(QString::fromUtf8("label_9"));
+        sizePolicy1.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
+        label_9->setSizePolicy(sizePolicy1);
+
+        horizontalLayout->addWidget(label_9);
+
+
+        verticalLayout_3->addLayout(horizontalLayout);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_3->addItem(verticalSpacer);
 
 
-        verticalLayout->addWidget(groupBox_2);
+        verticalLayout->addWidget(visitationMapGroupBox);
 
-        tabWidget->addTab(tab_4, QString());
+        tabWidget->addTab(renderingTab, QString());
 
         verticalLayout_6->addWidget(tabWidget);
 
@@ -326,23 +392,33 @@ public:
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuHelp->setTitle(QCoreApplication::translate("MainWindow", "Help", nullptr));
         dockWidget->setWindowTitle(QCoreApplication::translate("MainWindow", "Configuration", nullptr));
-        groupBox_5->setTitle(QCoreApplication::translate("MainWindow", "Cell properties", nullptr));
+        cellPropertiesGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Cell properties", nullptr));
         label_2->setText(QCoreApplication::translate("MainWindow", "Side size:", nullptr));
         label_3->setText(QCoreApplication::translate("MainWindow", "mm", nullptr));
         label->setText(QCoreApplication::translate("MainWindow", "Number of representative fibers:", nullptr));
         startButton->setText(QCoreApplication::translate("MainWindow", "Start", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab_3), QCoreApplication::translate("MainWindow", "Setup", nullptr));
-        groupBox->setTitle(QCoreApplication::translate("MainWindow", "General", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(setupTab), QCoreApplication::translate("MainWindow", "Setup", nullptr));
+        generalGroupBox->setTitle(QCoreApplication::translate("MainWindow", "General", nullptr));
         showFiberSamplesCheckBox->setText(QCoreApplication::translate("MainWindow", "Show fiber samples", nullptr));
         showRepresentativeFibersCheckBox->setText(QCoreApplication::translate("MainWindow", "Show representative fibers", nullptr));
-        groupBox_2->setTitle(QCoreApplication::translate("MainWindow", "Visitation Map", nullptr));
+        visitationMapGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Visitation Map", nullptr));
         useTrilinearInterpolationCheckBox->setText(QCoreApplication::translate("MainWindow", "Use trilinear interpolation", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "Preferred metric:", nullptr));
         fiberFrequenciesRadioButton->setText(QCoreApplication::translate("MainWindow", "Use fiber frequencies", nullptr));
         distanceScoresRadioButton->setText(QCoreApplication::translate("MainWindow", "Use distance scores", nullptr));
         label_5->setText(QCoreApplication::translate("MainWindow", "Fiber frequency threshold:", nullptr));
+        label_8->setText(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
+"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
+"p, li { white-space: pre-wrap; }\n"
+"</style></head><body style=\" font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
+"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">&ge;</p></body></html>", nullptr));
+        fiberFrequencyLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        label_7->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "Distance score threshold:", nullptr));
-        tabWidget->setTabText(tabWidget->indexOf(tab_4), QCoreApplication::translate("MainWindow", "Rendering", nullptr));
+        label_11->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>&le;</p></body></html>", nullptr));
+        label_10->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        label_9->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
+        tabWidget->setTabText(tabWidget->indexOf(renderingTab), QCoreApplication::translate("MainWindow", "Rendering", nullptr));
     } // retranslateUi
 
 };

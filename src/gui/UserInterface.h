@@ -8,12 +8,22 @@
 #include <QApplication>
 #include "ui/MainWindow.h"
 
-class UserInterface
+class UserInterface : public QObject
 {
 private:
     QMainWindow window;
     Ui::MainWindow mainWindow;
 
+    void loadConfiguration();
+
+    void startButtonClicked();
+    void showFiberSamplesClicked(bool checked);
+    void showRepresentativeFibersClicked(bool checked);
+    void useTrilinearInterpolationClicked(bool checked);
+    void useFiberFrequenciesClicked(bool checked);
+    void useDistanceScoresClicked(bool checked);
+    void fiberFrequencySliderValueChanged(int value);
+    void distanceScoreSliderValueChanged(int value);
 
 public:
     UserInterface();

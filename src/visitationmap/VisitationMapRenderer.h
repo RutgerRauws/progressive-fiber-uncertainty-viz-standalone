@@ -13,13 +13,11 @@
 #include "../centerline/DistanceTableCollection.h"
 #include "VisitationMap.h"
 
-class VisitationMapRenderer : public RenderElement, public KeyPressObserver, public FiberObserver
+class VisitationMapRenderer : public RenderElement, public FiberObserver
 {
     private:
         static constexpr auto   VERTEX_SHADER_PATH         = "./shaders/visitationmap/vertex.glsl";
         static constexpr auto   FRAGMENT_SHADER_PATH       = "./shaders/visitationmap/fragment.glsl";
-        static constexpr float  FREQUENCY_PERCENTAGE_DELTA = 0.01f;
-        static constexpr double MAX_DISTANCE_SCORE_DELTA   = 0.01f;
 
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;
@@ -31,16 +29,12 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
         GLint use_frequency_isovalue_loc = -1;
         GLint use_interpolcation_loc = -1;
 
-        bool useFrequencyIsovalue;
-        bool useInterpolation;
-        double maxDistanceScoreIsovalue;
-        float minFrequencyPercentageIsovalue;
         unsigned int numberOfFibers;
 
         void createVertices();
         void initialize() override;
         void updateMinFrequencyIsovaluePercentage(float delta);
-        unsigned int computeFrequencyIsovalue();
+        unsigned int computeFrequencyIsovalue() const;
 
     public:
         VisitationMapRenderer(VisitationMap& visitationMap,
@@ -51,7 +45,6 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
 
         void Render() override;
 
-        void KeyPressed(const sf::Keyboard::Key& key) override;
         void NewFiber(Fiber* fiber) override;
 
         unsigned int GetNumberOfVertices() override;

@@ -10,7 +10,7 @@
 #include "../interaction/KeyPressObserver.h"
 #include "RenderElement.h"
 
-class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderElement
+class FiberRenderer : public FiberObserver, RenderElement
 {
     private:
         static constexpr auto VERTEX_SHADER_PATH   = "./shaders/fibers/vertex.glsl";
@@ -27,9 +27,6 @@ class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderEleme
 
         GLint showFibersLoc;
 
-        //Options
-        bool showFibers, showPoints;
-
         void initialize() override;
         void updateData();
 
@@ -41,8 +38,6 @@ class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderEleme
 
         unsigned int GetNumberOfVertices() override;
         unsigned int GetNumberOfBytes() override;
-
-        void KeyPressed(const sf::Keyboard::Key& key) override;
 };
 
 

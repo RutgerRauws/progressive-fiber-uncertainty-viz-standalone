@@ -36,7 +36,7 @@ add_executable(${EXECUTABLE_NAME}
     src/gui/UserInterface.cpp src/gui/UserInterface.h
     src/gui/OGLWidget.cpp src/gui/OGLWidget.h
     src/util/Camera.cpp src/util/Camera.h
-)
+        Configuration.h)
 
 qt5_use_modules(${EXECUTABLE_NAME} Widgets)
 

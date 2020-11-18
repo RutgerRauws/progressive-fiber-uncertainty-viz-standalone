@@ -3,12 +3,13 @@
 //
 
 #include <GL/glew.h>
+#include <Configuration.h>
 #include "FiberRenderer.h"
 #include "glm/ext.hpp"
 
 FiberRenderer::FiberRenderer(const Camera& camera)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
-      numberOfFibers(0), showFibers(false), showPoints(false)
+      numberOfFibers(0)
 {
     initialize();
 }
@@ -87,7 +88,7 @@ void FiberRenderer::Render()
     glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    glUniform1i(showFibersLoc, showFibers);
+    glUniform1i(showFibersLoc, Configuration::getInstance().SHOW_FIBER_SAMPLES);
 
     glMultiDrawArrays(GL_LINE_STRIP, firstVertexOfEachFiber.data(), numberOfVerticesPerFiber.data(), numberOfFibers);
 
@@ -102,12 +103,4 @@ unsigned int FiberRenderer::GetNumberOfVertices()
 unsigned int FiberRenderer::GetNumberOfBytes()
 {
     return verticesVector.size() * sizeof(float);
-}
-
-void FiberRenderer::KeyPressed(const sf::Keyboard::Key& key)
-{
-    if(key == sf::Keyboard::F)
-    {
-        showFibers = !showFibers;
-    }
 }

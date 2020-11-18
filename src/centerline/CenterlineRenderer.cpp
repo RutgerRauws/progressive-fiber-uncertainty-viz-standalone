@@ -3,6 +3,7 @@
 //
 
 #include <GL/glew.h>
+#include <Configuration.h>
 #include "CenterlineRenderer.h"
 #include "DistanceTablesUpdater.h"
 
@@ -12,7 +13,6 @@ CenterlineRenderer::CenterlineRenderer(const DistanceTableCollection& distanceTa
       distanceTables(distanceTables),
       numberOfSeedPoints(distanceTables.GetNumberOfSeedPoints()),
       showCenterlineLoc(-1),
-      showCenterline(true),
       numberOfFibers(0)
 {
     initialize();
@@ -101,14 +101,6 @@ void CenterlineRenderer::NewFiber(Fiber* fiber)
     }
 }
 
-void CenterlineRenderer::KeyPressed(const sf::Keyboard::Key& key)
-{
-    if(key == sf::Keyboard::C)
-    {
-        showCenterline = !showCenterline;
-    }
-}
-
 void CenterlineRenderer::Render()
 {
     shaderProgram->Use();
@@ -122,7 +114,7 @@ void CenterlineRenderer::Render()
     glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    glUniform1i(showCenterlineLoc, showCenterline);
+    glUniform1i(showCenterlineLoc, Configuration::getInstance().SHOW_REPRESENTATIVE_FIBERS);
 
     glUniform3f(cameraPosLoc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
 

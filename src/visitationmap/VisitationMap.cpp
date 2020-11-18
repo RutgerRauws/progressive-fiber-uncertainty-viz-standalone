@@ -2,12 +2,14 @@
 // Created by rutger on 10/15/20.
 //
 
-#include <algorithm>
+#include "VisitationMap.h"
+
 #include <GL/glew.h>
+#include <algorithm>
 #include <cmath>
 #include <iostream>
 #include <cstring>
-#include "VisitationMap.h"
+#include <Configuration.h>
 #include "glm/glm.hpp"
 
 VisitationMap::VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing)
@@ -79,7 +81,7 @@ VisitationMap VisitationMap::CreateTest()
     const float DTI_ZMAX =  70;
 //    const float DTI_SPACING = 0.25; //mm
 //    const float DTI_SPACING = 0.75;
-    const float DTI_SPACING = 1;
+//    const float DTI_SPACING = 1;
 
     const float MAX_FIBER_LENGTH = 190; //mm? ~186.861mm
     const glm::vec3 SEED_POINT(10.254, -6.92531, 0.630174); //estimate
@@ -88,7 +90,7 @@ VisitationMap VisitationMap::CreateTest()
 //    const unsigned int height = 112;
 //    const unsigned int depth  = 70;
 //    const float spacing = 2;
-    VisitationMap visitationMap(DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, DTI_SPACING);
+    VisitationMap visitationMap(DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, Configuration::getInstance().SIDE_SIZE);
 //    visitationMap.makeSphere();
 //    VisitationMap visitationMap = CreateVisitationMap(SEED_POINT, MAX_FIBER_LENGTH);
 
