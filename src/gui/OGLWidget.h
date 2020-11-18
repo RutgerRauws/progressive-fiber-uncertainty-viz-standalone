@@ -18,25 +18,16 @@
 class OGLWidget : public QOpenGLWidget
 {
     private:
-        const float FOV = 45.0f;
         const unsigned int RENDER_INTERVAL_MS = 33; //30fps
 
-        FiberPublisher* fiberPublisher = nullptr;
-        DistanceTablesUpdater* distanceTablesUpdater = nullptr;
-
-        VisitationMap* visitationMap = nullptr;
-        RegionsOfInterest* regionsOfInterest = nullptr;
+        bool initialized = false;
         VisitationMapUpdater* visitationMapUpdater = nullptr;
-
         VisitationMapRenderer* visitationMapRenderer = nullptr;
-        CenterlineRenderer* centerlineRenderer = nullptr;
         FiberRenderer* fiberRenderer = nullptr;
-
-        glm::mat4 modelMatrix;
-        glm::mat4 viewMatrix;
-        glm::mat4 projectionMatrix;
-
+        CenterlineRenderer* centerlineRenderer = nullptr;
+        Camera* camera = nullptr;
         MovementHandler* movementHandler = nullptr;
+
         glm::ivec2 lastPosition;
         glm::ivec2 mouseDelta;
         QTimer* pTimer = nullptr;
@@ -54,20 +45,27 @@ class OGLWidget : public QOpenGLWidget
         void render() { paintGL(); update(); };
 
     public:
-        OGLWidget(QWidget *parent = 0);
+        explicit OGLWidget(QWidget *parent = 0);
         ~OGLWidget();
 
-//        void SetInput(
-//            FiberPublisher* fiberPublisher,
-//            DistanceTablesUpdater* distanceTablesUpdater,
-//            VisitationMap* visitationMap,
-//            RegionsOfInterest* regionsOfInterest,
-//            VisitationMapUpdater* visitationMapUpdater,
-//            VisitationMapRenderer* visitationMapRenderer,
-//            FiberRenderer* fiberRenderer,
-//            CenterlineRenderer* centerlineRenderer
-//        );
-
+        void SetInput(
+            VisitationMapUpdater* visitationMapUpdater,
+            VisitationMapRenderer* visitationMapRenderer,
+            FiberRenderer* fiberRenderer,
+            CenterlineRenderer* centerlineRenderer,
+            Camera* camera,
+            MovementHandler* movementHandler
+        )
+        {
+            this->visitationMapUpdater = visitationMapUpdater;
+            this->visitationMapRenderer = visitationMapRenderer;
+            this->fiberRenderer = fiberRenderer;
+            this->centerlineRenderer = centerlineRenderer;
+            this->camera = camera;
+            this->movementHandler = movementHandler;
+            this->initialized = true;
+            resizeGL(this->width(), this->height());
+        };
 };
 
 

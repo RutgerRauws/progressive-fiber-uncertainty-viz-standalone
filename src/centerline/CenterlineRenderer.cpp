@@ -7,8 +7,8 @@
 #include "DistanceTablesUpdater.h"
 
 CenterlineRenderer::CenterlineRenderer(const DistanceTableCollection& distanceTables,
-                                       const CameraState& cameraState)
-    : RenderElement(VERTEX_SHADER_PATH, GEOMETRY_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
+                                       const Camera& camera)
+    : RenderElement(VERTEX_SHADER_PATH, GEOMETRY_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
       distanceTables(distanceTables),
       numberOfSeedPoints(distanceTables.GetNumberOfSeedPoints()),
       showCenterlineLoc(-1),
@@ -118,13 +118,13 @@ void CenterlineRenderer::Render()
 
     glBindVertexArray(vao);
 
-    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
-    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.viewMatrix));
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
+    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
+    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
     glUniform1i(showCenterlineLoc, showCenterline);
 
-    glUniform3f(cameraPosLoc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
+    glUniform3f(cameraPosLoc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
 
     glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
     mtx.unlock();

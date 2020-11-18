@@ -28,22 +28,22 @@ class RenderElement
         GLuint vao;
         GLuint vbo;
 
-        const CameraState& cameraState;
+        const Camera& camera;
         GLint modelMatLoc = -1;
         GLint viewMatLoc = -1;
         GLint projMatLoc = -1;
 
 public:
-        RenderElement(const std::string& vertexShaderPath, const std::string fragmentShaderPath, const CameraState& cameraState)
-            : RenderElement(vertexShaderPath, "", fragmentShaderPath, cameraState)
+        RenderElement(const std::string& vertexShaderPath, const std::string fragmentShaderPath, const Camera& camera)
+            : RenderElement(vertexShaderPath, "", fragmentShaderPath, camera)
         {}
 
         RenderElement(const std::string& vertexShaderPath,
                       const std::string& geometryShaderPath,
                       const std::string& fragmentShaderPath,
-                      const CameraState& cameraState
+                      const Camera& camera
         )
-            : cameraState(cameraState),
+            : camera(camera),
               vertices(nullptr),
               vao(), vbo()
         {

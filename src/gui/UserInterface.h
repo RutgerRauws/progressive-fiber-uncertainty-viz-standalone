@@ -18,7 +18,7 @@ private:
 public:
     UserInterface();
 
-    int Show();
+    void Show();
     OGLWidget* GetOpenGLWidget();
 };
 

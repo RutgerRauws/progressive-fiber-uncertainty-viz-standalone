@@ -34,7 +34,7 @@ class FiberRenderer : public FiberObserver, public KeyPressObserver, RenderEleme
         void updateData();
 
     public:
-        explicit FiberRenderer(const CameraState& cameraState);
+        explicit FiberRenderer(const Camera& camera);
 
         void NewFiber(Fiber* fiber) override;
         void Render() override;

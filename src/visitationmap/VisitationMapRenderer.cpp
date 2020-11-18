@@ -8,8 +8,8 @@
 VisitationMapRenderer::VisitationMapRenderer(VisitationMap& visitationMap,
                                              RegionsOfInterest& regionsOfInterest,
                                              const DistanceTableCollection& distanceTables,
-                                             const CameraState& cameraState)
-    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
+                                             const Camera& camera)
+    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
       visitationMap(visitationMap),
       regionsOfInterest(regionsOfInterest),
       distanceTables(distanceTables),
@@ -176,11 +176,11 @@ void VisitationMapRenderer::Render()
     shaderProgram->Use();
     glBindVertexArray(vao);
 
-    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
-    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.viewMatrix));
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
+    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
+    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, cameraState.cameraPos.x, cameraState.cameraPos.y, cameraState.cameraPos.z);
+    glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
 
     glProgramUniform1i(shaderProgram->GetId(), use_frequency_isovalue_loc, useFrequencyIsovalue);
     glProgramUniform1i(shaderProgram->GetId(), use_interpolcation_loc, useInterpolation);

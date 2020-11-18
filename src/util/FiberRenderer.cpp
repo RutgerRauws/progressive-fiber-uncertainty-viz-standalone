@@ -6,8 +6,8 @@
 #include "FiberRenderer.h"
 #include "glm/ext.hpp"
 
-FiberRenderer::FiberRenderer(const CameraState& cameraState)
-    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, cameraState),
+FiberRenderer::FiberRenderer(const Camera& camera)
+    : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
       numberOfFibers(0), showFibers(false), showPoints(false)
 {
     initialize();
@@ -83,9 +83,9 @@ void FiberRenderer::Render()
 
     glBindVertexArray(vao);
 
-    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.modelMatrix));
-    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.viewMatrix));
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(cameraState.projectionMatrix));
+    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
+    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
     glUniform1i(showFibersLoc, showFibers);
 

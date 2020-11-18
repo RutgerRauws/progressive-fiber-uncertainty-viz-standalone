@@ -46,7 +46,7 @@ class VisitationMapRenderer : public RenderElement, public KeyPressObserver, pub
         VisitationMapRenderer(VisitationMap& visitationMap,
                               RegionsOfInterest& regionsOfInterest,
                               const DistanceTableCollection& distanceTables,
-                              const CameraState& cameraState);
+                              const Camera& camera);
         ~VisitationMapRenderer();
 
         void Render() override;

@@ -48,7 +48,7 @@ class CenterlineRenderer : public FiberObserver, public KeyPressObserver, Render
 
 public:
         CenterlineRenderer(const DistanceTableCollection& distanceTables,
-                           const CameraState& cameraState);
+                           const Camera& camera);
 
         void NewFiber(Fiber* fiber) override;
         void Render() override;

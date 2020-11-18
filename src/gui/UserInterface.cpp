@@ -11,7 +11,7 @@ UserInterface::UserInterface()
     mainWindow.setupUi(&window);
 }
 
-int UserInterface::Show()
+void UserInterface::Show()
 {
     window.show();
 }

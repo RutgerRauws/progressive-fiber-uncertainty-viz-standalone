@@ -45,6 +45,10 @@ const std::vector<std::string> INPUT_FILE_NAMES = {
         "./data/cst-10/10.vtk",
 };
 
+const glm::vec3 CAMERA_POS(367.59, 197.453, 328.134);
+const glm::vec3 CAMERA_FRT(-0.678897, -0.406737, -0.611281);
+const glm::vec3 CAMERA_UP(0, 1, 0);
+
 #define DEBUG
 
 #endif //PROGRESSIVEFIBERUNCERTAINTYVIZ_MAIN_H

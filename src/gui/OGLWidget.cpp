@@ -5,16 +5,10 @@
 #include <GL/glew.h>
 
 #include <libs/glm/ext.hpp>
-#include "src/centerline/DistanceTablesUpdater.h"
 #include <ostream>
 #include <QtGui/QOffscreenSurface>
-#include <QObject>
 #include <QMouseEvent>
 #include "src/visitationmap/VisitationMap.h"
-
-#include "src/util/FiberRenderer.h"
-#include "src/centerline/CenterlineRenderer.h"
-#include "src/util/FiberPublisher.h"
 #include "main.h"
 #include "OGLWidget.h"
 
@@ -32,7 +26,7 @@ MessageCallback( GLenum source,
              type, severity, message );
 }
 
-OGLWidget::OGLWidget(QWidget *parent)
+OGLWidget::OGLWidget(QWidget* parent)
         : QOpenGLWidget(parent),
           mouseDelta(glm::ivec2(0, 0))
 {
@@ -46,13 +40,6 @@ OGLWidget::OGLWidget(QWidget *parent)
     create();
     makeCurrent();
 
-    modelMatrix = glm::mat4(1.0f);
-    viewMatrix = glm::mat4(1.0f);
-    viewMatrix = glm::translate(viewMatrix, glm::vec3(0, 0, -3));
-    projectionMatrix = glm::mat4(0); //It's set by resizeGL() anyways
-
-    movementHandler = new MovementHandler(modelMatrix, viewMatrix, projectionMatrix);
-
     pTimer = new QTimer(this);
     connect(pTimer, &QTimer::timeout, this, &OGLWidget::render);
 }
@@ -60,19 +47,6 @@ OGLWidget::OGLWidget(QWidget *parent)
 OGLWidget::~OGLWidget()
 {
     delete pTimer;
-
-    delete fiberPublisher;
-    delete distanceTablesUpdater;
-
-    delete visitationMap;
-    delete regionsOfInterest;
-    delete visitationMapUpdater;
-
-    delete visitationMapRenderer;
-    delete centerlineRenderer;
-    delete fiberRenderer;
-
-    delete movementHandler;
 }
 
 
@@ -106,31 +80,12 @@ void OGLWidget::initializeGL()
     #endif
 
 
-    fiberPublisher = new FiberPublisher(INPUT_FILE_NAMES);
-
-    distanceTablesUpdater = new DistanceTablesUpdater (fiberPublisher->GetNumberOfSeedPoints());
-
-    visitationMap = new VisitationMap(VisitationMap::CreateTest());
-    regionsOfInterest = new RegionsOfInterest (fiberPublisher->GetNumberOfSeedPoints());
-    visitationMapUpdater = new VisitationMapUpdater(*visitationMap, *regionsOfInterest, distanceTablesUpdater->GetDistanceTables());
-
-    visitationMapRenderer = new VisitationMapRenderer(*visitationMap, *regionsOfInterest, distanceTablesUpdater->GetDistanceTables(), movementHandler->GetCameraState());
-    fiberRenderer = new FiberRenderer(movementHandler->GetCameraState());
-    centerlineRenderer = new CenterlineRenderer(distanceTablesUpdater->GetDistanceTables(), movementHandler->GetCameraState());
-
-    fiberPublisher->RegisterObserver(*distanceTablesUpdater);
-    fiberPublisher->RegisterObserver(*visitationMapUpdater);
-    fiberPublisher->RegisterObserver(*visitationMapRenderer);
-    fiberPublisher->RegisterObserver(*fiberRenderer);
-    fiberPublisher->RegisterObserver(*centerlineRenderer);
-
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     pTimer->start(RENDER_INTERVAL_MS);
-    fiberPublisher->Start();
 }
 
 void OGLWidget::paintGL()
@@ -138,26 +93,26 @@ void OGLWidget::paintGL()
     // clear the window with black color
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-//    cameraState.cameraFront += glm::vec3(1, 0, 0);
-//    cameraState.viewMatrix = glm::lookAt(cameraState.cameraPos,
-//                                         cameraState.cameraPos + cameraState.cameraFront,
-//                                         cameraState.cameraUp);
+//    camera.cameraFront += glm::vec3(1, 0, 0);
+//    camera.viewMatrix = glm::lookAt(camera.cameraPos,
+//                                         camera.cameraPos + camera.cameraFront,
+//                                         camera.cameraUp);
 
-    //Actual draw calls
-    visitationMapUpdater->Update();
-    visitationMapRenderer->Render();
-    centerlineRenderer->Render();
-    fiberRenderer->Render();
+    if(initialized)
+    {
+        visitationMapUpdater->Update();
+        visitationMapRenderer->Render();
+        centerlineRenderer->Render();
+        fiberRenderer->Render();
+    }
 }
 
 void OGLWidget::resizeGL(int w, int h)
 {
-    projectionMatrix = glm::perspective(
-            glm::radians(FOV),
-            (float)w / (float)h,
-            0.1f,
-            10000.0f
-    );
+    if(initialized)
+    {
+        camera->ResizeWindow(w, h);
+    }
 }
 
 void OGLWidget::mousePressEvent(QMouseEvent *event)
