@@ -5,8 +5,8 @@
 #include <libs/glm/ext.hpp>
 #include "Camera.h"
 
-Camera::Camera(const glm::vec3& cameraPos, const glm::vec3& cameraFront, const glm::vec3& cameraUp)
-    : cameraPos(cameraPos), cameraFront(cameraFront), cameraUp(cameraUp)
+Camera::Camera()
+    : cameraPos(0), cameraFront(0, 0, -3), cameraUp(0, 1, 0)
 {
     modelMatrix = glm::mat4(1.0f);
     viewMatrix = glm::mat4(1.0f);

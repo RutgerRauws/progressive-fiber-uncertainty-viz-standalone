@@ -2,12 +2,20 @@
 // Created by rutger on 10/8/20.
 //
 
-#include "MovementHandler.h"
+#include "FPSMovementHandler.h"
 #include "glm/ext.hpp"
 
-MovementHandler::MovementHandler(Camera& camera)
-    : camera(camera)
-{}
+
+FPSMovementHandler::FPSMovementHandler(Camera& camera)
+    : MovementHandler(camera)
+{
+    camera.cameraPos   = CAMERA_POS;
+    camera.cameraFront = CAMERA_FRT;
+    camera.cameraUp    = CAMERA_UP;
+
+    camera.LookAt(camera.cameraPos, camera.cameraFront, camera.cameraUp);
+}
+
 
 //void MovementHandler::update()
 //{
@@ -32,7 +40,7 @@ MovementHandler::MovementHandler(Camera& camera)
 //    }
 //}
 
-void MovementHandler::MouseMovement(const glm::ivec2& mouseDelta)
+void FPSMovementHandler::MouseMovement(const glm::ivec2& mouseDelta)
 {
     if(mouseDelta.x != 0 || mouseDelta.y != 0)
     {

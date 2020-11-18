@@ -24,7 +24,7 @@ class Camera
         float yaw = -90.0f; //make sure camera points towards the negative z-axis by default
         float pitch = 0.0f;
 
-        Camera(const glm::vec3& cameraPos, const glm::vec3& cameraFront, const glm::vec3& cameraUp);
+        Camera();
 
         void LookAt(const glm::vec3& position, const glm::vec3& center, const glm::vec3& up);
 

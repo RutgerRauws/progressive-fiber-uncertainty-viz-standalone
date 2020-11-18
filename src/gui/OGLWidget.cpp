@@ -134,6 +134,6 @@ void OGLWidget::mouseMoveEvent(QMouseEvent *event)
 
 void OGLWidget::wheelEvent(QWheelEvent *event)
 {
-//    QWidget::wheelEvent(event);
+    movementHandler->MouseScroll(event->angleDelta().y());
 }
 

@@ -30,13 +30,16 @@ add_executable(${EXECUTABLE_NAME}
     src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
     src/util/Shader.cpp src/util/Shader.h
     src/util/ShaderProgram.cpp src/util/ShaderProgram.h
-    src/interaction/MovementHandler.cpp src/interaction/MovementHandler.h
+    src/interaction/MovementHandler.h
+    src/interaction/FPSMovementHandler.cpp src/interaction/FPSMovementHandler.h
+    src/interaction/TrackBallMovementHandler.cpp src/interaction/TrackBallMovementHandler.h
     src/centerline/DistanceTablesUpdater.cpp src/centerline/DistanceTablesUpdater.h
     src/centerline/DistanceTableCollection.cpp src/centerline/DistanceTableCollection.h
     src/gui/UserInterface.cpp src/gui/UserInterface.h
     src/gui/OGLWidget.cpp src/gui/OGLWidget.h
     src/util/Camera.cpp src/util/Camera.h
-        Configuration.h)
+    Configuration.h
+)
 
 qt5_use_modules(${EXECUTABLE_NAME} Widgets)
 

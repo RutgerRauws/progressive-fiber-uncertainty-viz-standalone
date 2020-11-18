@@ -3,6 +3,7 @@
 #include <src/gui/UserInterface.h>
 #include <QtOpenGL/qgl.h>
 #include <src/util/Camera.h>
+#include <src/interaction/TrackBallMovementHandler.h>
 #include "src/interaction/InteractionManager.h"
 
 
@@ -20,9 +21,9 @@ int main(int argc, char* argv[])
     RegionsOfInterest regionsOfInterest(fiberPublisher.GetNumberOfSeedPoints());
     VisitationMapUpdater visitationMapUpdater(visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables());
 
-    Camera camera(CAMERA_POS, CAMERA_FRT, CAMERA_UP);
+    Camera camera;
+    TrackBallMovementHandler movementHandler(camera);
 
-    MovementHandler movementHandler(camera);
     VisitationMapRenderer visitationMapRenderer(visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables(), camera);
     CenterlineRenderer centerlineRenderer(distanceTablesUpdater.GetDistanceTables(), camera);
     FiberRenderer fiberRenderer(camera);
