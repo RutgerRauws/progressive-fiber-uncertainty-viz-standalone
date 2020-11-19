@@ -41,8 +41,6 @@ add_executable(${EXECUTABLE_NAME}
     Configuration.h
 )
 
-qt5_use_modules(${EXECUTABLE_NAME} Widgets)
-
 INCLUDE_DIRECTORIES("libs")
 
 #Find any version 2.X of SFML

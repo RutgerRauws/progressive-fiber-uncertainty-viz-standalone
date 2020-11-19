@@ -39,5 +39,9 @@ int main(int argc, char* argv[])
 
     fiberPublisher.Start();
 
-    return a.exec();
+    a.exec();
+
+    fiberPublisher.Stop();
+
+    return 0;
 }
