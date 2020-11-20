@@ -53,6 +53,9 @@ void UserInterface::loadConfiguration()
 
     //TODO: fix distance score slider
     mainWindow.distanceScoreSlider->setValue(config.ISOVALUE_MAX_DISTANCE_SCORE);
+
+    mainWindow.fiberFrequencyWidget->setVisible(config.USE_FIBER_FREQUENCIES);
+    mainWindow.distanceScoreWidget->setVisible(!config.USE_FIBER_FREQUENCIES);
 }
 
 void UserInterface::startButtonClicked()
@@ -78,11 +81,17 @@ void UserInterface::useTrilinearInterpolationClicked(bool checked)
 void UserInterface::useFiberFrequenciesClicked(bool checked)
 {
     Configuration::getInstance().USE_FIBER_FREQUENCIES = checked;
+
+    mainWindow.distanceScoreWidget->setVisible(false);
+    mainWindow.fiberFrequencyWidget->setVisible(true);
 }
 
 void UserInterface::useDistanceScoresClicked(bool checked)
 {
     Configuration::getInstance().USE_FIBER_FREQUENCIES = !checked;
+
+    mainWindow.fiberFrequencyWidget->setVisible(false);
+    mainWindow.distanceScoreWidget->setVisible(true);
 }
 
 void UserInterface::fiberFrequencySliderValueChanged(int value)

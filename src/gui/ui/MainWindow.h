@@ -76,14 +76,18 @@ public:
     QHBoxLayout *preferredMetricLayout;
     QRadioButton *fiberFrequenciesRadioButton;
     QRadioButton *distanceScoresRadioButton;
+    QWidget *fiberFrequencyWidget;
+    QVBoxLayout *fiberFrequencyLayout;
     QLabel *label_5;
-    QHBoxLayout *fiberFrequencyLayout;
+    QHBoxLayout *fiberFrequencySliderLayout;
     QSlider *fiberFrequencySlider;
     QLabel *label_8;
     QLabel *fiberFrequencyLabel;
     QLabel *label_7;
+    QWidget *distanceScoreWidget;
+    QVBoxLayout *distanceScoreLayout;
     QLabel *label_6;
-    QHBoxLayout *horizontalLayout;
+    QHBoxLayout *distanceScoreSliderLayout;
     QSlider *distanceScoreSlider;
     QLabel *label_11;
     QLabel *label_10;
@@ -271,14 +275,18 @@ public:
 
         verticalLayout_3->addLayout(preferredMetricLayout);
 
-        label_5 = new QLabel(visitationMapGroupBox);
+        fiberFrequencyWidget = new QWidget(visitationMapGroupBox);
+        fiberFrequencyWidget->setObjectName(QString::fromUtf8("fiberFrequencyWidget"));
+        fiberFrequencyLayout = new QVBoxLayout(fiberFrequencyWidget);
+        fiberFrequencyLayout->setObjectName(QString::fromUtf8("fiberFrequencyLayout"));
+        label_5 = new QLabel(fiberFrequencyWidget);
         label_5->setObjectName(QString::fromUtf8("label_5"));
 
-        verticalLayout_3->addWidget(label_5);
+        fiberFrequencyLayout->addWidget(label_5);
 
-        fiberFrequencyLayout = new QHBoxLayout();
-        fiberFrequencyLayout->setObjectName(QString::fromUtf8("fiberFrequencyLayout"));
-        fiberFrequencySlider = new QSlider(visitationMapGroupBox);
+        fiberFrequencySliderLayout = new QHBoxLayout();
+        fiberFrequencySliderLayout->setObjectName(QString::fromUtf8("fiberFrequencySliderLayout"));
+        fiberFrequencySlider = new QSlider(fiberFrequencyWidget);
         fiberFrequencySlider->setObjectName(QString::fromUtf8("fiberFrequencySlider"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
@@ -293,9 +301,9 @@ public:
         fiberFrequencySlider->setInvertedAppearance(true);
         fiberFrequencySlider->setInvertedControls(false);
 
-        fiberFrequencyLayout->addWidget(fiberFrequencySlider);
+        fiberFrequencySliderLayout->addWidget(fiberFrequencySlider);
 
-        label_8 = new QLabel(visitationMapGroupBox);
+        label_8 = new QLabel(fiberFrequencyWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
         QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Maximum);
         sizePolicy1.setHorizontalStretch(0);
@@ -303,61 +311,71 @@ public:
         sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
         label_8->setSizePolicy(sizePolicy1);
 
-        fiberFrequencyLayout->addWidget(label_8);
+        fiberFrequencySliderLayout->addWidget(label_8);
 
-        fiberFrequencyLabel = new QLabel(visitationMapGroupBox);
+        fiberFrequencyLabel = new QLabel(fiberFrequencyWidget);
         fiberFrequencyLabel->setObjectName(QString::fromUtf8("fiberFrequencyLabel"));
         sizePolicy1.setHeightForWidth(fiberFrequencyLabel->sizePolicy().hasHeightForWidth());
         fiberFrequencyLabel->setSizePolicy(sizePolicy1);
 
-        fiberFrequencyLayout->addWidget(fiberFrequencyLabel);
+        fiberFrequencySliderLayout->addWidget(fiberFrequencyLabel);
 
-        label_7 = new QLabel(visitationMapGroupBox);
+        label_7 = new QLabel(fiberFrequencyWidget);
         label_7->setObjectName(QString::fromUtf8("label_7"));
         sizePolicy1.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
         label_7->setSizePolicy(sizePolicy1);
 
-        fiberFrequencyLayout->addWidget(label_7);
+        fiberFrequencySliderLayout->addWidget(label_7);
 
 
-        verticalLayout_3->addLayout(fiberFrequencyLayout);
+        fiberFrequencyLayout->addLayout(fiberFrequencySliderLayout);
 
-        label_6 = new QLabel(visitationMapGroupBox);
+
+        verticalLayout_3->addWidget(fiberFrequencyWidget);
+
+        distanceScoreWidget = new QWidget(visitationMapGroupBox);
+        distanceScoreWidget->setObjectName(QString::fromUtf8("distanceScoreWidget"));
+        distanceScoreLayout = new QVBoxLayout(distanceScoreWidget);
+        distanceScoreLayout->setObjectName(QString::fromUtf8("distanceScoreLayout"));
+        label_6 = new QLabel(distanceScoreWidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
 
-        verticalLayout_3->addWidget(label_6);
+        distanceScoreLayout->addWidget(label_6);
 
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        distanceScoreSlider = new QSlider(visitationMapGroupBox);
+        distanceScoreSliderLayout = new QHBoxLayout();
+        distanceScoreSliderLayout->setObjectName(QString::fromUtf8("distanceScoreSliderLayout"));
+        distanceScoreSlider = new QSlider(distanceScoreWidget);
         distanceScoreSlider->setObjectName(QString::fromUtf8("distanceScoreSlider"));
         distanceScoreSlider->setOrientation(Qt::Horizontal);
 
-        horizontalLayout->addWidget(distanceScoreSlider);
+        distanceScoreSliderLayout->addWidget(distanceScoreSlider);
 
-        label_11 = new QLabel(visitationMapGroupBox);
+        label_11 = new QLabel(distanceScoreWidget);
         label_11->setObjectName(QString::fromUtf8("label_11"));
         sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
         label_11->setSizePolicy(sizePolicy1);
 
-        horizontalLayout->addWidget(label_11);
+        distanceScoreSliderLayout->addWidget(label_11);
 
-        label_10 = new QLabel(visitationMapGroupBox);
+        label_10 = new QLabel(distanceScoreWidget);
         label_10->setObjectName(QString::fromUtf8("label_10"));
         sizePolicy1.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
         label_10->setSizePolicy(sizePolicy1);
 
-        horizontalLayout->addWidget(label_10);
+        distanceScoreSliderLayout->addWidget(label_10);
 
-        label_9 = new QLabel(visitationMapGroupBox);
+        label_9 = new QLabel(distanceScoreWidget);
         label_9->setObjectName(QString::fromUtf8("label_9"));
         sizePolicy1.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
         label_9->setSizePolicy(sizePolicy1);
 
-        horizontalLayout->addWidget(label_9);
+        distanceScoreSliderLayout->addWidget(label_9);
 
 
-        verticalLayout_3->addLayout(horizontalLayout);
+        distanceScoreLayout->addLayout(distanceScoreSliderLayout);
+
+
+        verticalLayout_3->addWidget(distanceScoreWidget);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
