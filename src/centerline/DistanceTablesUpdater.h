@@ -14,7 +14,7 @@ private:
     DistanceTableCollection distanceTables;
 
 public:
-    explicit DistanceTablesUpdater(unsigned int numberOfSeedPoints);
+    DistanceTablesUpdater(GL& gl, unsigned int numberOfSeedPoints);
 
     void NewFiber(Fiber* fiber) override;
 

@@ -2,10 +2,9 @@
 // Created by rutger on 11/17/20.
 //
 
-#include <GL/glew.h>
 #include "TriangleRenderer.h"
 
-TriangleRenderer::TriangleRenderer()
+TriangleRenderer::TriangleRenderer(GL& gl) : gl(gl)
 {
     const char *vertexShaderSource = "#version 330 core\n"
                                      "layout (location = 0) in vec3 aPos;\n"
@@ -15,10 +14,10 @@ TriangleRenderer::TriangleRenderer()
                                      "}\0";
 
     unsigned int vertexShader;
-    vertexShader = glCreateShader(GL_VERTEX_SHADER);
+    vertexShader = gl.glCreateShader(GL_VERTEX_SHADER);
 
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+    gl.glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
+    gl.glCompileShader(vertexShader);
 
     const char *fragmentShaderSource = "#version 330 core\n"
                                        "out vec4 FragColor;\n"
@@ -30,38 +29,38 @@ TriangleRenderer::TriangleRenderer()
 
 
     unsigned int fragmentShader;
-    fragmentShader = glCreateShader(GL_FRAGMENT_SHADER);
-    glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
-    glCompileShader(fragmentShader);
+    fragmentShader = gl.glCreateShader(GL_FRAGMENT_SHADER);
+    gl.glShaderSource(fragmentShader, 1, &fragmentShaderSource, NULL);
+    gl.glCompileShader(fragmentShader);
 
-    shaderProgram = glCreateProgram();
-    glAttachShader(shaderProgram, vertexShader);
-    glAttachShader(shaderProgram, fragmentShader);
-    glLinkProgram(shaderProgram);
+    shaderProgram = gl.glCreateProgram();
+    gl.glAttachShader(shaderProgram, vertexShader);
+    gl.glAttachShader(shaderProgram, fragmentShader);
+    gl.glLinkProgram(shaderProgram);
 
-    glDeleteShader(vertexShader);
-    glDeleteShader(fragmentShader);
+    gl.glDeleteShader(vertexShader);
+    gl.glDeleteShader(fragmentShader);
 
 
-    glUseProgram(shaderProgram);
+    gl.glUseProgram(shaderProgram);
 
-    glGenBuffers(1, &VBO);
-    glGenVertexArrays(1, &VAO);
+    gl.glGenBuffers(1, &VBO);
+    gl.glGenVertexArrays(1, &VAO);
 
     // 1. bind Vertex Array Object
-    glBindVertexArray(VAO);
+    gl.glBindVertexArray(VAO);
     // 2. copy our vertices array in a buffer for OpenGL to use
-    glBindBuffer(GL_ARRAY_BUFFER, VBO);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
+    gl.glBindBuffer(GL_ARRAY_BUFFER, VBO);
+    gl.glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
     // 3. then set our vertex attributes pointers
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    gl.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    gl.glEnableVertexAttribArray(0);
 }
 
 void TriangleRenderer::Render()
 {
-    glUseProgram(shaderProgram);
-    glBindVertexArray(VAO);
+    gl.glUseProgram(shaderProgram);
+    gl.glBindVertexArray(VAO);
 
     glDrawArrays(GL_TRIANGLES, 0, 3);
 }

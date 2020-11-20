@@ -6,10 +6,12 @@
 #include <iostream>
 #include <QtGui/QOpenGLShader>
 
-VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap,
+VisitationMapUpdater::VisitationMapUpdater(GL& gl,
+                                           VisitationMap& visitationMap,
                                            RegionsOfInterest& regionsOfInterest,
                                            const DistanceTableCollection& distanceTables)
-   : visitationMap(visitationMap),
+   : gl(gl),
+     visitationMap(visitationMap),
      regionsOfInterest(regionsOfInterest),
      distanceTables(distanceTables)
 {
@@ -46,54 +48,54 @@ void VisitationMapUpdater::initialize()
     GLint vmProp_loc;
     GLuint programId = shaderProgram->programId();
 
-    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
-    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmax");
-    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmax());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymin");
-    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.ymax");
-    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmax());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmin");
-    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmin());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.zmax");
-    glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmax());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
+    gl.glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmin());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.dataset_aabb.xmax");
+    gl.glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmax());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.dataset_aabb.ymin");
+    gl.glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmin());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.dataset_aabb.ymax");
+    gl.glProgramUniform1i(programId, vmProp_loc, visitationMap.GetYmax());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.dataset_aabb.zmin");
+    gl.glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmin());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.dataset_aabb.zmax");
+    gl.glProgramUniform1i(programId, vmProp_loc, visitationMap.GetZmax());
 
-    vmProp_loc = glGetUniformLocation(programId, "vmp.cellSize");
-    glProgramUniform1f(programId, vmProp_loc, visitationMap.GetSpacing());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.cellSize");
+    gl.glProgramUniform1f(programId, vmProp_loc, visitationMap.GetSpacing());
 
-    vmProp_loc = glGetUniformLocation(programId, "vmp.width");
-    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetWidth());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.height");
-    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetHeight());
-    vmProp_loc = glGetUniformLocation(programId, "vmp.depth");
-    glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.width");
+    gl.glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetWidth());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.height");
+    gl.glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetHeight());
+    vmProp_loc = gl.glGetUniformLocation(programId, "vmp.depth");
+    gl.glProgramUniform1ui(programId, vmProp_loc, visitationMap.GetDepth());
 
     //Visitation Map frequencies itself
     GLuint visitation_map_ssbo_id = visitationMap.GetSSBOId();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitation_map_ssbo_id);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitation_map_ssbo_id);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitation_map_ssbo_id);
+    gl.glBufferData(GL_SHADER_STORAGE_BUFFER, visitationMap.GetNumberOfBytes(), visitationMap.GetData(), GL_DYNAMIC_DRAW);
+    gl.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitation_map_ssbo_id);
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     delete[] visitationMap.GetData(); //reduce internal memory load
 
     regionsOfInterest.Initialize();
 
-    glGenBuffers(1, &fiber_segments_ssbo_id);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+    gl.glGenBuffers(1, &fiber_segments_ssbo_id);
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
+    gl.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     std::vector<double> distanceScores = distanceTables.GetDistanceScoreCopy();
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
-    glBufferData(GL_SHADER_STORAGE_BUFFER, distanceScores.size() * sizeof(double), distanceScores.data(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
+    gl.glBufferData(GL_SHADER_STORAGE_BUFFER, distanceScores.size() * sizeof(double), distanceScores.data(), GL_DYNAMIC_DRAW);
+    gl.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     //Get the limitations on the number of work groups the GPU supports
-    glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNrOfWorkGroups);
+    gl.glGetIntegeri_v(GL_MAX_COMPUTE_WORK_GROUP_COUNT, 0, &maxNrOfWorkGroups);
 }
 
 void VisitationMapUpdater::NewFiber(Fiber* fiber)
@@ -126,33 +128,33 @@ void VisitationMapUpdater::Update()
 
     shaderProgram->bind();
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
-    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Fiber::LineSegment) * segments.size(), segments.data(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
+    gl.glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Fiber::LineSegment) * segments.size(), segments.data(), GL_DYNAMIC_DRAW);
+    gl.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 2, fiber_segments_ssbo_id);
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
     std::vector<double> distanceScores = distanceTables.GetDistanceScoreCopy();
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
-    glBufferData(GL_SHADER_STORAGE_BUFFER, distanceScores.size() * sizeof(double), distanceScores.data(), GL_DYNAMIC_DRAW);
-    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
+    gl.glBufferData(GL_SHADER_STORAGE_BUFFER, distanceScores.size() * sizeof(double), distanceScores.data(), GL_DYNAMIC_DRAW);
+    gl.glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 3, distanceTables.GetSSBOId());
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, 0); // unbind
 
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
-    glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());
+    gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, distanceTables.GetSSBOId());
 
     int numberOfLineSegments = segments.size();
     int numberOfWorkGroups = numberOfLineSegments;
     //int numberOfWorkGroups = std::min(numberOfEdges, maxNrOfWorkGroups); //TODO: we do not want to dispatch more workgroups than the GPU supports
     //minimum supported is 65535
 
-    glDispatchCompute(
+    gl.glDispatchCompute(
             nextPowerOfTwo(visitationMap.GetWidth() / 8),
             nextPowerOfTwo(visitationMap.GetHeight() / 8),
             nextPowerOfTwo(visitationMap.GetDepth() / 8)
     );
 
-    glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
+    gl.glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
 }
 
 void VisitationMapUpdater::fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments)

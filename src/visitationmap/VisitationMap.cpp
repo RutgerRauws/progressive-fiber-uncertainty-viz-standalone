@@ -4,7 +4,6 @@
 
 #include "VisitationMap.h"
 
-#include <GL/glew.h>
 #include <algorithm>
 #include <cmath>
 #include <iostream>
@@ -12,8 +11,9 @@
 #include <Configuration.h>
 #include "glm/glm.hpp"
 
-VisitationMap::VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing)
-    : xmin(std::floor(xmin / spacing)),
+VisitationMap::VisitationMap(GL& gl, GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing)
+    : gl(gl),
+      xmin(std::floor(xmin / spacing)),
       xmax(std::ceil(xmax / spacing)),
       ymin(std::floor(ymin / spacing)),
       ymax(std::ceil(ymax / spacing)),
@@ -50,7 +50,7 @@ void VisitationMap::initialize()
     cell_data = new Cell[numberOfCells];
     std::memset(cell_data, 0, sizeof(Cell) * numberOfCells);
 
-    glGenBuffers(1, &cells_ssbo);
+    gl.glGenBuffers(1, &cells_ssbo);
 //    glBindBuffer(GL_SHADER_STORAGE_BUFFER, frequency_map_ssbo);
 //    glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(unsigned int) * width * height * depth, &frequency_data, GL_DYNAMIC_DRAW);
 //    glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, frequency_map_ssbo);
@@ -71,7 +71,7 @@ void VisitationMap::getIndices(const glm::vec3& point, unsigned int& x_index, un
     z_index = uint((point.z - zmin * spacing) / spacing);
 }
 
-VisitationMap VisitationMap::CreateTest()
+VisitationMap VisitationMap::CreateTest(GL& gl)
 {
     const float DTI_XMIN = -112;
     const float DTI_XMAX =  112;
@@ -90,22 +90,9 @@ VisitationMap VisitationMap::CreateTest()
 //    const unsigned int height = 112;
 //    const unsigned int depth  = 70;
 //    const float spacing = 2;
-    VisitationMap visitationMap(DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, Configuration::getInstance().SIDE_SIZE);
+    VisitationMap visitationMap(gl, DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, Configuration::getInstance().SIDE_SIZE);
 //    visitationMap.makeSphere();
 //    VisitationMap visitationMap = CreateVisitationMap(SEED_POINT, MAX_FIBER_LENGTH);
 
     return visitationMap;
-}
-
-VisitationMap VisitationMap::CreateVisitationMap(const glm::vec3& seedPoint, float cutoffLength)
-{
-    return VisitationMap(
-            seedPoint.x - cutoffLength,
-            seedPoint.x + cutoffLength,
-            seedPoint.y - cutoffLength,
-            seedPoint.y + cutoffLength,
-            seedPoint.z - cutoffLength,
-            seedPoint.z + cutoffLength,
-            2
-    );
 }

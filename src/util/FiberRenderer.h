@@ -9,12 +9,15 @@
 #include "FiberObserver.h"
 #include "../interaction/KeyPressObserver.h"
 #include "RenderElement.h"
+#include "GL.h"
 
 class FiberRenderer : public FiberObserver, RenderElement
 {
     private:
         static constexpr auto VERTEX_SHADER_PATH   = "./shaders/fibers/vertex.glsl";
         static constexpr auto FRAGMENT_SHADER_PATH = "./shaders/fibers/fragment.glsl";
+
+        GL& gl;
 
         //Fiber storage
         std::vector<float> verticesVector;
@@ -31,7 +34,7 @@ class FiberRenderer : public FiberObserver, RenderElement
         void updateData();
 
     public:
-        explicit FiberRenderer(const Camera& camera);
+        FiberRenderer(GL& gl, const Camera& camera);
 
         void NewFiber(Fiber* fiber) override;
         void Render() override;

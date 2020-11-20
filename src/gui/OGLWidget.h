@@ -13,12 +13,18 @@
 #include "src/util/FiberPublisher.h"
 #include <QtWidgets/QOpenGLWidget>
 #include <QtCore/QTimer>
+#include <QOpenGLDebugLogger>
 #include <src/util/TriangleRenderer.h>
 
-class OGLWidget : public QOpenGLWidget
+class OGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core
 {
+    Q_OBJECT
+
     private:
         const unsigned int RENDER_INTERVAL_MS = 33; //30fps
+
+        QSurfaceFormat format;
+        QOpenGLDebugLogger* logger = nullptr;
 
         bool initialized = false;
         VisitationMapUpdater* visitationMapUpdater = nullptr;
@@ -43,6 +49,7 @@ class OGLWidget : public QOpenGLWidget
 
     protected slots:
         void render() { paintGL(); update(); };
+        void onMessageLogged(QOpenGLDebugMessage message);
 
     public:
         explicit OGLWidget(QWidget *parent = 0);

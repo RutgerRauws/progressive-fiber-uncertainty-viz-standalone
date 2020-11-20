@@ -6,7 +6,6 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_UPDATER_H
 
 #include <string>
-#include <GL/glew.h>
 #include <mutex>
 #include <QtGui/QOpenGLShaderProgram>
 #include "VisitationMap.h"
@@ -17,6 +16,8 @@ class VisitationMapUpdater : public FiberObserver
 {
     private:
         const std::string COMPUTE_SHADER_PATH = "./shaders/visitationmap/compute.glsl";
+
+        GL& gl;
 
         QOpenGLShaderProgram* shaderProgram = nullptr;
 
@@ -36,7 +37,8 @@ class VisitationMapUpdater : public FiberObserver
         void fiberQueueToSegmentVertices(std::vector<Fiber::LineSegment>& outSegments);
 
     public:
-        VisitationMapUpdater(VisitationMap& visitationMap,
+        VisitationMapUpdater(GL& gl,
+                             VisitationMap& visitationMap,
                              RegionsOfInterest& regionsOfInterest,
                              const DistanceTableCollection& distanceTables);
         ~VisitationMapUpdater();

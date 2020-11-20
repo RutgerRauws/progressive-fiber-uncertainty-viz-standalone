@@ -8,6 +8,7 @@
 
 #include <vector>
 #include <mutex>
+#include <src/util/GL.h>
 #include "DistanceTable.h"
 
 class DistanceTableCollection
@@ -21,7 +22,7 @@ private:
     GLuint distance_scores_ssbo_id;
 
 public:
-    explicit DistanceTableCollection(unsigned int numberOfSeedPoints);
+    explicit DistanceTableCollection(GL& gl, unsigned int numberOfSeedPoints);
 
     void InsertFiber(unsigned int seedPointId, Fiber* fiber);
 

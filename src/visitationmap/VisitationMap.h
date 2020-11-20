@@ -5,6 +5,7 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_VISITATION_MAP_H
 
+#include <src/util/GL.h>
 #include "glm/vec3.hpp"
 #include "AxisAlignedBoundingBox.h"
 
@@ -18,6 +19,8 @@ private:
         GLuint numberOfFibers = 0;                                      // 4 bytes
         GLuint representativeFibers[NUMBER_OF_REPRESENTATIVE_FIBERS];   // NUMBER_OF_REPRESENTATIVE_FIBERS * 4 bytes
     };
+
+    GL& gl;
 
     GLint xmin, xmax, ymin, ymax, zmin, zmax;
     GLfloat spacing;
@@ -33,11 +36,10 @@ private:
     void makeSphere();
 
 public:
-    VisitationMap(GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing);
+    VisitationMap(GL& gl, GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing);
     ~VisitationMap();
 
-    static VisitationMap CreateTest();
-    static VisitationMap CreateVisitationMap(const glm::vec3& seedPoint, float cutoffLength);
+    static VisitationMap CreateTest(GL& gl);
 
     GLint GetXmin() const { return xmin; }
     GLint GetYmin() const { return ymin; }

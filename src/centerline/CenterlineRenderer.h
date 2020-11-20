@@ -8,6 +8,7 @@
 
 #include <functional>
 #include <mutex>
+#include "src/util/GL.h"
 #include "../interaction/KeyPressObserver.h"
 #include "../util/Fiber.h"
 #include "../util/FiberObserver.h"
@@ -18,8 +19,10 @@ class CenterlineRenderer : public FiberObserver, RenderElement
 {
     private:
         static constexpr auto VERTEX_SHADER_PATH   = "./shaders/centerline/vertex.glsl";
-        static constexpr auto GEOMETRY_SHADER_PATH   = "./shaders/centerline/geometry.glsl";
+        static constexpr auto GEOMETRY_SHADER_PATH = "./shaders/centerline/geometry.glsl";
         static constexpr auto FRAGMENT_SHADER_PATH = "./shaders/centerline/fragment.glsl";
+
+        GL& gl;
 
         unsigned int numberOfSeedPoints;
 
@@ -44,8 +47,7 @@ class CenterlineRenderer : public FiberObserver, RenderElement
 
 
 public:
-        CenterlineRenderer(const DistanceTableCollection& distanceTables,
-                           const Camera& camera);
+        CenterlineRenderer(GL& gl, const DistanceTableCollection& distanceTables, const Camera& camera);
 
         void NewFiber(Fiber* fiber) override;
         void Render() override;

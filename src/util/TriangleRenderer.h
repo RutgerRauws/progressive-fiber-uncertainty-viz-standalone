@@ -5,10 +5,13 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_TRIANGLERENDERER_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_TRIANGLERENDERER_H
 
+#include "GL.h"
 
 class TriangleRenderer
 {
 private:
+    GL& gl;
+
     unsigned int shaderProgram;
     unsigned int VBO, VAO;
 
@@ -19,7 +22,7 @@ private:
     };
 
 public:
-    TriangleRenderer();
+    TriangleRenderer(GL& gl);
 
     void Render();
 };

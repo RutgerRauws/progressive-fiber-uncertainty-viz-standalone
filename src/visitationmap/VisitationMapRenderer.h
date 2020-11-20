@@ -19,6 +19,8 @@ class VisitationMapRenderer : public RenderElement, public FiberObserver
         static constexpr auto   VERTEX_SHADER_PATH         = "./shaders/visitationmap/vertex.glsl";
         static constexpr auto   FRAGMENT_SHADER_PATH       = "./shaders/visitationmap/fragment.glsl";
 
+        GL& gl;
+
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;
         const DistanceTableCollection& distanceTables;
@@ -37,7 +39,8 @@ class VisitationMapRenderer : public RenderElement, public FiberObserver
         unsigned int computeFrequencyIsovalue() const;
 
     public:
-        VisitationMapRenderer(VisitationMap& visitationMap,
+        VisitationMapRenderer(GL& gl,
+                              VisitationMap& visitationMap,
                               RegionsOfInterest& regionsOfInterest,
                               const DistanceTableCollection& distanceTables,
                               const Camera& camera);

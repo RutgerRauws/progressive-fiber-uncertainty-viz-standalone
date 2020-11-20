@@ -1,10 +1,12 @@
 #include "main.h"
 
-#include <src/gui/UserInterface.h>
 #include <QtOpenGL/qgl.h>
-#include <src/util/Camera.h>
-#include <src/interaction/TrackBallMovementHandler.h>
+
+#include "src/gui/UserInterface.h"
+#include "src/util/Camera.h"
+#include "src/interaction/TrackBallMovementHandler.h"
 #include "src/interaction/InteractionManager.h"
+#include "src/gui/OGLWidget.h"
 
 
 int main(int argc, char* argv[])
@@ -14,19 +16,22 @@ int main(int argc, char* argv[])
     UserInterface ui;
     ui.Show();
 
-    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
-    DistanceTablesUpdater distanceTablesUpdater(fiberPublisher.GetNumberOfSeedPoints());
+    QOpenGLContext& context = *dynamic_cast<QOpenGLWidget*>(ui.GetOpenGLWidget())->context();
+    GL gl(context);
 
-    VisitationMap visitationMap(VisitationMap::CreateTest());
-    RegionsOfInterest regionsOfInterest(fiberPublisher.GetNumberOfSeedPoints());
-    VisitationMapUpdater visitationMapUpdater(visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables());
+    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
+    DistanceTablesUpdater distanceTablesUpdater(gl, fiberPublisher.GetNumberOfSeedPoints());
+
+    VisitationMap visitationMap(VisitationMap::CreateTest(gl));
+    RegionsOfInterest regionsOfInterest(gl, fiberPublisher.GetNumberOfSeedPoints());
+    VisitationMapUpdater visitationMapUpdater(gl, visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables());
 
     Camera camera;
     TrackBallMovementHandler movementHandler(camera);
 
-    VisitationMapRenderer visitationMapRenderer(visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables(), camera);
-    CenterlineRenderer centerlineRenderer(distanceTablesUpdater.GetDistanceTables(), camera);
-    FiberRenderer fiberRenderer(camera);
+    VisitationMapRenderer visitationMapRenderer(gl, visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables(), camera);
+    CenterlineRenderer centerlineRenderer(gl, distanceTablesUpdater.GetDistanceTables(), camera);
+    FiberRenderer fiberRenderer(gl, camera);
 
     fiberPublisher.RegisterObserver(distanceTablesUpdater);
     fiberPublisher.RegisterObserver(visitationMapUpdater);

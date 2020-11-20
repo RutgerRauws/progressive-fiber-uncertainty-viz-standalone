@@ -1,13 +1,11 @@
 //
 // Created by rutger on 11/16/20.
 //
-
-#include <GL/glew.h>
-
 #include <libs/glm/ext.hpp>
 #include <ostream>
 #include <QtGui/QOffscreenSurface>
 #include <QMouseEvent>
+#include <QtGui/QOpenGLDebugLogger>
 #include "src/visitationmap/VisitationMap.h"
 #include "main.h"
 #include "OGLWidget.h"
@@ -30,9 +28,11 @@ OGLWidget::OGLWidget(QWidget* parent)
         : QOpenGLWidget(parent),
           mouseDelta(glm::ivec2(0, 0))
 {
-    QSurfaceFormat format;
     format.setVersion(4, 3);
     format.setProfile( QSurfaceFormat::CoreProfile );
+    #ifdef DEBUG
+    format.setOption(QSurfaceFormat::DebugContext);
+    #endif
     format.setDepthBufferSize(24);
     QSurfaceFormat::setDefaultFormat(format);
     this->setFormat(format);
@@ -49,37 +49,28 @@ OGLWidget::~OGLWidget()
     delete pTimer;
 }
 
+void OGLWidget::onMessageLogged( QOpenGLDebugMessage message )
+{
+    qDebug() << message;
+}
 
 void OGLWidget::initializeGL()
 {
-    glewExperimental = GL_TRUE;
-
-    GLenum err = glewInit();
-    if(err != GLEW_OK)
-    {
-        /* Problem: glewInit failed, something is seriously wrong. */
-        throw std::runtime_error(reinterpret_cast<const char *>(glewGetErrorString(err)));
-    }
-    std::cout << "Status: Using GLEW " << glewGetString(GLEW_VERSION) << std::endl;
-
-    if(!GLEW_VERSION_4_3)
-    {
-        throw std::runtime_error("OpenGL version 4.3 is not supported.");
-    }
-
-    if(!GLEW_ARB_shader_storage_buffer_object)
-    {
-        /* Problem: we cannot use SSBOs, which is necessary to keep our algorithm performant. */
-        throw std::runtime_error("SSBOs are not supported for this graphics card (missing ARB_shader_storage_buffer_object).");
-    }
+    initializeOpenGLFunctions();
 
     #ifdef DEBUG
-    // During init, enable debug output
-    glEnable(GL_DEBUG_OUTPUT);
-    glDebugMessageCallback(MessageCallback, 0);
+        QOpenGLContext *ctx = QOpenGLContext::currentContext();
+        logger = new QOpenGLDebugLogger(this);
+
+        connect(logger, SIGNAL(messageLogged(QOpenGLDebugMessage)), this, SLOT(onMessageLogged(QOpenGLDebugMessage)), Qt::DirectConnection);
+
+        logger->initialize(); // initializes in the current context, i.e. ctx
+
+        logger->startLogging();
+        logger->enableMessages();
     #endif
 
-
+    makeCurrent();
 
     glEnable(GL_DEPTH_TEST);
     glEnable(GL_BLEND);

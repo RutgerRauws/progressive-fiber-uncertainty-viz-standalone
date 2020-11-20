@@ -4,8 +4,8 @@
 
 #include "DistanceTablesUpdater.h"
 
-DistanceTablesUpdater::DistanceTablesUpdater(unsigned int numberOfSeedPoints)
-    : distanceTables(numberOfSeedPoints)
+DistanceTablesUpdater::DistanceTablesUpdater(GL& gl, unsigned int numberOfSeedPoints)
+    : distanceTables(gl, numberOfSeedPoints)
 {}
 
 void DistanceTablesUpdater::NewFiber(Fiber* fiber)

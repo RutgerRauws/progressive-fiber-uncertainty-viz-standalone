@@ -2,14 +2,15 @@
 // Created by rutger on 8/1/20.
 //
 
-#include <GL/glew.h>
 #include <Configuration.h>
 #include "CenterlineRenderer.h"
 #include "DistanceTablesUpdater.h"
 
-CenterlineRenderer::CenterlineRenderer(const DistanceTableCollection& distanceTables,
+CenterlineRenderer::CenterlineRenderer(GL& gl,
+                                       const DistanceTableCollection& distanceTables,
                                        const Camera& camera)
     : RenderElement(VERTEX_SHADER_PATH, GEOMETRY_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
+      gl(gl),
       distanceTables(distanceTables),
       numberOfSeedPoints(distanceTables.GetNumberOfSeedPoints()),
       showCenterlineLoc(-1),
@@ -29,17 +30,17 @@ void CenterlineRenderer::initialize()
 
     shaderProgram->bind();
 
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
+    gl.glGenVertexArrays(1, &vao);
+    gl.glGenBuffers(1, &vbo);
 
     //Get uniform locations
-    modelMatLoc = glGetUniformLocation(shaderProgram->programId(), "modelMat");
-    viewMatLoc = glGetUniformLocation(shaderProgram->programId(), "viewMat");
-    projMatLoc = glGetUniformLocation(shaderProgram->programId(), "projMat");
+    modelMatLoc = gl.glGetUniformLocation(shaderProgram->programId(), "modelMat");
+    viewMatLoc = gl.glGetUniformLocation(shaderProgram->programId(), "viewMat");
+    projMatLoc = gl.glGetUniformLocation(shaderProgram->programId(), "projMat");
 
-    cameraPosLoc = glGetUniformLocation(shaderProgram->programId(), "cameraPosition");
+    cameraPosLoc = gl.glGetUniformLocation(shaderProgram->programId(), "cameraPosition");
 
-    showCenterlineLoc = glGetUniformLocation(shaderProgram->programId(), "showFibers");
+    showCenterlineLoc = gl.glGetUniformLocation(shaderProgram->programId(), "showFibers");
 }
 
 void CenterlineRenderer::updateData()
@@ -79,14 +80,14 @@ void CenterlineRenderer::updateData()
 
 void CenterlineRenderer::sendData()
 {
-    glBindVertexArray(vao);
+    gl.glBindVertexArray(vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW); //TODO: there was a segfault here before, but not sure why
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-    glEnableVertexAttribArray(0);
+    gl.glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    gl.glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW); //TODO: there was a segfault here before, but not sure why
+    gl.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    gl.glEnableVertexAttribArray(0);
 
-    glBindVertexArray(0);
+    gl.glBindVertexArray(0);
 }
 
 void CenterlineRenderer::NewFiber(Fiber* fiber)
@@ -108,20 +109,20 @@ void CenterlineRenderer::Render()
     mtx.lock();
     sendData();
 
-    glBindVertexArray(vao);
+    gl.glBindVertexArray(vao);
 
-    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
-    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
+    gl.glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
+    gl.glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+    gl.glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    glUniform1i(showCenterlineLoc, Configuration::getInstance().SHOW_REPRESENTATIVE_FIBERS);
+    gl.glUniform1i(showCenterlineLoc, Configuration::getInstance().SHOW_REPRESENTATIVE_FIBERS);
 
-    glUniform3f(cameraPosLoc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
+    gl.glUniform3f(cameraPosLoc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
 
-    glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
+    gl.glMultiDrawArrays(GL_LINE_STRIP, &firstVertexOfEachFiber.front(), &numberOfVerticesPerFiber.front(), numberOfFibers);
     mtx.unlock();
 
-    glBindVertexArray(0);
+    gl.glBindVertexArray(0);
 }
 
 unsigned int CenterlineRenderer::GetNumberOfVertices()

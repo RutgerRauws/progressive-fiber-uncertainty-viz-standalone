@@ -37,28 +37,13 @@ add_executable(${EXECUTABLE_NAME}
     src/gui/OGLWidget.cpp src/gui/OGLWidget.h
     src/util/Camera.cpp src/util/Camera.h
     Configuration.h
-)
+        src/util/GL.h)
 
 INCLUDE_DIRECTORIES("libs")
 
-#Find any version 2.X of SFML
-#See the FindSFML.cmake file for additional details and instructions
-#find_package(SFML 2.5 COMPONENTS graphics window system REQUIRED)
-
-## OpenGL
-#find_package(OpenGL REQUIRED)
-#include_directories(${OPENGL_INCLUDE_DIR})
-#if (OPENGL_FOUND)
-#    target_link_libraries(${EXECUTABLE_NAME} ${OPENGL_LIBRARIES})
-#    # or: target_link_libraries(${EXECUTABLE_NAME} ${OPENGL_gl_LIBRARY})
-#    target_link_libraries(${EXECUTABLE_NAME} m)  # if you use maths.h
-#endif()
-
-
 target_link_libraries(progressive_fiber_uncertainty_viz
     ${VTK_LIBRARIES}
-    -lGL -lGLU -lGLEW
-    #sfml-graphics sfml-window sfml-system
+    -lGL
     Qt5::Core Qt5::Gui Qt5::Widgets
 )
 

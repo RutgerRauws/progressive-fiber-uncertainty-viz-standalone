@@ -2,13 +2,13 @@
 // Created by rutger on 7/2/20.
 //
 
-#include <GL/glew.h>
-#include <Configuration.h>
+#include "Configuration.h"
 #include "FiberRenderer.h"
 #include "glm/ext.hpp"
 
-FiberRenderer::FiberRenderer(const Camera& camera)
+FiberRenderer::FiberRenderer(GL& gl, const Camera& camera)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
+      gl(gl),
       numberOfFibers(0)
 {
     initialize();
@@ -18,15 +18,15 @@ void FiberRenderer::initialize()
 {
     shaderProgram->bind();
 
-    glGenVertexArrays(1, &vao);
-    glGenBuffers(1, &vbo);
+    gl.glGenVertexArrays(1, &vao);
+    gl.glGenBuffers(1, &vbo);
 
     //Get uniform locations
-    modelMatLoc = glGetUniformLocation(shaderProgram->programId(), "modelMat");
-    viewMatLoc = glGetUniformLocation(shaderProgram->programId(), "viewMat");
-    projMatLoc = glGetUniformLocation(shaderProgram->programId(), "projMat");
+    modelMatLoc = gl.glGetUniformLocation(shaderProgram->programId(), "modelMat");
+    viewMatLoc  = gl.glGetUniformLocation(shaderProgram->programId(), "viewMat");
+    projMatLoc  = gl.glGetUniformLocation(shaderProgram->programId(), "projMat");
 
-    showFibersLoc = glGetUniformLocation(shaderProgram->programId(), "showFibers");
+    showFibersLoc = gl.glGetUniformLocation(shaderProgram->programId(), "showFibers");
 }
 
 void FiberRenderer::updateData()
@@ -37,14 +37,14 @@ void FiberRenderer::updateData()
     }
 
     mtx.lock();
-    glBindVertexArray(vao);
+    gl.glBindVertexArray(vao);
 
-    glBindBuffer(GL_ARRAY_BUFFER, vbo);
-    glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW); //TODO: there was a segfault here before, but not sure why
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
-    glEnableVertexAttribArray(0);
+    gl.glBindBuffer(GL_ARRAY_BUFFER, vbo);
+    gl.glBufferData(GL_ARRAY_BUFFER, GetNumberOfBytes(), GetVertexBufferData(), GL_DYNAMIC_DRAW); //TODO: there was a segfault here before, but not sure why
+    gl.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), 0);
+    gl.glEnableVertexAttribArray(0);
 
-    glBindVertexArray(0);
+    gl.glBindVertexArray(0);
 
     mtx.unlock();
 }
@@ -82,17 +82,17 @@ void FiberRenderer::Render()
 
     updateData();
 
-    glBindVertexArray(vao);
+    gl.glBindVertexArray(vao);
 
-    glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
-    glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
-    glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
+    gl.glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
+    gl.glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
+    gl.glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    glUniform1i(showFibersLoc, Configuration::getInstance().SHOW_FIBER_SAMPLES);
+    gl.glUniform1i(showFibersLoc, Configuration::getInstance().SHOW_FIBER_SAMPLES);
 
-    glMultiDrawArrays(GL_LINE_STRIP, firstVertexOfEachFiber.data(), numberOfVerticesPerFiber.data(), numberOfFibers);
+    gl.glMultiDrawArrays(GL_LINE_STRIP, firstVertexOfEachFiber.data(), numberOfVerticesPerFiber.data(), numberOfFibers);
 
-    glBindVertexArray(0);
+    gl.glBindVertexArray(0);
 }
 
 unsigned int FiberRenderer::GetNumberOfVertices()
