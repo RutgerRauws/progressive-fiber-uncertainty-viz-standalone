@@ -8,9 +8,8 @@
 #include <string>
 #include <GL/glew.h>
 #include <mutex>
+#include <QtGui/QOpenGLShaderProgram>
 #include "VisitationMap.h"
-#include "../util/Shader.h"
-#include "../util/ShaderProgram.h"
 #include "../util/FiberObserver.h"
 #include "../centerline/DistanceTableCollection.h"
 
@@ -19,7 +18,7 @@ class VisitationMapUpdater : public FiberObserver
     private:
         const std::string COMPUTE_SHADER_PATH = "./shaders/visitationmap/compute.glsl";
 
-        ShaderProgram* shaderProgram = nullptr;
+        QOpenGLShaderProgram* shaderProgram = nullptr;
 
         VisitationMap& visitationMap;
         RegionsOfInterest& regionsOfInterest;

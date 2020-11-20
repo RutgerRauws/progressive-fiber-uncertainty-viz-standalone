@@ -7,8 +7,8 @@
 
 #include <GL/gl.h>
 #include <iostream>
+#include <QtGui/QOpenGLShader>
 #include "glm/mat4x4.hpp"
-#include "ShaderProgram.h"
 #include "../interaction/MovementHandler.h"
 
 class RenderElement
@@ -20,10 +20,10 @@ class RenderElement
         float* vertices;
 
         //Shader variables
-        Shader* vertexShader = nullptr;
-        Shader* geometryShader = nullptr;
-        Shader* fragmentShader = nullptr;
-        ShaderProgram* shaderProgram = nullptr;
+        QOpenGLShader* vertexShader = nullptr;
+        QOpenGLShader* geometryShader = nullptr;
+        QOpenGLShader* fragmentShader = nullptr;
+        QOpenGLShaderProgram* shaderProgram = nullptr;
 
         GLuint vao;
         GLuint vbo;
@@ -48,53 +48,36 @@ public:
               vao(), vbo()
         {
             //Compile shaders and initialize shader program
-            try
-            {
-                vertexShader = Shader::LoadFromFile(vertexShaderPath, GL_VERTEX_SHADER);
-                vertexShader->Compile();
-            }
-            catch(const ShaderError& e)
-            {
-                std::cerr << "Could not compile vertex shader: " << e.what() << std::endl;
-                throw e;
-            }
+
+            vertexShader = new QOpenGLShader(QOpenGLShader::ShaderTypeBit::Vertex); // QOpenGLShader::compileSourceFile(vertexShaderPath);
+            vertexShader->compileSourceFile(QString(vertexShaderPath.data()));
+
 
             if(!geometryShaderPath.empty())
             {
-                try
-                {
-                    geometryShader = Shader::LoadFromFile(geometryShaderPath, GL_GEOMETRY_SHADER);
-                    geometryShader->Compile();
-                }
-                catch(const ShaderError& e)
-                {
-                    std::cerr << "Could not compile geometry shader: " << e.what() << std::endl;
-                    throw e;
-                }
+
+                geometryShader = new QOpenGLShader(QOpenGLShader::ShaderTypeBit::Geometry);
+                geometryShader->compileSourceFile(QString(geometryShaderPath.data()));
             }
 
-            try
-            {
-                fragmentShader = Shader::LoadFromFile(fragmentShaderPath, GL_FRAGMENT_SHADER);
-                fragmentShader->Compile();
-            }
-            catch(const ShaderError& e)
-            {
-                std::cerr << "Could not compile fragment shader: " << e.what() << std::endl;
-                throw e;
-            }
-
+            fragmentShader = new QOpenGLShader(QOpenGLShader::ShaderTypeBit::Fragment);
+            fragmentShader->compileSourceFile(QString(fragmentShaderPath.data()));
 
             if(geometryShaderPath.empty())
             {
-                Shader *shaders[2] = {vertexShader, fragmentShader};
-                shaderProgram = new ShaderProgram(shaders, 2);
+                shaderProgram = new QOpenGLShaderProgram();
+                shaderProgram->addShader(vertexShader);
+                shaderProgram->addShader(fragmentShader);
             }
             else
             {
-                Shader *shaders[3] = {vertexShader, geometryShader, fragmentShader};
-                shaderProgram = new ShaderProgram(shaders, 3);
+                shaderProgram = new QOpenGLShaderProgram();
+                shaderProgram->addShader(vertexShader);
+                shaderProgram->addShader(geometryShader);
+                shaderProgram->addShader(fragmentShader);
             }
+
+            shaderProgram->link();
 
             //Setup buffers
             vertices = nullptr;

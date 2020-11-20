@@ -27,19 +27,19 @@ void CenterlineRenderer::initialize()
         centerFibers.push_back(nullptr);
     }
 
-    shaderProgram->Use();
+    shaderProgram->bind();
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
     //Get uniform locations
-    modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
-    viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
-    projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
+    modelMatLoc = glGetUniformLocation(shaderProgram->programId(), "modelMat");
+    viewMatLoc = glGetUniformLocation(shaderProgram->programId(), "viewMat");
+    projMatLoc = glGetUniformLocation(shaderProgram->programId(), "projMat");
 
-    cameraPosLoc = glGetUniformLocation(shaderProgram->GetId(), "cameraPosition");
+    cameraPosLoc = glGetUniformLocation(shaderProgram->programId(), "cameraPosition");
 
-    showCenterlineLoc = glGetUniformLocation(shaderProgram->GetId(), "showFibers");
+    showCenterlineLoc = glGetUniformLocation(shaderProgram->programId(), "showFibers");
 }
 
 void CenterlineRenderer::updateData()
@@ -103,7 +103,7 @@ void CenterlineRenderer::NewFiber(Fiber* fiber)
 
 void CenterlineRenderer::Render()
 {
-    shaderProgram->Use();
+    shaderProgram->bind();
 
     mtx.lock();
     sendData();

@@ -4,6 +4,7 @@
 
 #include "VisitationMapUpdater.h"
 #include <iostream>
+#include <QtGui/QOpenGLShader>
 
 VisitationMapUpdater::VisitationMapUpdater(VisitationMap& visitationMap,
                                            RegionsOfInterest& regionsOfInterest,
@@ -22,25 +23,19 @@ VisitationMapUpdater::~VisitationMapUpdater()
 
 void VisitationMapUpdater::initialize()
 {
-    Shader* computeShader = nullptr;
+    QOpenGLShader* computeShader = nullptr;
 
-    try
-    {
-        computeShader = Shader::LoadFromFile(COMPUTE_SHADER_PATH, GL_COMPUTE_SHADER);
-        computeShader->Compile();
-    }
-    catch(const ShaderError& e)
-    {
-        std::cerr << "Could not compile compute shader: " << e.what() << std::endl;
-        throw e;
-    }
+    computeShader = new QOpenGLShader(QOpenGLShader::ShaderTypeBit::Compute);
+    computeShader->compileSourceFile(QString(COMPUTE_SHADER_PATH.data()));
 
-    Shader* shaders[1] = {computeShader};
-    shaderProgram = new ShaderProgram(shaders, 1);
+    shaderProgram = new QOpenGLShaderProgram();
+    shaderProgram->addShader(computeShader);
+
+    shaderProgram->link();
 
     delete computeShader; //it's not used anymore after compiling
 
-    shaderProgram->Use();
+    shaderProgram->bind();
 
     /***
      *
@@ -49,7 +44,7 @@ void VisitationMapUpdater::initialize()
      */
     //Visitation Map Properties
     GLint vmProp_loc;
-    GLuint programId = shaderProgram->GetId();
+    GLuint programId = shaderProgram->programId();
 
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
     glProgramUniform1i(programId, vmProp_loc, visitationMap.GetXmin());
@@ -129,7 +124,7 @@ void VisitationMapUpdater::Update()
     std::vector<Fiber::LineSegment> segments;
     fiberQueueToSegmentVertices(segments);
 
-    shaderProgram->Use();
+    shaderProgram->bind();
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, fiber_segments_ssbo_id);
     glBufferData(GL_SHADER_STORAGE_BUFFER, sizeof(Fiber::LineSegment) * segments.size(), segments.data(), GL_DYNAMIC_DRAW);

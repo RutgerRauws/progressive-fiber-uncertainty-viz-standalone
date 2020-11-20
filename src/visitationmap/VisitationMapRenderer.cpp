@@ -82,7 +82,7 @@ void VisitationMapRenderer::initialize()
 {
     Configuration& config = Configuration::getInstance();
 
-    shaderProgram->Use();
+    shaderProgram->bind();
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBufferBase(GL_SHADER_STORAGE_BUFFER, 0, visitationMap.GetSSBOId());
@@ -107,13 +107,13 @@ void VisitationMapRenderer::initialize()
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
     glEnableVertexAttribArray(0);
 
-    //Get uniform locations
-    modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
-    viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
-    projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
-
     //Visitation Map Properties
-    GLint programId = shaderProgram->GetId();
+    GLint programId = shaderProgram->programId();
+
+    //Get uniform locations
+    modelMatLoc = glGetUniformLocation(programId, "modelMat");
+    viewMatLoc = glGetUniformLocation(programId, "viewMat");
+    projMatLoc = glGetUniformLocation(programId, "projMat");
 
     GLint vmProp_loc;
     vmProp_loc = glGetUniformLocation(programId, "vmp.dataset_aabb.xmin");
@@ -163,19 +163,19 @@ void VisitationMapRenderer::Render()
 {
     Configuration& config = Configuration::getInstance();
 
-    shaderProgram->Use();
+    shaderProgram->bind();
     glBindVertexArray(vao);
 
     glUniformMatrix4fv(modelMatLoc, 1, GL_FALSE, glm::value_ptr(camera.modelMatrix));
     glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
     glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    glProgramUniform3f(shaderProgram->GetId(), cameraPos_loc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
+    glProgramUniform3f(shaderProgram->programId(), cameraPos_loc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
 
-    glProgramUniform1i(shaderProgram->GetId(), use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
-    glProgramUniform1i(shaderProgram->GetId(), use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
-    glProgramUniform1ui(shaderProgram->GetId(), frequency_isovalue_loc, computeFrequencyIsovalue());
-    glProgramUniform1d(shaderProgram->GetId(), distance_score_isovalue_loc, config.ISOVALUE_MAX_DISTANCE_SCORE);
+    glProgramUniform1i(shaderProgram->programId(), use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
+    glProgramUniform1i(shaderProgram->programId(), use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
+    glProgramUniform1ui(shaderProgram->programId(), frequency_isovalue_loc, computeFrequencyIsovalue());
+    glProgramUniform1d(shaderProgram->programId(), distance_score_isovalue_loc, config.ISOVALUE_MAX_DISTANCE_SCORE);
 
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());

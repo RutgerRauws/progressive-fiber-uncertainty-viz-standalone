@@ -16,17 +16,17 @@ FiberRenderer::FiberRenderer(const Camera& camera)
 
 void FiberRenderer::initialize()
 {
-    shaderProgram->Use();
+    shaderProgram->bind();
 
     glGenVertexArrays(1, &vao);
     glGenBuffers(1, &vbo);
 
     //Get uniform locations
-    modelMatLoc = glGetUniformLocation(shaderProgram->GetId(), "modelMat");
-    viewMatLoc = glGetUniformLocation(shaderProgram->GetId(), "viewMat");
-    projMatLoc = glGetUniformLocation(shaderProgram->GetId(), "projMat");
+    modelMatLoc = glGetUniformLocation(shaderProgram->programId(), "modelMat");
+    viewMatLoc = glGetUniformLocation(shaderProgram->programId(), "viewMat");
+    projMatLoc = glGetUniformLocation(shaderProgram->programId(), "projMat");
 
-    showFibersLoc = glGetUniformLocation(shaderProgram->GetId(), "showFibers");
+    showFibersLoc = glGetUniformLocation(shaderProgram->programId(), "showFibers");
 }
 
 void FiberRenderer::updateData()
@@ -78,7 +78,7 @@ void FiberRenderer::NewFiber(Fiber* fiber)
 
 void FiberRenderer::Render()
 {
-    shaderProgram->Use();
+    shaderProgram->bind();
 
     updateData();
 

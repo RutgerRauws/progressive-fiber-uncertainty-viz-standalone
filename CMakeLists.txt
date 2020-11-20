@@ -28,8 +28,6 @@ add_executable(${EXECUTABLE_NAME}
     src/visitationmap/VisitationMap.cpp src/visitationmap/VisitationMap.h
     src/visitationmap/VisitationMapUpdater.cpp src/visitationmap/VisitationMapUpdater.h
     src/visitationmap/VisitationMapRenderer.cpp src/visitationmap/VisitationMapRenderer.h
-    src/util/Shader.cpp src/util/Shader.h
-    src/util/ShaderProgram.cpp src/util/ShaderProgram.h
     src/interaction/MovementHandler.h
     src/interaction/FPSMovementHandler.cpp src/interaction/FPSMovementHandler.h
     src/interaction/TrackBallMovementHandler.cpp src/interaction/TrackBallMovementHandler.h
