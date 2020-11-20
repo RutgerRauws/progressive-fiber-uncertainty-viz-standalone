@@ -90,7 +90,7 @@ public:
     QHBoxLayout *distanceScoreSliderLayout;
     QSlider *distanceScoreSlider;
     QLabel *label_11;
-    QLabel *label_10;
+    QLabel *distanceScoreLabel;
     QLabel *label_9;
     QSpacerItem *verticalSpacer;
     QButtonGroup *buttonGroup;
@@ -357,12 +357,12 @@ public:
 
         distanceScoreSliderLayout->addWidget(label_11);
 
-        label_10 = new QLabel(distanceScoreWidget);
-        label_10->setObjectName(QString::fromUtf8("label_10"));
-        sizePolicy1.setHeightForWidth(label_10->sizePolicy().hasHeightForWidth());
-        label_10->setSizePolicy(sizePolicy1);
+        distanceScoreLabel = new QLabel(distanceScoreWidget);
+        distanceScoreLabel->setObjectName(QString::fromUtf8("distanceScoreLabel"));
+        sizePolicy1.setHeightForWidth(distanceScoreLabel->sizePolicy().hasHeightForWidth());
+        distanceScoreLabel->setSizePolicy(sizePolicy1);
 
-        distanceScoreSliderLayout->addWidget(label_10);
+        distanceScoreSliderLayout->addWidget(distanceScoreLabel);
 
         label_9 = new QLabel(distanceScoreWidget);
         label_9->setObjectName(QString::fromUtf8("label_9"));
@@ -434,7 +434,7 @@ public:
         label_7->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "Distance score threshold:", nullptr));
         label_11->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>&le;</p></body></html>", nullptr));
-        label_10->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        distanceScoreLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
         label_9->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(renderingTab), QCoreApplication::translate("MainWindow", "Rendering", nullptr));
     } // retranslateUi

@@ -146,7 +146,7 @@ void VisitationMapRenderer::initialize()
     gl.glProgramUniform1ui(programId, frequency_isovalue_loc, config.ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
 
     distance_score_isovalue_loc = gl.glGetUniformLocation(programId, "maxDistanceScoreIsovalueThreshold");
-    gl.glProgramUniform1d(programId, distance_score_isovalue_loc, config.ISOVALUE_MAX_DISTANCE_SCORE);
+    gl.glProgramUniform1d(programId, distance_score_isovalue_loc, config.ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE);
 
     use_frequency_isovalue_loc = gl.glGetUniformLocation(programId, "useFrequencyIsovalue");
     gl.glProgramUniform1i(programId, use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
@@ -158,6 +158,11 @@ void VisitationMapRenderer::initialize()
 unsigned int VisitationMapRenderer::computeFrequencyIsovalue() const
 {
     return std::ceil((float)numberOfFibers * Configuration::getInstance().ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
+}
+
+double VisitationMapRenderer::computeDistanceScoreIsovalue() const
+{
+    return distanceTables.GetLargestDistanceScore() * Configuration::getInstance().ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
 }
 
 void VisitationMapRenderer::Render()
@@ -176,7 +181,7 @@ void VisitationMapRenderer::Render()
     gl.glProgramUniform1i(shaderProgram->programId(), use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
     gl.glProgramUniform1i(shaderProgram->programId(), use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
     gl.glProgramUniform1ui(shaderProgram->programId(), frequency_isovalue_loc, computeFrequencyIsovalue());
-    gl.glProgramUniform1d(shaderProgram->programId(), distance_score_isovalue_loc, config.ISOVALUE_MAX_DISTANCE_SCORE);
+    gl.glProgramUniform1d(shaderProgram->programId(), distance_score_isovalue_loc, computeDistanceScoreIsovalue());
 
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());

@@ -51,8 +51,9 @@ void UserInterface::loadConfiguration()
     mainWindow.fiberFrequencySlider->setValue(100 - percentage);
     mainWindow.fiberFrequencyLabel->setText(QString::number(percentage));
 
-    //TODO: fix distance score slider
-    mainWindow.distanceScoreSlider->setValue(config.ISOVALUE_MAX_DISTANCE_SCORE);
+    percentage = (int)config.ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE * 100;
+    mainWindow.distanceScoreSlider->setValue(percentage);
+    mainWindow.distanceScoreLabel->setText(QString::number(percentage));
 
     mainWindow.fiberFrequencyWidget->setVisible(config.USE_FIBER_FREQUENCIES);
     mainWindow.distanceScoreWidget->setVisible(!config.USE_FIBER_FREQUENCIES);
@@ -99,10 +100,11 @@ void UserInterface::fiberFrequencySliderValueChanged(int value)
     int percentage = 100 - value;
 
     mainWindow.fiberFrequencyLabel->setText(QString::number(percentage));
-    Configuration::getInstance().ISOVALUE_MIN_FREQUENCY_PERCENTAGE = percentage / 100.0f;
+    Configuration::getInstance().ISOVALUE_MIN_FREQUENCY_PERCENTAGE = (float)percentage / 100.0f;
 }
 
 void UserInterface::distanceScoreSliderValueChanged(int value)
 {
-
+    mainWindow.distanceScoreLabel->setText(QString::number(value));
+    Configuration::getInstance().ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = (float)value / 100.0f;;
 }

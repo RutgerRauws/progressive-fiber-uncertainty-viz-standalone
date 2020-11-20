@@ -36,9 +36,12 @@ class VisitationMapRenderer : public RenderElement, public FiberObserver
         void createVertices();
         void initialize() override;
         void updateMinFrequencyIsovaluePercentage(float delta);
-        unsigned int computeFrequencyIsovalue() const;
 
-    public:
+        unsigned int computeFrequencyIsovalue() const;
+        double computeDistanceScoreIsovalue() const;
+
+
+public:
         VisitationMapRenderer(GL& gl,
                               VisitationMap& visitationMap,
                               RegionsOfInterest& regionsOfInterest,

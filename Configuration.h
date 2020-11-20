@@ -20,7 +20,7 @@ private:
         USE_FIBER_FREQUENCIES = true;
 
         ISOVALUE_MIN_FREQUENCY_PERCENTAGE = 0; //0%
-        ISOVALUE_MAX_DISTANCE_SCORE = 0.2f;
+        ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = 1; //100%
     };
 
 public:
@@ -36,7 +36,7 @@ public:
     bool USE_FIBER_FREQUENCIES; //when false it will use distance scores
 
     float  ISOVALUE_MIN_FREQUENCY_PERCENTAGE;
-    double ISOVALUE_MAX_DISTANCE_SCORE;
+    double ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
 
     static Configuration& getInstance()
     {

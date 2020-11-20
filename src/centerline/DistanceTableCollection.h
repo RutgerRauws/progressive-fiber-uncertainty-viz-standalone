@@ -21,6 +21,9 @@ private:
 
     GLuint distance_scores_ssbo_id;
 
+    double smallestDistanceScore;
+    double largestDistanceScore;
+
 public:
     explicit DistanceTableCollection(GL& gl, unsigned int numberOfSeedPoints);
 
@@ -32,6 +35,9 @@ public:
     std::vector<double> GetDistanceScoreCopy() const;
 
     GLuint GetSSBOId() const { return distance_scores_ssbo_id; };
+
+    double GetSmallestDistanceScore() const { return smallestDistanceScore; };
+    double GetLargestDistanceScore() const { return largestDistanceScore; };
 };
 
 

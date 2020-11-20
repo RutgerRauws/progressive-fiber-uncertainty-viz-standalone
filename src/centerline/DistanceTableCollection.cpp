@@ -5,6 +5,8 @@
 #include "DistanceTableCollection.h"
 
 DistanceTableCollection::DistanceTableCollection(GL& gl, unsigned int numberOfSeedPoints)
+    : smallestDistanceScore(std::numeric_limits<double>::max()),
+      largestDistanceScore(std::numeric_limits<double>::min())
 {
     distanceTables.reserve(numberOfSeedPoints);
 
@@ -25,6 +27,17 @@ void DistanceTableCollection::InsertFiber(unsigned int seedPointId, Fiber* fiber
 
     distanceScores.resize(fiber->GetId() + 1, nullptr);
     distanceScores.at(fiber->GetId()) = &(newDistanceEntry->distance);
+
+    if(newDistanceEntry->distance < smallestDistanceScore)
+    {
+        smallestDistanceScore = newDistanceEntry->distance;
+    }
+    else if(newDistanceEntry->distance > largestDistanceScore)
+    {
+        largestDistanceScore = newDistanceEntry->distance;
+    }
+
+
     mtx.unlock();
 }
 
