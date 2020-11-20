@@ -53,9 +53,6 @@ const float gradCalcRadius = 3; //0.75;
 const float INF_POS =  1. / 0.; //works from OpenGL 4.1 and on
 const float INF_NEG = -1. / 0.;
 
-//const float opacity = 0.7f;
-const float opacity = 1.0f;
-
 /*
  *
  * Uniforms
@@ -73,6 +70,7 @@ uniform double maxDistanceScoreIsovalueThreshold;
 uniform VisitationMapProperties vmp; //visitationMapProp
 
 uniform bool useInterpolation;
+uniform float opacity;
 
 /*
  *

@@ -21,6 +21,7 @@ UserInterface::UserInterface()
     OGLWidget::connect(mainWindow.distanceScoresRadioButton, &QRadioButton::clicked, this, &UserInterface::useDistanceScoresClicked);
     OGLWidget::connect(mainWindow.fiberFrequencySlider, &QSlider::valueChanged, this, &UserInterface::fiberFrequencySliderValueChanged);
     OGLWidget::connect(mainWindow.distanceScoreSlider, &QSlider::valueChanged, this, &UserInterface::distanceScoreSliderValueChanged);
+    OGLWidget::connect(mainWindow.opacitySlider, &QSlider::valueChanged, this, &UserInterface::opacitySliderValueChanged);
 }
 
 
@@ -47,16 +48,19 @@ void UserInterface::loadConfiguration()
     mainWindow.fiberFrequenciesRadioButton->setChecked(config.USE_FIBER_FREQUENCIES);
     mainWindow.distanceScoresRadioButton->setChecked(!config.USE_FIBER_FREQUENCIES);
 
-    int percentage = (int)config.ISOVALUE_MIN_FREQUENCY_PERCENTAGE * 100;
+    int percentage = (int)(config.ISOVALUE_MIN_FREQUENCY_PERCENTAGE * 100.0f);
     mainWindow.fiberFrequencySlider->setValue(100 - percentage);
     mainWindow.fiberFrequencyLabel->setText(QString::number(percentage));
 
-    percentage = (int)config.ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE * 100;
+    percentage = (int)(config.ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE * 100.0f);
     mainWindow.distanceScoreSlider->setValue(percentage);
     mainWindow.distanceScoreLabel->setText(QString::number(percentage));
 
     mainWindow.fiberFrequencyWidget->setVisible(config.USE_FIBER_FREQUENCIES);
     mainWindow.distanceScoreWidget->setVisible(!config.USE_FIBER_FREQUENCIES);
+
+    percentage = (int)(config.OPACITY * 100.0f);
+    mainWindow.opacitySlider->setValue(percentage);
 }
 
 void UserInterface::startButtonClicked()
@@ -106,5 +110,10 @@ void UserInterface::fiberFrequencySliderValueChanged(int value)
 void UserInterface::distanceScoreSliderValueChanged(int value)
 {
     mainWindow.distanceScoreLabel->setText(QString::number(value));
-    Configuration::getInstance().ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = (float)value / 100.0f;;
+    Configuration::getInstance().ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = (float)value / 100.0f;
+}
+
+void UserInterface::opacitySliderValueChanged(int value)
+{
+    Configuration::getInstance().OPACITY = (float)value / 100.0f;
 }

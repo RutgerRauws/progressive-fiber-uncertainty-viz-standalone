@@ -24,6 +24,7 @@ private:
     void useDistanceScoresClicked(bool checked);
     void fiberFrequencySliderValueChanged(int value);
     void distanceScoreSliderValueChanged(int value);
+    void opacitySliderValueChanged(int value);
 
 public:
     UserInterface();

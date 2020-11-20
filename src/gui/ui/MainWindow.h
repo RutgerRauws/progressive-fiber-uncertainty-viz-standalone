@@ -92,6 +92,10 @@ public:
     QLabel *label_11;
     QLabel *distanceScoreLabel;
     QLabel *label_9;
+    QGroupBox *groupBox;
+    QVBoxLayout *verticalLayout_4;
+    QLabel *label_10;
+    QSlider *opacitySlider;
     QSpacerItem *verticalSpacer;
     QButtonGroup *buttonGroup;
 
@@ -346,6 +350,7 @@ public:
         distanceScoreSliderLayout->setObjectName(QString::fromUtf8("distanceScoreSliderLayout"));
         distanceScoreSlider = new QSlider(distanceScoreWidget);
         distanceScoreSlider->setObjectName(QString::fromUtf8("distanceScoreSlider"));
+        distanceScoreSlider->setMaximum(100);
         distanceScoreSlider->setOrientation(Qt::Horizontal);
 
         distanceScoreSliderLayout->addWidget(distanceScoreSlider);
@@ -376,6 +381,25 @@ public:
 
 
         verticalLayout_3->addWidget(distanceScoreWidget);
+
+        groupBox = new QGroupBox(visitationMapGroupBox);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        verticalLayout_4 = new QVBoxLayout(groupBox);
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        label_10 = new QLabel(groupBox);
+        label_10->setObjectName(QString::fromUtf8("label_10"));
+
+        verticalLayout_4->addWidget(label_10);
+
+        opacitySlider = new QSlider(groupBox);
+        opacitySlider->setObjectName(QString::fromUtf8("opacitySlider"));
+        opacitySlider->setMaximum(100);
+        opacitySlider->setOrientation(Qt::Horizontal);
+
+        verticalLayout_4->addWidget(opacitySlider);
+
+
+        verticalLayout_3->addWidget(groupBox);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -436,6 +460,8 @@ public:
         label_11->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>&le;</p></body></html>", nullptr));
         distanceScoreLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
         label_9->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
+        groupBox->setTitle(QCoreApplication::translate("MainWindow", "Appearance", nullptr));
+        label_10->setText(QCoreApplication::translate("MainWindow", "Opacity:", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(renderingTab), QCoreApplication::translate("MainWindow", "Rendering", nullptr));
     } // retranslateUi
 

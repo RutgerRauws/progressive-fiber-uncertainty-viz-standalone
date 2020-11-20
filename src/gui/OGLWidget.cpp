@@ -94,9 +94,9 @@ void OGLWidget::paintGL()
     if(initialized)
     {
         visitationMapUpdater->Update();
-        visitationMapRenderer->Render();
         centerlineRenderer->Render();
         fiberRenderer->Render();
+        visitationMapRenderer->Render();
     }
 }
 

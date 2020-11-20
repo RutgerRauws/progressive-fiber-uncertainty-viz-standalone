@@ -21,6 +21,8 @@ private:
 
         ISOVALUE_MIN_FREQUENCY_PERCENTAGE = 0; //0%
         ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = 1; //100%
+
+        OPACITY = 1.0f; //fully opaque
     };
 
 public:
@@ -37,6 +39,8 @@ public:
 
     float  ISOVALUE_MIN_FREQUENCY_PERCENTAGE;
     double ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
+
+    float OPACITY;
 
     static Configuration& getInstance()
     {
