@@ -10,7 +10,7 @@ class Configuration
 private:
     Configuration()
     {
-        NUMBER_OF_REPRESENTATIVE_FIBERS = 15;
+        NUMBER_OF_REPRESENTATIVE_FIBERS = 25; //TODO: This is not being used in other classes yet! You need to set this yourself!
         SIDE_SIZE = 1.0f;
 
         SHOW_FIBER_SAMPLES = true;
