@@ -15,7 +15,7 @@
 #include "../util/RenderElement.h"
 #include "DistanceTablesUpdater.h"
 
-class CenterlineRenderer : public FiberObserver, RenderElement
+class CenterlineRenderer : public FiberObserver, public RenderElement
 {
     private:
         static constexpr auto VERTEX_SHADER_PATH   = "./shaders/centerline/vertex.glsl";

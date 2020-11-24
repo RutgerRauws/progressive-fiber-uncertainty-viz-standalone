@@ -2,6 +2,8 @@
 
 #include <QtOpenGL/qgl.h>
 
+#include "src/dwi/DWIRenderer.h"
+#include "src/dwi/DWIDataReader.h"
 #include "src/gui/UserInterface.h"
 #include "src/util/Camera.h"
 #include "src/interaction/TrackBallMovementHandler.h"
@@ -33,6 +35,16 @@ int main(int argc, char* argv[])
     CenterlineRenderer centerlineRenderer(gl, distanceTablesUpdater.GetDistanceTables(), camera);
     FiberRenderer fiberRenderer(gl, camera);
 
+    DWIDataReader dwiDataReader("/home/rutger/Desktop/Graduation/standalone/progressive-fiber-uncertainty-viz/data/test-data-dwi-volume.nhdr");
+    DWISlice coronalSlice = dwiDataReader.GetCoronalPlane();
+    DWIRenderer coronalDWIRenderer(gl, camera, coronalSlice);
+
+    DWISlice axialSlice = dwiDataReader.GetAxialPlane();
+    DWIRenderer axialDWIRenderer(gl, camera, axialSlice);
+
+    DWISlice sagittalSlice = dwiDataReader.GetSagittalPlane();
+    DWIRenderer sagittalDWIRenderer(gl, camera, sagittalSlice);
+
     fiberPublisher.RegisterObserver(distanceTablesUpdater);
     fiberPublisher.RegisterObserver(visitationMapUpdater);
     fiberPublisher.RegisterObserver(visitationMapRenderer);
@@ -40,7 +52,14 @@ int main(int argc, char* argv[])
     fiberPublisher.RegisterObserver(centerlineRenderer);
 
     OGLWidget* widget = ui.GetOpenGLWidget();
-    widget->SetInput(&visitationMapUpdater, &visitationMapRenderer, &fiberRenderer, &centerlineRenderer, &camera, &movementHandler);
+//    widget->SetInput(&visitationMapUpdater, &visitationMapRenderer, &fiberRenderer, &centerlineRenderer, &camera, &movementHandler, &dwiRenderer);
+    widget->SetInput(&visitationMapUpdater, &camera, &movementHandler);
+    widget->AddRenderer(coronalDWIRenderer);
+    widget->AddRenderer(axialDWIRenderer);
+    widget->AddRenderer(sagittalDWIRenderer);
+    widget->AddRenderer(fiberRenderer);
+    widget->AddRenderer(centerlineRenderer);
+    widget->AddRenderer(visitationMapRenderer);
 
     fiberPublisher.Start();
 

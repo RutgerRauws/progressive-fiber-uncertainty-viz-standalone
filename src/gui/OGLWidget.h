@@ -6,15 +6,17 @@
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_OGL_WIDGET_H
 
 
+#include <QtWidgets/QOpenGLWidget>
+#include <QtCore/QTimer>
+#include <QOpenGLDebugLogger>
+
 #include "src/visitationmap/VisitationMapUpdater.h"
 #include "src/visitationmap/VisitationMapRenderer.h"
 #include "src/centerline/CenterlineRenderer.h"
 #include "src/util/FiberRenderer.h"
 #include "src/util/FiberPublisher.h"
-#include <QtWidgets/QOpenGLWidget>
-#include <QtCore/QTimer>
-#include <QOpenGLDebugLogger>
-#include <src/util/TriangleRenderer.h>
+#include "src/util/TriangleRenderer.h"
+#include "src/dwi/DWIRenderer.h"
 
 class OGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core
 {
@@ -28,11 +30,10 @@ class OGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core
 
         bool initialized = false;
         VisitationMapUpdater* visitationMapUpdater = nullptr;
-        VisitationMapRenderer* visitationMapRenderer = nullptr;
-        FiberRenderer* fiberRenderer = nullptr;
-        CenterlineRenderer* centerlineRenderer = nullptr;
         Camera* camera = nullptr;
         MovementHandler* movementHandler = nullptr;
+
+        std::vector<std::reference_wrapper<RenderElement>> renderers;
 
         glm::ivec2 lastPosition;
         glm::ivec2 mouseDelta;
@@ -57,22 +58,21 @@ class OGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core
 
         void SetInput(
             VisitationMapUpdater* visitationMapUpdater,
-            VisitationMapRenderer* visitationMapRenderer,
-            FiberRenderer* fiberRenderer,
-            CenterlineRenderer* centerlineRenderer,
             Camera* camera,
             MovementHandler* movementHandler
         )
         {
             this->visitationMapUpdater = visitationMapUpdater;
-            this->visitationMapRenderer = visitationMapRenderer;
-            this->fiberRenderer = fiberRenderer;
-            this->centerlineRenderer = centerlineRenderer;
             this->camera = camera;
             this->movementHandler = movementHandler;
             this->initialized = true;
             resizeGL(this->width(), this->height());
         };
+
+        void AddRenderer(RenderElement& renderer)
+        {
+            renderers.emplace_back(renderer);
+        }
 };
 
 

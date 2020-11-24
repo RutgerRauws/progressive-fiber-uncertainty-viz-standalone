@@ -94,9 +94,11 @@ void OGLWidget::paintGL()
     if(initialized)
     {
         visitationMapUpdater->Update();
-        centerlineRenderer->Render();
-        fiberRenderer->Render();
-        visitationMapRenderer->Render();
+
+        for(RenderElement& renderer : renderers)
+        {
+            renderer.Render();
+        }
     }
 }
 

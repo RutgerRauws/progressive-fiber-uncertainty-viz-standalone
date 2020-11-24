@@ -11,7 +11,7 @@
 #include "RenderElement.h"
 #include "GL.h"
 
-class FiberRenderer : public FiberObserver, RenderElement
+class FiberRenderer : public FiberObserver, public RenderElement
 {
     private:
         static constexpr auto VERTEX_SHADER_PATH   = "./shaders/fibers/vertex.glsl";
