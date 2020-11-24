@@ -6,7 +6,7 @@
 #include "Camera.h"
 
 Camera::Camera()
-    : cameraPos(0), cameraFront(0, 0, -3), cameraUp(0, 1, 0)
+    : cameraPos(0), cameraFront(0, 0, -3), cameraUp(0, 0, 1)
 {
     modelMatrix = glm::mat4(1.0f);
     viewMatrix = glm::mat4(1.0f);
