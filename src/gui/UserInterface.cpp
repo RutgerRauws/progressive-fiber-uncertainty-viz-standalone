@@ -23,6 +23,9 @@ UserInterface::UserInterface()
     OGLWidget::connect(mainWindow.fiberFrequencySlider, &QSlider::valueChanged, this, &UserInterface::fiberFrequencySliderValueChanged);
     OGLWidget::connect(mainWindow.distanceScoreSlider, &QSlider::valueChanged, this, &UserInterface::distanceScoreSliderValueChanged);
     OGLWidget::connect(mainWindow.hullOpacitySlider, &QSlider::valueChanged, this, &UserInterface::hullOpacitySliderValueChanged);
+    OGLWidget::connect(mainWindow.diffuseColorSelectButton, &QPushButton::clicked, this, &UserInterface::diffuseColorSelectButtonClicked);
+    OGLWidget::connect(mainWindow.ambientColorSelectButton, &QPushButton::clicked, this, &UserInterface::ambientColorSelectButtonClicked);
+    OGLWidget::connect(mainWindow.specularColorSelectButton, &QPushButton::clicked, this, &UserInterface::specularColorSelectButtonClicked);
 }
 
 
@@ -66,6 +69,10 @@ void UserInterface::loadConfiguration()
 
     percentage = (int)(config.HULL_OPACITY * 100.0f);
     mainWindow.hullOpacitySlider->setValue(percentage);
+
+    mainWindow.diffuseColorSelectButton->SetColor(Configuration::getInstance().HULL_COLOR_DIFFUSE);
+    mainWindow.ambientColorSelectButton->SetColor(Configuration::getInstance().HULL_COLOR_AMBIENT);
+    mainWindow.specularColorSelectButton->SetColor(Configuration::getInstance().HULL_COLOR_SPECULAR);
 }
 
 void UserInterface::startButtonClicked()
@@ -126,4 +133,19 @@ void UserInterface::distanceScoreSliderValueChanged(int value)
 void UserInterface::hullOpacitySliderValueChanged(int value)
 {
     Configuration::getInstance().HULL_OPACITY = (float)value / 100.0f;
+}
+
+void UserInterface::diffuseColorSelectButtonClicked(bool checked)
+{
+    Configuration::getInstance().HULL_COLOR_DIFFUSE = mainWindow.diffuseColorSelectButton->GetColor();
+}
+
+void UserInterface::ambientColorSelectButtonClicked(bool checked)
+{
+    Configuration::getInstance().HULL_COLOR_AMBIENT = mainWindow.ambientColorSelectButton->GetColor();
+}
+
+void UserInterface::specularColorSelectButtonClicked(bool checked)
+{
+    Configuration::getInstance().HULL_COLOR_SPECULAR = mainWindow.specularColorSelectButton->GetColor();
 }

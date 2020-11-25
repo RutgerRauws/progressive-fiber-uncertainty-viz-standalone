@@ -31,6 +31,9 @@ class VisitationMapRenderer : public RenderElement, public FiberObserver
         GLint use_frequency_isovalue_loc = -1;
         GLint use_interpolcation_loc = -1;
         GLint opacity_loc = -1;
+        GLint k_diffuse_loc = -1;
+        GLint k_ambient_loc = -1;
+        GLint k_specular_loc = -1;
 
         unsigned int numberOfFibers;
 

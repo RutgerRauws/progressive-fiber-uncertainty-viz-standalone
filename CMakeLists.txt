@@ -48,6 +48,7 @@ add_executable(${EXECUTABLE_NAME}
     src/dwi/DWIDataReader.cpp src/dwi/DWIDataReader.h
     src/dwi/DWIRenderer.cpp src/dwi/DWIRenderer.h
     src/dwi/DWISlice.h
+    src/gui/SelectColorButton.cpp src/gui/SelectColorButton.h
 )
 
 INCLUDE_DIRECTORIES("libs")

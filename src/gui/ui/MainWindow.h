@@ -31,6 +31,7 @@
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 #include "src/gui/OGLWidget.h"
+#include "src/gui/SelectColorButton.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -101,7 +102,15 @@ public:
     QHBoxLayout *horizontalLayout;
     QLabel *label_13;
     QSpacerItem *horizontalSpacer_3;
-    QPushButton *colorSelectButton;
+    SelectColorButton *ambientColorSelectButton;
+    QHBoxLayout *horizontalLayout_3;
+    QLabel *label_14;
+    QSpacerItem *horizontalSpacer_4;
+    SelectColorButton *diffuseColorSelectButton;
+    QHBoxLayout *horizontalLayout_4;
+    QLabel *label_15;
+    QSpacerItem *horizontalSpacer_5;
+    SelectColorButton *specularColorSelectButton;
     QSpacerItem *verticalSpacer;
     QButtonGroup *buttonGroup;
 
@@ -109,7 +118,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1172, 657);
+        MainWindow->resize(1172, 818);
         QPalette palette;
         QBrush brush(QColor(252, 252, 252, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -427,20 +436,60 @@ public:
 
         horizontalLayout->addItem(horizontalSpacer_3);
 
-        colorSelectButton = new QPushButton(groupBox);
-        colorSelectButton->setObjectName(QString::fromUtf8("colorSelectButton"));
+        ambientColorSelectButton = new SelectColorButton(groupBox);
+        ambientColorSelectButton->setObjectName(QString::fromUtf8("ambientColorSelectButton"));
+        ambientColorSelectButton->setFocusPolicy(Qt::NoFocus);
+        ambientColorSelectButton->setCheckable(false);
+        ambientColorSelectButton->setChecked(false);
+        ambientColorSelectButton->setFlat(false);
 
-        horizontalLayout->addWidget(colorSelectButton);
+        horizontalLayout->addWidget(ambientColorSelectButton);
 
 
         verticalLayout_4->addLayout(horizontalLayout);
 
+        horizontalLayout_3 = new QHBoxLayout();
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        label_14 = new QLabel(groupBox);
+        label_14->setObjectName(QString::fromUtf8("label_14"));
+
+        horizontalLayout_3->addWidget(label_14);
+
+        horizontalSpacer_4 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_3->addItem(horizontalSpacer_4);
+
+        diffuseColorSelectButton = new SelectColorButton(groupBox);
+        diffuseColorSelectButton->setObjectName(QString::fromUtf8("diffuseColorSelectButton"));
+        diffuseColorSelectButton->setFocusPolicy(Qt::NoFocus);
+
+        horizontalLayout_3->addWidget(diffuseColorSelectButton);
+
+
+        verticalLayout_4->addLayout(horizontalLayout_3);
+
+        horizontalLayout_4 = new QHBoxLayout();
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        label_15 = new QLabel(groupBox);
+        label_15->setObjectName(QString::fromUtf8("label_15"));
+
+        horizontalLayout_4->addWidget(label_15);
+
+        horizontalSpacer_5 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_4->addItem(horizontalSpacer_5);
+
+        specularColorSelectButton = new SelectColorButton(groupBox);
+        specularColorSelectButton->setObjectName(QString::fromUtf8("specularColorSelectButton"));
+        specularColorSelectButton->setFocusPolicy(Qt::NoFocus);
+
+        horizontalLayout_4->addWidget(specularColorSelectButton);
+
+
+        verticalLayout_4->addLayout(horizontalLayout_4);
+
 
         verticalLayout_3->addWidget(groupBox);
-
-        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
-
-        verticalLayout_3->addItem(verticalSpacer);
 
 
         verticalLayout->addWidget(visitationMapGroupBox);
@@ -448,6 +497,10 @@ public:
         tabWidget->addTab(renderingTab, QString());
 
         verticalLayout_6->addWidget(tabWidget);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_6->addItem(verticalSpacer);
 
         dockWidget->setWidget(dockWidgetContents);
         MainWindow->addDockWidget(Qt::LeftDockWidgetArea, dockWidget);
@@ -459,6 +512,7 @@ public:
         retranslateUi(MainWindow);
 
         tabWidget->setCurrentIndex(1);
+        ambientColorSelectButton->setDefault(true);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -500,8 +554,12 @@ public:
         label_9->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
         groupBox->setTitle(QCoreApplication::translate("MainWindow", "Appearance", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "Opacity:", nullptr));
-        label_13->setText(QCoreApplication::translate("MainWindow", "Color:", nullptr));
-        colorSelectButton->setText(QString());
+        label_13->setText(QCoreApplication::translate("MainWindow", "Ambient color:", nullptr));
+        ambientColorSelectButton->setText(QString());
+        label_14->setText(QCoreApplication::translate("MainWindow", "Diffuse color:", nullptr));
+        diffuseColorSelectButton->setText(QString());
+        label_15->setText(QCoreApplication::translate("MainWindow", "Specular color:", nullptr));
+        specularColorSelectButton->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(renderingTab), QCoreApplication::translate("MainWindow", "Rendering", nullptr));
     } // retranslateUi
 

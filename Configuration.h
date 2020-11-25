@@ -5,6 +5,8 @@
 #ifndef PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_CONFIGURATION_H
 #define PROGRESSIVE_FIBER_UNCERTAINTY_VIZ_CONFIGURATION_H
 
+#include <QtGui/QColor>
+
 class Configuration
 {
 private:
@@ -23,6 +25,10 @@ private:
         ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = 1; //100%
 
         HULL_OPACITY = 1.0f; //fully opaque
+        HULL_COLOR_AMBIENT  = QColor(200, 200, 0);
+        HULL_COLOR_DIFFUSE  = QColor(200, 200, 0);
+        HULL_COLOR_SPECULAR = QColor(50, 50, 50);
+
         DWI_OPACITY  = 0.75f;
     };
 
@@ -42,6 +48,9 @@ public:
     double ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
 
     float HULL_OPACITY;
+//    float HULL_COLOR_R, HULL_COLOR_G, HULL_COLOR_B;
+    QColor HULL_COLOR_AMBIENT, HULL_COLOR_DIFFUSE, HULL_COLOR_SPECULAR;
+
     float DWI_OPACITY;
 
     static Configuration& getInstance()

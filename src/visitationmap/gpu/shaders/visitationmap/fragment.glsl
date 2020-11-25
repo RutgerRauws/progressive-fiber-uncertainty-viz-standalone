@@ -72,6 +72,10 @@ uniform VisitationMapProperties vmp; //visitationMapProp
 uniform bool useInterpolation;
 uniform float opacity;
 
+uniform vec3 k_ambient;
+uniform vec3 k_diffuse;
+uniform vec3 k_specular;
+
 /*
  *
  *
@@ -483,9 +487,6 @@ vec3 computeShading(in vec3 position, in vec3 eyeVec)
     }
 
     //Surface material properties
-    vec3 k_a = vec3(0.7, 0.7, 0);  //ambient
-    vec3 k_d = vec3(0.7, 0.7, 0);  //diffuse
-    vec3 k_s = vec3(0.2);  //specular
     float alpha = 5; //shininess
 
     //Light properties
@@ -495,8 +496,8 @@ vec3 computeShading(in vec3 position, in vec3 eyeVec)
 
     vec3 color = vec3(0);
 
-    color += k_a * i_a;                       //ambient contribution
-    color += k_d * dot(eyeVec, normal) * i_d; //diffuse contribution
+    color += k_ambient * i_a;                       //ambient contribution
+    color += k_diffuse * dot(eyeVec, normal) * i_d; //diffuse contribution
 
 //    vec3 R_m = 2 * dot(eyeVec, normal) * normal - eyeVec; //perfect reflection direction
 //    color += k_s * pow(dot(R_m, eyeVec), alpha) * i_s; //specular contribution

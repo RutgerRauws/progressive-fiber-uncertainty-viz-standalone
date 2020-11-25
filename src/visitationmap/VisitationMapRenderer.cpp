@@ -108,7 +108,6 @@ void VisitationMapRenderer::initialize()
     gl.glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), 0);
     gl.glEnableVertexAttribArray(0);
 
-    //Visitation Map Properties
     GLint programId = shaderProgram->programId();
 
     //Get uniform locations
@@ -156,6 +155,14 @@ void VisitationMapRenderer::initialize()
 
     opacity_loc = gl.glGetUniformLocation(programId, "opacity");
     gl.glProgramUniform1f(programId, opacity_loc, config.HULL_OPACITY);
+
+    k_ambient_loc  = gl.glGetUniformLocation(programId, "k_ambient");
+    k_diffuse_loc  = gl.glGetUniformLocation(programId, "k_diffuse");
+    k_specular_loc = gl.glGetUniformLocation(programId, "k_specular");
+
+    gl.glProgramUniform3f(programId, k_ambient_loc, config.HULL_COLOR_AMBIENT.red() / 255.0f, config.HULL_COLOR_AMBIENT.green() / 255.0f, config.HULL_COLOR_AMBIENT.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, k_diffuse_loc, config.HULL_COLOR_DIFFUSE.red() / 255.0f, config.HULL_COLOR_DIFFUSE.green() / 255.0f, config.HULL_COLOR_DIFFUSE.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, k_specular_loc,config.HULL_COLOR_SPECULAR.red() / 255.0f, config.HULL_COLOR_SPECULAR.green() / 255.0f, config.HULL_COLOR_SPECULAR.blue() / 255.0f);
 }
 
 unsigned int VisitationMapRenderer::computeFrequencyIsovalue() const
@@ -179,14 +186,20 @@ void VisitationMapRenderer::Render()
     gl.glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
     gl.glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    gl.glProgramUniform3f(shaderProgram->programId(), cameraPos_loc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
+    GLint programId = shaderProgram->programId();
 
-    gl.glProgramUniform1i(shaderProgram->programId(), use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
-    gl.glProgramUniform1i(shaderProgram->programId(), use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
-    gl.glProgramUniform1ui(shaderProgram->programId(), frequency_isovalue_loc, computeFrequencyIsovalue());
-    gl.glProgramUniform1d(shaderProgram->programId(), distance_score_isovalue_loc, computeDistanceScoreIsovalue());
+    gl.glProgramUniform3f(programId, cameraPos_loc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
 
-    gl.glProgramUniform1f(shaderProgram->programId(), opacity_loc, config.HULL_OPACITY);
+    gl.glProgramUniform1i(programId, use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
+    gl.glProgramUniform1i(programId, use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
+    gl.glProgramUniform1ui(programId, frequency_isovalue_loc, computeFrequencyIsovalue());
+    gl.glProgramUniform1d(programId, distance_score_isovalue_loc, computeDistanceScoreIsovalue());
+
+    gl.glProgramUniform1f(programId, opacity_loc, config.HULL_OPACITY);
+
+    gl.glProgramUniform3f(programId, k_ambient_loc, config.HULL_COLOR_AMBIENT.red() / 255.0f, config.HULL_COLOR_AMBIENT.green() / 255.0f, config.HULL_COLOR_AMBIENT.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, k_diffuse_loc, config.HULL_COLOR_DIFFUSE.red() / 255.0f, config.HULL_COLOR_DIFFUSE.green() / 255.0f, config.HULL_COLOR_DIFFUSE.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, k_specular_loc,config.HULL_COLOR_SPECULAR.red() / 255.0f, config.HULL_COLOR_SPECULAR.green() / 255.0f, config.HULL_COLOR_SPECULAR.blue() / 255.0f);
 
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());

@@ -26,6 +26,9 @@ private:
     void fiberFrequencySliderValueChanged(int value);
     void distanceScoreSliderValueChanged(int value);
     void hullOpacitySliderValueChanged(int value);
+    void diffuseColorSelectButtonClicked(bool checked);
+    void ambientColorSelectButtonClicked(bool checked);
+    void specularColorSelectButtonClicked(bool checked);
 
 public:
     UserInterface();
