@@ -599,9 +599,8 @@ void main()
                 fragmentColor *= 1 - opacity;
                 fragmentColor += vec4(color, opacity) * opacity;
 
-//                vec4 depth_vec = viewMat * projMat * vec4(refinedIntersection, 1.0);
-//                fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
-                fragmentDepth = 0.5f;
+                vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
+                fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
             }
         }
 

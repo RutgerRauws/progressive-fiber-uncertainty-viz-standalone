@@ -10,7 +10,7 @@ uniform mat4 projMat;
 uniform bool showFibers;
 uniform vec3 cameraPosition;
 
-varying vec3 fragmentPositionWC;
+varying vec4 fragmentPositionWC;
 varying vec3 Normal;
 out vec4 outColor;
 
@@ -43,14 +43,14 @@ void main()
 {
     if(showFibers)
     {
-        vec3 eyePosDir = -normalize(fragmentPositionWC - cameraPosition);
+        vec3 eyePosDir = -normalize(fragmentPositionWC.xyz - cameraPosition);
+        outColor = computeShading(fragmentPositionWC.xyz, eyePosDir);
 
-        outColor = computeShading(fragmentPositionWC, eyePosDir);
-        gl_FragDepth = gl_FragCoord.z;
+        gl_FragDepth = ((fragmentPositionWC.z / fragmentPositionWC.w) + 1.0) * 0.5;
     }
     else
     {
-        outColor = vec4(0.0);
         gl_FragDepth = 1.0f;
+        discard;
     }
 }

@@ -5,7 +5,7 @@ uniform mat4 viewMat;
 uniform mat4 projMat;
 
 const uint nrOfSides = 8;
-const float lineWidth = 0.5f;
+const float radius = 0.5f;
 const float PI = 3.1415926538;
 const float tDiff = PI / nrOfSides;
 
@@ -13,40 +13,40 @@ layout (lines) in;
 layout (triangle_strip, max_vertices = 60) out;
 
 out vec3 Normal;
-out vec3 fragmentPositionWC;
+out vec4 fragmentPositionWC;
 
 void EmitSide(in vec4 p1, in vec4 p2, in vec4 p3, in vec4 p4, in vec4 center)
 {
-    gl_Position = p1;
-    fragmentPositionWC = (modelMat * gl_Position).xyz;
+    gl_Position = projMat * viewMat * modelMat * p1;
+    fragmentPositionWC = gl_Position;
     Normal = normalize(p1 - center).xyz;
     EmitVertex();
 
-    gl_Position = p2;
-    fragmentPositionWC = (modelMat * gl_Position).xyz;
+    gl_Position = projMat * viewMat * modelMat * p2;
+    fragmentPositionWC = gl_Position;
     Normal = normalize(p2 - center).xyz;
     EmitVertex();
 
-    gl_Position = p3;
-    fragmentPositionWC = (modelMat * gl_Position).xyz;
+    gl_Position = projMat * viewMat * modelMat * p3;
+    fragmentPositionWC = gl_Position;
     Normal = normalize(p1 - center).xyz;
     EmitVertex();
 
     EndPrimitive();
 
 
-    gl_Position = p3;
-    fragmentPositionWC = (modelMat * gl_Position).xyz;
+    gl_Position = projMat * viewMat * modelMat * p3;
+    fragmentPositionWC = gl_Position;
     Normal = normalize(p1 - center).xyz;
     EmitVertex();
 
-    gl_Position = p4;
-    fragmentPositionWC = (modelMat * gl_Position).xyz;
+    gl_Position = projMat * viewMat * modelMat * p4;
+    fragmentPositionWC = gl_Position;
     Normal = normalize(p2 - center).xyz;
     EmitVertex();
 
-    gl_Position = p2;
-    fragmentPositionWC = (modelMat * gl_Position).xyz;
+    gl_Position = projMat * viewMat * modelMat * p2;
+    fragmentPositionWC = gl_Position;
     Normal = normalize(p2 - center).xyz;
     EmitVertex();
 
@@ -79,8 +79,7 @@ vec3 GetAxis2(in vec4 directionVector)
 
 vec3 GetPointOnCircle(in vec3 x, in vec3 y, in float t)
 {
-    const float radius = lineWidth / 2.0f;;
-    return (y * sin(t) + x * cos(t));
+    return radius * (y * sin(t) + x * cos(t));
 }
 
 void main()
@@ -88,7 +87,8 @@ void main()
     vec4 startPoint = gl_in[0].gl_Position;
     vec4 endPoint   = gl_in[1].gl_Position;
 
-    vec4 lineDirection = normalize(endPoint - startPoint); //z
+    vec4 lineDirection = vec4(normalize(endPoint - startPoint).xyz, 0); //z
+//    vec4 lineDirection = normalize(endPoint - startPoint);
 
     vec3 x = GetAxis1(lineDirection);
     vec3 y = GetAxis2(lineDirection);
