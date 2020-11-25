@@ -56,10 +56,10 @@ int main(int argc, char* argv[])
     widget->SetInput(&visitationMapUpdater, &camera, &movementHandler);
     widget->AddRenderer(fiberRenderer);
     widget->AddRenderer(centerlineRenderer);
-    widget->AddRenderer(visitationMapRenderer);
     widget->AddRenderer(coronalDWIRenderer);
     widget->AddRenderer(axialDWIRenderer);
     widget->AddRenderer(sagittalDWIRenderer);
+    widget->AddRenderer(visitationMapRenderer);
 
     fiberPublisher.Start();
 

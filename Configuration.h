@@ -29,7 +29,7 @@ private:
         HULL_COLOR_DIFFUSE  = QColor(200, 200, 0);
         HULL_COLOR_SPECULAR = QColor(50, 50, 50);
 
-        DWI_OPACITY  = 0.75f;
+        DWI_OPACITY  = 1.0f;
     };
 
 public:
