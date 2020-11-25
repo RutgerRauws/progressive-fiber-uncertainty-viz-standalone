@@ -12,6 +12,6 @@ void main()
     }
     else
     {
-        outColor = vec4(0.0);
+        discard;
     }
 }

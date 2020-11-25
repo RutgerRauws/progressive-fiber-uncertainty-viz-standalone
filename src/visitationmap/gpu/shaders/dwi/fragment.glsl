@@ -17,8 +17,6 @@ void main()
 
   if(pixelColor.r < 0.1)
   {
-    FragColor.rgb = vec3(1, 0, 0);
-    FragColor.a = 1.0f;
     discard;
   }
   else
