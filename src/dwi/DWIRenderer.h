@@ -21,6 +21,7 @@ class DWIRenderer : public RenderElement
         const DWISlice& slice;
 
         GLuint texture_loc = 0;
+        GLuint opacity_loc;
 
         void initialize() override;
 

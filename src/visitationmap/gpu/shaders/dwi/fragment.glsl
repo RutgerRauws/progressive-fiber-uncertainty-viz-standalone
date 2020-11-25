@@ -4,6 +4,7 @@
 // Uniforms
 //
 uniform sampler2D texture;
+uniform float opacity;
 
 //
 // In- and outputs
@@ -14,14 +15,6 @@ out vec4 FragColor;
 void main()
 {
   vec4 pixelColor = texture2D(texture, TexCoord);
-
-  if(pixelColor.r < 0.1)
-  {
-    discard;
-  }
-  else
-  {
-    FragColor.rgb = pixelColor.rgb;
-    FragColor.a = 1.0f;
-  }
+  FragColor.rgb   = pixelColor.rgb;
+  FragColor.a     = opacity;
 }

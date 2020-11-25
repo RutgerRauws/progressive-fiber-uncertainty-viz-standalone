@@ -155,7 +155,7 @@ void VisitationMapRenderer::initialize()
     gl.glProgramUniform1i(programId, use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
 
     opacity_loc = gl.glGetUniformLocation(programId, "opacity");
-    gl.glProgramUniform1f(programId, opacity_loc, config.OPACITY);
+    gl.glProgramUniform1f(programId, opacity_loc, config.HULL_OPACITY);
 }
 
 unsigned int VisitationMapRenderer::computeFrequencyIsovalue() const
@@ -186,7 +186,7 @@ void VisitationMapRenderer::Render()
     gl.glProgramUniform1ui(shaderProgram->programId(), frequency_isovalue_loc, computeFrequencyIsovalue());
     gl.glProgramUniform1d(shaderProgram->programId(), distance_score_isovalue_loc, computeDistanceScoreIsovalue());
 
-    gl.glProgramUniform1f(shaderProgram->programId(), opacity_loc, config.OPACITY);
+    gl.glProgramUniform1f(shaderProgram->programId(), opacity_loc, config.HULL_OPACITY);
 
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());

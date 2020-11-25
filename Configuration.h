@@ -22,7 +22,8 @@ private:
         ISOVALUE_MIN_FREQUENCY_PERCENTAGE = 0; //0%
         ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = 1; //100%
 
-        OPACITY = 1.0f; //fully opaque
+        HULL_OPACITY = 1.0f; //fully opaque
+        DWI_OPACITY  = 0.75f;
     };
 
 public:
@@ -40,7 +41,8 @@ public:
     float  ISOVALUE_MIN_FREQUENCY_PERCENTAGE;
     double ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
 
-    float OPACITY;
+    float HULL_OPACITY;
+    float DWI_OPACITY;
 
     static Configuration& getInstance()
     {

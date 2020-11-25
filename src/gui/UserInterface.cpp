@@ -59,7 +59,7 @@ void UserInterface::loadConfiguration()
     mainWindow.fiberFrequencyWidget->setVisible(config.USE_FIBER_FREQUENCIES);
     mainWindow.distanceScoreWidget->setVisible(!config.USE_FIBER_FREQUENCIES);
 
-    percentage = (int)(config.OPACITY * 100.0f);
+    percentage = (int)(config.HULL_OPACITY * 100.0f);
     mainWindow.opacitySlider->setValue(percentage);
 }
 
@@ -115,5 +115,5 @@ void UserInterface::distanceScoreSliderValueChanged(int value)
 
 void UserInterface::opacitySliderValueChanged(int value)
 {
-    Configuration::getInstance().OPACITY = (float)value / 100.0f;
+    Configuration::getInstance().HULL_OPACITY = (float)value / 100.0f;
 }
