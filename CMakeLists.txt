@@ -63,7 +63,7 @@ target_link_libraries(progressive_fiber_uncertainty_viz
 
 file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION data/)
 
-set (source "${CMAKE_SOURCE_DIR}/src/visitationmap/gpu/shaders/")
+set (source "${CMAKE_SOURCE_DIR}/src/shaders/")
 set (destination "${CMAKE_CURRENT_BINARY_DIR}/shaders")
 add_custom_command(
         TARGET ${PROJECT_NAME} POST_BUILD
