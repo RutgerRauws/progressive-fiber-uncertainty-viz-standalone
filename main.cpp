@@ -54,12 +54,12 @@ int main(int argc, char* argv[])
     OGLWidget* widget = ui.GetOpenGLWidget();
 //    widget->SetInput(&visitationMapUpdater, &visitationMapRenderer, &fiberRenderer, &centerlineRenderer, &camera, &movementHandler, &dwiRenderer);
     widget->SetInput(&visitationMapUpdater, &camera, &movementHandler);
-    widget->AddRenderer(coronalDWIRenderer);
-    widget->AddRenderer(axialDWIRenderer);
-    widget->AddRenderer(sagittalDWIRenderer);
     widget->AddRenderer(fiberRenderer);
     widget->AddRenderer(centerlineRenderer);
     widget->AddRenderer(visitationMapRenderer);
+    widget->AddRenderer(coronalDWIRenderer);
+    widget->AddRenderer(axialDWIRenderer);
+    widget->AddRenderer(sagittalDWIRenderer);
 
     fiberPublisher.Start();
 
