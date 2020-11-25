@@ -19,12 +19,13 @@ private:
     void startButtonClicked();
     void showFiberSamplesClicked(bool checked);
     void showRepresentativeFibersClicked(bool checked);
+    void dwiOpacitySliderValueChanged(int value);
     void useTrilinearInterpolationClicked(bool checked);
     void useFiberFrequenciesClicked(bool checked);
     void useDistanceScoresClicked(bool checked);
     void fiberFrequencySliderValueChanged(int value);
     void distanceScoreSliderValueChanged(int value);
-    void opacitySliderValueChanged(int value);
+    void hullOpacitySliderValueChanged(int value);
 
 public:
     UserInterface();

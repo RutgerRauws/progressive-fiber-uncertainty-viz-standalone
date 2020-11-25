@@ -69,6 +69,8 @@ public:
     QVBoxLayout *verticalLayout_2;
     QCheckBox *showFiberSamplesCheckBox;
     QCheckBox *showRepresentativeFibersCheckBox;
+    QLabel *label_12;
+    QSlider *dwiOpacitySlider;
     QGroupBox *visitationMapGroupBox;
     QVBoxLayout *verticalLayout_3;
     QCheckBox *useTrilinearInterpolationCheckBox;
@@ -95,7 +97,11 @@ public:
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout_4;
     QLabel *label_10;
-    QSlider *opacitySlider;
+    QSlider *hullOpacitySlider;
+    QHBoxLayout *horizontalLayout;
+    QLabel *label_13;
+    QSpacerItem *horizontalSpacer_3;
+    QPushButton *colorSelectButton;
     QSpacerItem *verticalSpacer;
     QButtonGroup *buttonGroup;
 
@@ -103,7 +109,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1172, 648);
+        MainWindow->resize(1172, 657);
         QPalette palette;
         QBrush brush(QColor(252, 252, 252, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -242,6 +248,18 @@ public:
         showRepresentativeFibersCheckBox->setChecked(false);
 
         verticalLayout_2->addWidget(showRepresentativeFibersCheckBox);
+
+        label_12 = new QLabel(generalGroupBox);
+        label_12->setObjectName(QString::fromUtf8("label_12"));
+
+        verticalLayout_2->addWidget(label_12);
+
+        dwiOpacitySlider = new QSlider(generalGroupBox);
+        dwiOpacitySlider->setObjectName(QString::fromUtf8("dwiOpacitySlider"));
+        dwiOpacitySlider->setMaximum(100);
+        dwiOpacitySlider->setOrientation(Qt::Horizontal);
+
+        verticalLayout_2->addWidget(dwiOpacitySlider);
 
 
         verticalLayout->addWidget(generalGroupBox);
@@ -391,12 +409,31 @@ public:
 
         verticalLayout_4->addWidget(label_10);
 
-        opacitySlider = new QSlider(groupBox);
-        opacitySlider->setObjectName(QString::fromUtf8("opacitySlider"));
-        opacitySlider->setMaximum(100);
-        opacitySlider->setOrientation(Qt::Horizontal);
+        hullOpacitySlider = new QSlider(groupBox);
+        hullOpacitySlider->setObjectName(QString::fromUtf8("hullOpacitySlider"));
+        hullOpacitySlider->setMaximum(100);
+        hullOpacitySlider->setOrientation(Qt::Horizontal);
 
-        verticalLayout_4->addWidget(opacitySlider);
+        verticalLayout_4->addWidget(hullOpacitySlider);
+
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        label_13 = new QLabel(groupBox);
+        label_13->setObjectName(QString::fromUtf8("label_13"));
+
+        horizontalLayout->addWidget(label_13);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer_3);
+
+        colorSelectButton = new QPushButton(groupBox);
+        colorSelectButton->setObjectName(QString::fromUtf8("colorSelectButton"));
+
+        horizontalLayout->addWidget(colorSelectButton);
+
+
+        verticalLayout_4->addLayout(horizontalLayout);
 
 
         verticalLayout_3->addWidget(groupBox);
@@ -443,6 +480,7 @@ public:
         generalGroupBox->setTitle(QCoreApplication::translate("MainWindow", "General", nullptr));
         showFiberSamplesCheckBox->setText(QCoreApplication::translate("MainWindow", "Show fiber samples", nullptr));
         showRepresentativeFibersCheckBox->setText(QCoreApplication::translate("MainWindow", "Show representative fibers", nullptr));
+        label_12->setText(QCoreApplication::translate("MainWindow", "DWI opacity:", nullptr));
         visitationMapGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Visitation Map", nullptr));
         useTrilinearInterpolationCheckBox->setText(QCoreApplication::translate("MainWindow", "Use trilinear interpolation", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "Preferred metric:", nullptr));
@@ -462,6 +500,8 @@ public:
         label_9->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
         groupBox->setTitle(QCoreApplication::translate("MainWindow", "Appearance", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "Opacity:", nullptr));
+        label_13->setText(QCoreApplication::translate("MainWindow", "Color:", nullptr));
+        colorSelectButton->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(renderingTab), QCoreApplication::translate("MainWindow", "Rendering", nullptr));
     } // retranslateUi
 
