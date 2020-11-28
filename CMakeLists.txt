@@ -15,8 +15,6 @@ INCLUDE(${ITK_USE_FILE})
 
 add_definitions(-DSTANDALONE)
 
-find_package(PNGwriter 0.7.0)
-
 ## Qt5
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -58,7 +56,6 @@ target_link_libraries(progressive_fiber_uncertainty_viz
     ${ITK_LIBRARIES}
     -lGL
     Qt5::Core Qt5::Gui Qt5::Widgets
-    PNGwriter::PNGwriter
 )
 
 file(COPY ${CMAKE_SOURCE_DIR}/data/ DESTINATION data/)
