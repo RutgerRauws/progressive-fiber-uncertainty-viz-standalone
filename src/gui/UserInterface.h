@@ -18,7 +18,10 @@ private:
 
     void startButtonClicked();
 
-    void showDWISlicesClicked(bool checked);
+    void showAxialPlaneClicked(bool checked);
+    void showCoronalPlaneClicked(bool checked);
+    void showSagittalPlaneClicked(bool checked);
+
     void showFiberSamplesClicked(bool checked);
     void showRepresentativeFibersClicked(bool checked);
 

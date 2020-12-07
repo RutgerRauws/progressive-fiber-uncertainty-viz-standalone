@@ -10,7 +10,6 @@
 #include "../util/RenderElement.h"
 #include "DWISlice.h"
 
-
 class DWIRenderer : public RenderElement
 {
     private:
@@ -23,10 +22,12 @@ class DWIRenderer : public RenderElement
         GLuint texture_loc = 0;
         GLuint opacity_loc;
 
+        bool& showSlice;
+
         void initialize() override;
 
 public:
-        DWIRenderer(GL& gl, const Camera& camera, const DWISlice& slice);
+        DWIRenderer(GL& gl, const Camera& camera, const DWISlice& slice, bool& showSlice);
         ~DWIRenderer();
 
         void Render() override;

@@ -9,10 +9,12 @@
 #include "src/interaction/TrackBallMovementHandler.h"
 #include "src/interaction/InteractionManager.h"
 #include "src/gui/OGLWidget.h"
-
+#include "Configuration.h"
 
 int main(int argc, char* argv[])
 {
+    Configuration& config = Configuration::getInstance();
+
     QApplication a(argc, argv);
 
     UserInterface ui;
@@ -21,7 +23,7 @@ int main(int argc, char* argv[])
     QOpenGLContext& context = *dynamic_cast<QOpenGLWidget*>(ui.GetOpenGLWidget())->context();
     GL gl(context);
 
-    FiberPublisher fiberPublisher(INPUT_FILE_NAMES);
+    FiberPublisher fiberPublisher(FIBER_FILE_NAMES);
     DistanceTablesUpdater distanceTablesUpdater(gl, fiberPublisher.GetNumberOfSeedPoints());
 
     VisitationMap visitationMap(VisitationMap::CreateTest(gl));
@@ -35,15 +37,15 @@ int main(int argc, char* argv[])
     CenterlineRenderer centerlineRenderer(gl, distanceTablesUpdater.GetDistanceTables(), camera);
     FiberRenderer fiberRenderer(gl, camera);
 
-    DWIDataReader dwiDataReader("/home/rutger/Desktop/Graduation/standalone/progressive-fiber-uncertainty-viz/data/test-data-dwi-volume.nhdr");
+    DWIDataReader dwiDataReader(DWI_PATH);
     DWISlice coronalSlice = dwiDataReader.GetCoronalPlane();
-    DWIRenderer coronalDWIRenderer(gl, camera, coronalSlice);
+    DWIRenderer coronalDWIRenderer(gl, camera, coronalSlice, config.SHOW_CORONAL_PLANE);
 
     DWISlice axialSlice = dwiDataReader.GetAxialPlane();
-    DWIRenderer axialDWIRenderer(gl, camera, axialSlice);
+    DWIRenderer axialDWIRenderer(gl, camera, axialSlice, config.SHOW_AXIAL_PLANE);
 
     DWISlice sagittalSlice = dwiDataReader.GetSagittalPlane();
-    DWIRenderer sagittalDWIRenderer(gl, camera, sagittalSlice);
+    DWIRenderer sagittalDWIRenderer(gl, camera, sagittalSlice, config.SHOW_SAGITTAL_PLANE);
 
     fiberPublisher.RegisterObserver(distanceTablesUpdater);
     fiberPublisher.RegisterObserver(visitationMapUpdater);

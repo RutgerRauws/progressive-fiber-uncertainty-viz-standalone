@@ -66,9 +66,13 @@ public:
     QPushButton *startButton;
     QWidget *renderingTab;
     QVBoxLayout *verticalLayout;
-    QGroupBox *generalGroupBox;
+    QGroupBox *dwiSlicesGroupBox;
+    QHBoxLayout *horizontalLayout_5;
+    QCheckBox *showAxialPlaneCheckBox;
+    QCheckBox *showCoronalPlaneCheckBox;
+    QCheckBox *showSagittalPlaneCheckBox;
+    QGroupBox *fibersGroupBox;
     QVBoxLayout *verticalLayout_2;
-    QCheckBox *showDWISlicesCheckBox;
     QCheckBox *showFiberSamplesCheckBox;
     QCheckBox *showRepresentativeFibersCheckBox;
     QGroupBox *visitationMapGroupBox;
@@ -117,7 +121,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1172, 818);
+        MainWindow->resize(1172, 817);
         QPalette palette;
         QBrush brush(QColor(252, 252, 252, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -241,29 +245,46 @@ public:
         renderingTab->setObjectName(QString::fromUtf8("renderingTab"));
         verticalLayout = new QVBoxLayout(renderingTab);
         verticalLayout->setObjectName(QString::fromUtf8("verticalLayout"));
-        generalGroupBox = new QGroupBox(renderingTab);
-        generalGroupBox->setObjectName(QString::fromUtf8("generalGroupBox"));
-        verticalLayout_2 = new QVBoxLayout(generalGroupBox);
+        dwiSlicesGroupBox = new QGroupBox(renderingTab);
+        dwiSlicesGroupBox->setObjectName(QString::fromUtf8("dwiSlicesGroupBox"));
+        horizontalLayout_5 = new QHBoxLayout(dwiSlicesGroupBox);
+        horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
+        showAxialPlaneCheckBox = new QCheckBox(dwiSlicesGroupBox);
+        showAxialPlaneCheckBox->setObjectName(QString::fromUtf8("showAxialPlaneCheckBox"));
+
+        horizontalLayout_5->addWidget(showAxialPlaneCheckBox);
+
+        showCoronalPlaneCheckBox = new QCheckBox(dwiSlicesGroupBox);
+        showCoronalPlaneCheckBox->setObjectName(QString::fromUtf8("showCoronalPlaneCheckBox"));
+
+        horizontalLayout_5->addWidget(showCoronalPlaneCheckBox);
+
+        showSagittalPlaneCheckBox = new QCheckBox(dwiSlicesGroupBox);
+        showSagittalPlaneCheckBox->setObjectName(QString::fromUtf8("showSagittalPlaneCheckBox"));
+
+        horizontalLayout_5->addWidget(showSagittalPlaneCheckBox);
+
+
+        verticalLayout->addWidget(dwiSlicesGroupBox);
+
+        fibersGroupBox = new QGroupBox(renderingTab);
+        fibersGroupBox->setObjectName(QString::fromUtf8("fibersGroupBox"));
+        verticalLayout_2 = new QVBoxLayout(fibersGroupBox);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
-        showDWISlicesCheckBox = new QCheckBox(generalGroupBox);
-        showDWISlicesCheckBox->setObjectName(QString::fromUtf8("showDWISlicesCheckBox"));
-
-        verticalLayout_2->addWidget(showDWISlicesCheckBox);
-
-        showFiberSamplesCheckBox = new QCheckBox(generalGroupBox);
+        showFiberSamplesCheckBox = new QCheckBox(fibersGroupBox);
         showFiberSamplesCheckBox->setObjectName(QString::fromUtf8("showFiberSamplesCheckBox"));
         showFiberSamplesCheckBox->setChecked(false);
 
         verticalLayout_2->addWidget(showFiberSamplesCheckBox);
 
-        showRepresentativeFibersCheckBox = new QCheckBox(generalGroupBox);
+        showRepresentativeFibersCheckBox = new QCheckBox(fibersGroupBox);
         showRepresentativeFibersCheckBox->setObjectName(QString::fromUtf8("showRepresentativeFibersCheckBox"));
         showRepresentativeFibersCheckBox->setChecked(false);
 
         verticalLayout_2->addWidget(showRepresentativeFibersCheckBox);
 
 
-        verticalLayout->addWidget(generalGroupBox);
+        verticalLayout->addWidget(fibersGroupBox);
 
         visitationMapGroupBox = new QGroupBox(renderingTab);
         visitationMapGroupBox->setObjectName(QString::fromUtf8("visitationMapGroupBox"));
@@ -523,8 +544,11 @@ public:
         label->setText(QCoreApplication::translate("MainWindow", "Number of representative fibers:", nullptr));
         startButton->setText(QCoreApplication::translate("MainWindow", "Start", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(setupTab), QCoreApplication::translate("MainWindow", "Setup", nullptr));
-        generalGroupBox->setTitle(QCoreApplication::translate("MainWindow", "General", nullptr));
-        showDWISlicesCheckBox->setText(QCoreApplication::translate("MainWindow", "Show DWI slices", nullptr));
+        dwiSlicesGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Show planes", nullptr));
+        showAxialPlaneCheckBox->setText(QCoreApplication::translate("MainWindow", "Axial", nullptr));
+        showCoronalPlaneCheckBox->setText(QCoreApplication::translate("MainWindow", "Coronal", nullptr));
+        showSagittalPlaneCheckBox->setText(QCoreApplication::translate("MainWindow", "Sagittal", nullptr));
+        fibersGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Fibers", nullptr));
         showFiberSamplesCheckBox->setText(QCoreApplication::translate("MainWindow", "Show fiber samples", nullptr));
         showRepresentativeFibersCheckBox->setText(QCoreApplication::translate("MainWindow", "Show representative fibers", nullptr));
         visitationMapGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Visitation Map", nullptr));

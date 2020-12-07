@@ -32,7 +32,7 @@ const std::string INPUT_FILE_NAME = "./data/cst-20.vtk";
 //    "./data/cc-6/6.vtk"
 //};
 
-const std::vector<std::string> INPUT_FILE_NAMES = {
+const std::vector<std::string> FIBER_FILE_NAMES = {
         "./data/cst-10/1.vtk",
         "./data/cst-10/2.vtk",
         "./data/cst-10/3.vtk",
@@ -44,6 +44,9 @@ const std::vector<std::string> INPUT_FILE_NAMES = {
         "./data/cst-10/9.vtk",
         "./data/cst-10/10.vtk",
 };
+
+
+const std::string DWI_PATH = "/home/rutger/Desktop/Graduation/standalone/progressive-fiber-uncertainty-viz/data/test-data-dwi-volume.nhdr";
 
 #define DEBUG
 

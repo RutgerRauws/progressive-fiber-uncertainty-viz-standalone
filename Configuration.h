@@ -15,7 +15,10 @@ private:
         NUMBER_OF_REPRESENTATIVE_FIBERS = 25; //TODO: This is not being used in other classes yet! You need to set this yourself!
         SIDE_SIZE = 1.0f;
 
-        SHOW_DWI_SLICES = true;
+        SHOW_AXIAL_PLANE = false;
+        SHOW_CORONAL_PLANE = false;
+        SHOW_SAGITTAL_PLANE = false;
+
         SHOW_FIBER_SAMPLES = true;
         SHOW_REPRESENTATIVE_FIBERS = true;
 
@@ -37,7 +40,10 @@ public:
     float SIDE_SIZE; //mm
 
     //Rendering
-    bool SHOW_DWI_SLICES;
+    bool SHOW_AXIAL_PLANE;
+    bool SHOW_CORONAL_PLANE;
+    bool SHOW_SAGITTAL_PLANE;
+
     bool SHOW_FIBER_SAMPLES;
     bool SHOW_REPRESENTATIVE_FIBERS;
 

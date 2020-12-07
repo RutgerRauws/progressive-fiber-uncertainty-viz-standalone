@@ -14,14 +14,20 @@ UserInterface::UserInterface()
     loadConfiguration();
 
     OGLWidget::connect(mainWindow.startButton, &QPushButton::clicked, this, &UserInterface::startButtonClicked);
-    OGLWidget::connect(mainWindow.showDWISlicesCheckBox, &QCheckBox::clicked, this, &UserInterface::showDWISlicesClicked);
+
+    OGLWidget::connect(mainWindow.showAxialPlaneCheckBox, &QCheckBox::clicked, this, &UserInterface::showAxialPlaneClicked);
+    OGLWidget::connect(mainWindow.showCoronalPlaneCheckBox, &QCheckBox::clicked, this, &UserInterface::showCoronalPlaneClicked);
+    OGLWidget::connect(mainWindow.showSagittalPlaneCheckBox, &QCheckBox::clicked, this, &UserInterface::showSagittalPlaneClicked);
+
     OGLWidget::connect(mainWindow.showFiberSamplesCheckBox, &QCheckBox::clicked, this, &UserInterface::showFiberSamplesClicked);
     OGLWidget::connect(mainWindow.showRepresentativeFibersCheckBox, &QCheckBox::clicked, this, &UserInterface::showRepresentativeFibersClicked);
+
     OGLWidget::connect(mainWindow.useTrilinearInterpolationCheckBox, &QCheckBox::clicked, this, &UserInterface::useTrilinearInterpolationClicked);
     OGLWidget::connect(mainWindow.fiberFrequenciesRadioButton, &QRadioButton::clicked, this, &UserInterface::useFiberFrequenciesClicked);
     OGLWidget::connect(mainWindow.distanceScoresRadioButton, &QRadioButton::clicked, this, &UserInterface::useDistanceScoresClicked);
     OGLWidget::connect(mainWindow.fiberFrequencySlider, &QSlider::valueChanged, this, &UserInterface::fiberFrequencySliderValueChanged);
     OGLWidget::connect(mainWindow.distanceScoreSlider, &QSlider::valueChanged, this, &UserInterface::distanceScoreSliderValueChanged);
+
     OGLWidget::connect(mainWindow.hullOpacitySlider, &QSlider::valueChanged, this, &UserInterface::hullOpacitySliderValueChanged);
     OGLWidget::connect(mainWindow.diffuseColorSelectButton, &QPushButton::clicked, this, &UserInterface::diffuseColorSelectButtonClicked);
     OGLWidget::connect(mainWindow.ambientColorSelectButton, &QPushButton::clicked, this, &UserInterface::ambientColorSelectButtonClicked);
@@ -46,7 +52,10 @@ void UserInterface::loadConfiguration()
     mainWindow.sideSizeDoubleSpinBox->setValue(config.SIDE_SIZE);
     mainWindow.numberOfRepresentativeFibersSpinBox->setValue(config.NUMBER_OF_REPRESENTATIVE_FIBERS);
 
-    mainWindow.showDWISlicesCheckBox->setChecked(config.SHOW_DWI_SLICES);
+    mainWindow.showAxialPlaneCheckBox->setChecked(config.SHOW_AXIAL_PLANE);
+    mainWindow.showCoronalPlaneCheckBox->setChecked(config.SHOW_CORONAL_PLANE);
+    mainWindow.showSagittalPlaneCheckBox->setChecked(config.SHOW_SAGITTAL_PLANE);
+
     mainWindow.showFiberSamplesCheckBox->setChecked(config.SHOW_FIBER_SAMPLES);
     mainWindow.showRepresentativeFibersCheckBox->setChecked(config.SHOW_REPRESENTATIVE_FIBERS);
 
@@ -78,9 +87,19 @@ void UserInterface::startButtonClicked()
     std::cout << "Clicked!" << std::endl;
 }
 
-void UserInterface::showDWISlicesClicked(bool checked)
+void UserInterface::showAxialPlaneClicked(bool checked)
 {
-    Configuration::getInstance().SHOW_DWI_SLICES = checked;
+    Configuration::getInstance().SHOW_AXIAL_PLANE = checked;
+}
+
+void UserInterface::showCoronalPlaneClicked(bool checked)
+{
+    Configuration::getInstance().SHOW_CORONAL_PLANE = checked;
+}
+
+void UserInterface::showSagittalPlaneClicked(bool checked)
+{
+    Configuration::getInstance().SHOW_SAGITTAL_PLANE = checked;
 }
 
 void UserInterface::showFiberSamplesClicked(bool checked)

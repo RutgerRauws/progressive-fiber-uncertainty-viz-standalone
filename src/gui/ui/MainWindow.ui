@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>1172</width>
-    <height>818</height>
+    <height>817</height>
    </rect>
   </property>
   <property name="palette">
@@ -281,18 +281,41 @@
         </attribute>
         <layout class="QVBoxLayout" name="verticalLayout">
          <item>
-          <widget class="QGroupBox" name="generalGroupBox">
+          <widget class="QGroupBox" name="dwiSlicesGroupBox">
            <property name="title">
-            <string>General</string>
+            <string>Show planes</string>
            </property>
-           <layout class="QVBoxLayout" name="verticalLayout_2">
+           <layout class="QHBoxLayout" name="horizontalLayout_5">
             <item>
-             <widget class="QCheckBox" name="showDWISlicesCheckBox">
+             <widget class="QCheckBox" name="showAxialPlaneCheckBox">
               <property name="text">
-               <string>Show DWI slices</string>
+               <string>Axial</string>
               </property>
              </widget>
             </item>
+            <item>
+             <widget class="QCheckBox" name="showCoronalPlaneCheckBox">
+              <property name="text">
+               <string>Coronal</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QCheckBox" name="showSagittalPlaneCheckBox">
+              <property name="text">
+               <string>Sagittal</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item>
+          <widget class="QGroupBox" name="fibersGroupBox">
+           <property name="title">
+            <string>Fibers</string>
+           </property>
+           <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
              <widget class="QCheckBox" name="showFiberSamplesCheckBox">
               <property name="text">

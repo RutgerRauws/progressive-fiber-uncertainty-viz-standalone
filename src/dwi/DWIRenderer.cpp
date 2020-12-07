@@ -2,14 +2,12 @@
 // Created by rutger on 10/8/20.
 //
 #include <algorithm>
-#include <Configuration.h>
 #include <libs/glm/ext.hpp>
 #include "DWIRenderer.h"
-#include "DWIDataReader.h"
 
-DWIRenderer::DWIRenderer(GL& gl, const Camera& camera, const DWISlice& slice)
+DWIRenderer::DWIRenderer(GL& gl, const Camera& camera, const DWISlice& slice, bool& showSlice)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
-      gl(gl), slice(slice)
+      gl(gl), slice(slice), showSlice(showSlice)
 {
     initialize();
 }
@@ -57,13 +55,11 @@ void DWIRenderer::initialize()
     gl.glGenerateMipmap(GL_TEXTURE_2D);
 
     opacity_loc = gl.glGetUniformLocation(programId, "showSlice");
-    gl.glUniform1i(opacity_loc, Configuration::getInstance().SHOW_DWI_SLICES);
+    gl.glUniform1i(opacity_loc, showSlice);
 }
 
 void DWIRenderer::Render()
 {
-    Configuration& config = Configuration::getInstance();
-
     shaderProgram->bind();
 
     gl.glBindTexture(GL_TEXTURE_2D, texture_loc);
@@ -74,7 +70,7 @@ void DWIRenderer::Render()
     gl.glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
     gl.glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    gl.glUniform1i(opacity_loc, Configuration::getInstance().SHOW_DWI_SLICES);
+    gl.glUniform1i(opacity_loc, showSlice);
 
     gl.glDrawArrays(GL_TRIANGLES, 0, 6);
 }
