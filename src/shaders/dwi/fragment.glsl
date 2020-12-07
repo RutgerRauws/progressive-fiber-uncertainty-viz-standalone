@@ -4,7 +4,7 @@
 // Uniforms
 //
 uniform sampler2D texture;
-uniform float opacity;
+uniform bool showSlice;
 
 //
 // In- and outputs
@@ -14,7 +14,12 @@ out vec4 FragColor;
 
 void main()
 {
+  if(!showSlice)
+  {
+    discard;
+  }
+
   vec4 pixelColor = texture2D(texture, TexCoord);
   FragColor.rgb   = pixelColor.rgb;
-  FragColor.a     = opacity;
+  FragColor.a     = 1.0f;
 }

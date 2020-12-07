@@ -17,9 +17,11 @@ private:
     void loadConfiguration();
 
     void startButtonClicked();
+
+    void showDWISlicesClicked(bool checked);
     void showFiberSamplesClicked(bool checked);
     void showRepresentativeFibersClicked(bool checked);
-    void dwiOpacitySliderValueChanged(int value);
+
     void useTrilinearInterpolationClicked(bool checked);
     void useFiberFrequenciesClicked(bool checked);
     void useDistanceScoresClicked(bool checked);

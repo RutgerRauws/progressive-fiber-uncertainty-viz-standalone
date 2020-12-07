@@ -56,8 +56,8 @@ void DWIRenderer::initialize()
     gl.glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, slice.GetWidth(), slice.GetHeight(), 0, GL_RGBA, GL_UNSIGNED_BYTE, slice.GetBytes());
     gl.glGenerateMipmap(GL_TEXTURE_2D);
 
-    opacity_loc = gl.glGetUniformLocation(programId, "opacity");
-    gl.glUniform1f(opacity_loc, Configuration::getInstance().DWI_OPACITY);
+    opacity_loc = gl.glGetUniformLocation(programId, "showSlice");
+    gl.glUniform1i(opacity_loc, Configuration::getInstance().SHOW_DWI_SLICES);
 }
 
 void DWIRenderer::Render()
@@ -74,7 +74,7 @@ void DWIRenderer::Render()
     gl.glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
     gl.glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    gl.glUniform1f(opacity_loc, Configuration::getInstance().DWI_OPACITY);
+    gl.glUniform1i(opacity_loc, Configuration::getInstance().SHOW_DWI_SLICES);
 
     gl.glDrawArrays(GL_TRIANGLES, 0, 6);
 }

@@ -14,9 +14,9 @@ UserInterface::UserInterface()
     loadConfiguration();
 
     OGLWidget::connect(mainWindow.startButton, &QPushButton::clicked, this, &UserInterface::startButtonClicked);
+    OGLWidget::connect(mainWindow.showDWISlicesCheckBox, &QCheckBox::clicked, this, &UserInterface::showDWISlicesClicked);
     OGLWidget::connect(mainWindow.showFiberSamplesCheckBox, &QCheckBox::clicked, this, &UserInterface::showFiberSamplesClicked);
     OGLWidget::connect(mainWindow.showRepresentativeFibersCheckBox, &QCheckBox::clicked, this, &UserInterface::showRepresentativeFibersClicked);
-    OGLWidget::connect(mainWindow.dwiOpacitySlider, &QSlider::valueChanged, this, &UserInterface::dwiOpacitySliderValueChanged);
     OGLWidget::connect(mainWindow.useTrilinearInterpolationCheckBox, &QCheckBox::clicked, this, &UserInterface::useTrilinearInterpolationClicked);
     OGLWidget::connect(mainWindow.fiberFrequenciesRadioButton, &QRadioButton::clicked, this, &UserInterface::useFiberFrequenciesClicked);
     OGLWidget::connect(mainWindow.distanceScoresRadioButton, &QRadioButton::clicked, this, &UserInterface::useDistanceScoresClicked);
@@ -46,17 +46,15 @@ void UserInterface::loadConfiguration()
     mainWindow.sideSizeDoubleSpinBox->setValue(config.SIDE_SIZE);
     mainWindow.numberOfRepresentativeFibersSpinBox->setValue(config.NUMBER_OF_REPRESENTATIVE_FIBERS);
 
+    mainWindow.showDWISlicesCheckBox->setChecked(config.SHOW_DWI_SLICES);
     mainWindow.showFiberSamplesCheckBox->setChecked(config.SHOW_FIBER_SAMPLES);
     mainWindow.showRepresentativeFibersCheckBox->setChecked(config.SHOW_REPRESENTATIVE_FIBERS);
-
-    int percentage = (int)(config.DWI_OPACITY * 100.0f);
-    mainWindow.dwiOpacitySlider->setValue(percentage);
 
     mainWindow.useTrilinearInterpolationCheckBox->setChecked(config.USE_TRILINEAR_INTERPOLATION);
     mainWindow.fiberFrequenciesRadioButton->setChecked(config.USE_FIBER_FREQUENCIES);
     mainWindow.distanceScoresRadioButton->setChecked(!config.USE_FIBER_FREQUENCIES);
 
-    percentage = (int)(config.ISOVALUE_MIN_FREQUENCY_PERCENTAGE * 100.0f);
+    int percentage = (int)(config.ISOVALUE_MIN_FREQUENCY_PERCENTAGE * 100.0f);
     mainWindow.fiberFrequencySlider->setValue(100 - percentage);
     mainWindow.fiberFrequencyLabel->setText(QString::number(percentage));
 
@@ -80,6 +78,11 @@ void UserInterface::startButtonClicked()
     std::cout << "Clicked!" << std::endl;
 }
 
+void UserInterface::showDWISlicesClicked(bool checked)
+{
+    Configuration::getInstance().SHOW_DWI_SLICES = checked;
+}
+
 void UserInterface::showFiberSamplesClicked(bool checked)
 {
     Configuration::getInstance().SHOW_FIBER_SAMPLES = checked;
@@ -88,11 +91,6 @@ void UserInterface::showFiberSamplesClicked(bool checked)
 void UserInterface::showRepresentativeFibersClicked(bool checked)
 {
     Configuration::getInstance().SHOW_REPRESENTATIVE_FIBERS = checked;
-}
-
-void UserInterface::dwiOpacitySliderValueChanged(int value)
-{
-    Configuration::getInstance().DWI_OPACITY = (float)value / 100.0f;
 }
 
 void UserInterface::useTrilinearInterpolationClicked(bool checked)

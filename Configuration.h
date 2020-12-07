@@ -15,6 +15,7 @@ private:
         NUMBER_OF_REPRESENTATIVE_FIBERS = 25; //TODO: This is not being used in other classes yet! You need to set this yourself!
         SIDE_SIZE = 1.0f;
 
+        SHOW_DWI_SLICES = true;
         SHOW_FIBER_SAMPLES = true;
         SHOW_REPRESENTATIVE_FIBERS = true;
 
@@ -28,8 +29,6 @@ private:
         HULL_COLOR_AMBIENT  = QColor(200, 200, 0);
         HULL_COLOR_DIFFUSE  = QColor(200, 200, 0);
         HULL_COLOR_SPECULAR = QColor(50, 50, 50);
-
-        DWI_OPACITY  = 1.0f;
     };
 
 public:
@@ -38,6 +37,7 @@ public:
     float SIDE_SIZE; //mm
 
     //Rendering
+    bool SHOW_DWI_SLICES;
     bool SHOW_FIBER_SAMPLES;
     bool SHOW_REPRESENTATIVE_FIBERS;
 
@@ -50,8 +50,6 @@ public:
     float HULL_OPACITY;
 //    float HULL_COLOR_R, HULL_COLOR_G, HULL_COLOR_B;
     QColor HULL_COLOR_AMBIENT, HULL_COLOR_DIFFUSE, HULL_COLOR_SPECULAR;
-
-    float DWI_OPACITY;
 
     static Configuration& getInstance()
     {

@@ -287,6 +287,13 @@
            </property>
            <layout class="QVBoxLayout" name="verticalLayout_2">
             <item>
+             <widget class="QCheckBox" name="showDWISlicesCheckBox">
+              <property name="text">
+               <string>Show DWI slices</string>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QCheckBox" name="showFiberSamplesCheckBox">
               <property name="text">
                <string>Show fiber samples</string>
@@ -303,23 +310,6 @@
               </property>
               <property name="checked">
                <bool>false</bool>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QLabel" name="label_12">
-              <property name="text">
-               <string>DWI opacity:</string>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <widget class="QSlider" name="dwiOpacitySlider">
-              <property name="maximum">
-               <number>100</number>
-              </property>
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
               </property>
              </widget>
             </item>

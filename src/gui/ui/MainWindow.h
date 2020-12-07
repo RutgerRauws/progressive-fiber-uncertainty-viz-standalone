@@ -1,7 +1,7 @@
 /********************************************************************************
 ** Form generated from reading UI file 'MainWindow.ui'
 **
-** Created by: Qt User Interface Compiler version 5.15.1
+** Created by: Qt User Interface Compiler version 5.15.2
 **
 ** WARNING! All changes made in this file will be lost when recompiling UI file!
 ********************************************************************************/
@@ -68,10 +68,9 @@ public:
     QVBoxLayout *verticalLayout;
     QGroupBox *generalGroupBox;
     QVBoxLayout *verticalLayout_2;
+    QCheckBox *showDWISlicesCheckBox;
     QCheckBox *showFiberSamplesCheckBox;
     QCheckBox *showRepresentativeFibersCheckBox;
-    QLabel *label_12;
-    QSlider *dwiOpacitySlider;
     QGroupBox *visitationMapGroupBox;
     QVBoxLayout *verticalLayout_3;
     QCheckBox *useTrilinearInterpolationCheckBox;
@@ -246,6 +245,11 @@ public:
         generalGroupBox->setObjectName(QString::fromUtf8("generalGroupBox"));
         verticalLayout_2 = new QVBoxLayout(generalGroupBox);
         verticalLayout_2->setObjectName(QString::fromUtf8("verticalLayout_2"));
+        showDWISlicesCheckBox = new QCheckBox(generalGroupBox);
+        showDWISlicesCheckBox->setObjectName(QString::fromUtf8("showDWISlicesCheckBox"));
+
+        verticalLayout_2->addWidget(showDWISlicesCheckBox);
+
         showFiberSamplesCheckBox = new QCheckBox(generalGroupBox);
         showFiberSamplesCheckBox->setObjectName(QString::fromUtf8("showFiberSamplesCheckBox"));
         showFiberSamplesCheckBox->setChecked(false);
@@ -257,18 +261,6 @@ public:
         showRepresentativeFibersCheckBox->setChecked(false);
 
         verticalLayout_2->addWidget(showRepresentativeFibersCheckBox);
-
-        label_12 = new QLabel(generalGroupBox);
-        label_12->setObjectName(QString::fromUtf8("label_12"));
-
-        verticalLayout_2->addWidget(label_12);
-
-        dwiOpacitySlider = new QSlider(generalGroupBox);
-        dwiOpacitySlider->setObjectName(QString::fromUtf8("dwiOpacitySlider"));
-        dwiOpacitySlider->setMaximum(100);
-        dwiOpacitySlider->setOrientation(Qt::Horizontal);
-
-        verticalLayout_2->addWidget(dwiOpacitySlider);
 
 
         verticalLayout->addWidget(generalGroupBox);
@@ -532,9 +524,9 @@ public:
         startButton->setText(QCoreApplication::translate("MainWindow", "Start", nullptr));
         tabWidget->setTabText(tabWidget->indexOf(setupTab), QCoreApplication::translate("MainWindow", "Setup", nullptr));
         generalGroupBox->setTitle(QCoreApplication::translate("MainWindow", "General", nullptr));
+        showDWISlicesCheckBox->setText(QCoreApplication::translate("MainWindow", "Show DWI slices", nullptr));
         showFiberSamplesCheckBox->setText(QCoreApplication::translate("MainWindow", "Show fiber samples", nullptr));
         showRepresentativeFibersCheckBox->setText(QCoreApplication::translate("MainWindow", "Show representative fibers", nullptr));
-        label_12->setText(QCoreApplication::translate("MainWindow", "DWI opacity:", nullptr));
         visitationMapGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Visitation Map", nullptr));
         useTrilinearInterpolationCheckBox->setText(QCoreApplication::translate("MainWindow", "Use trilinear interpolation", nullptr));
         label_4->setText(QCoreApplication::translate("MainWindow", "Preferred metric:", nullptr));
