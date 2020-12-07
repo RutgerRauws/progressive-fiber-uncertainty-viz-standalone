@@ -65,7 +65,7 @@ uniform mat4 projMat;
 uniform vec3 cameraPosition;
 
 uniform bool useFrequencyIsovalue;
-uniform uint frequencyIsovalueThreshold;
+uniform float frequencyIsovalueThreshold;
 uniform double maxDistanceScoreIsovalueThreshold;
 uniform VisitationMapProperties vmp; //visitationMapProp
 
@@ -257,8 +257,8 @@ float trilinearInterpolation(in vec3 position)
     vec3 cellCenter = GetPosition(x_index, y_index, z_index);
     float halfSize = vmp.cellSize / 2.0f;
 
-    vec3 P000 = cellCenter + vec3(-halfSize, -halfSize, -halfSize);
-    vec3 P111 = cellCenter + vec3(+halfSize, +halfSize, +halfSize);
+    vec3 P000 = cellCenter - vec3(halfSize, halfSize, halfSize);
+    vec3 P111 = cellCenter + vec3(halfSize, halfSize, halfSize);
 
     float c000 = GetVoxelIsovalue(x_index,     y_index,     z_index    );
     float c100 = GetVoxelIsovalue(x_index + 1, y_index,     z_index    );
@@ -269,9 +269,9 @@ float trilinearInterpolation(in vec3 position)
     float c110 = GetVoxelIsovalue(x_index + 1, y_index + 1, z_index    );
     float c111 = GetVoxelIsovalue(x_index + 1, y_index + 1, z_index + 1);
 
-    float x_d = (position.x - P000.x) / (P111.x - P000.x);
-    float y_d = (position.y - P000.y) / (P111.y - P000.y);
-    float z_d = (position.z - P000.z) / (P111.z - P000.z);
+    float x_d = (position.x - P000.x) / vmp.cellSize;
+    float y_d = (position.y - P000.y) / vmp.cellSize;
+    float z_d = (position.z - P000.z) / vmp.cellSize;
 
     float c00 = c000 * (1 - x_d) + c100 * x_d;
     float c01 = c001 * (1 - x_d) + c101 * x_d;
@@ -290,7 +290,7 @@ bool withinIsosurface(in float isovalue)
 {
     if(useFrequencyIsovalue)
     {
-        return isovalue > frequencyIsovalueThreshold;//TODO: should this be geq? Should we do float cast here?
+        return isovalue >= frequencyIsovalueThreshold;//TODO: should this be geq? Should we do float cast here?
     }
     else
     {
@@ -319,14 +319,8 @@ bool isVoxelInIsosurface(in vec3 position)
 
 bool isPointInIsosurface(in vec3 position)
 {
-    if(useFrequencyIsovalue)
-    {
-        return trilinearInterpolation(position) > frequencyIsovalueThreshold;
-    }
-    else
-    {
-        return trilinearInterpolation(position) < maxDistanceScoreIsovalueThreshold;
-    }
+    float isovalue = trilinearInterpolation(position);
+    return withinIsosurface(isovalue);
 }
 
 bool isVoxelVisible(in vec3 position)
@@ -363,13 +357,21 @@ void intersectionRefinement(in vec3 x_near, in vec3 x_far, out vec3 refinedInter
 
     for(uint i = 0; i < numberOfRefinementIterationSteps; i++)
     {
-        x_new = (f_far - f_near) * (frequencyIsovalueThreshold - f_near) / (f_far - f_near) + x_near;
+        if(useFrequencyIsovalue)
+        {
+            x_new = (x_far - x_near) * ((frequencyIsovalueThreshold - f_near) / (f_far - f_near)) + x_near;
+        }
+        else
+        {
+            x_new = (x_far - x_near) * ((float(maxDistanceScoreIsovalueThreshold) - f_near) / (f_far - f_near)) + x_near;
+        }
+
         f_new = trilinearInterpolation(x_new);
 
-        if(f_new < frequencyIsovalueThreshold)
+        if((useFrequencyIsovalue && f_new < frequencyIsovalueThreshold)
+        || (!useFrequencyIsovalue && f_new > maxDistanceScoreIsovalueThreshold))
         {
             // new point lies in front of the isosurface
-            //todo I THINK IT'S THE OTHER WAY AROUND? BECAUSE WE USE THE INVERSE OF THE DEFINITION OF ISOVALUES?
 
             x_near = x_new;
             f_near = f_new;
@@ -381,8 +383,8 @@ void intersectionRefinement(in vec3 x_near, in vec3 x_far, out vec3 refinedInter
         }
     }
 
-    refinedIntersection = x_new;
-    isovalue = f_new;
+    refinedIntersection = x_far;
+    isovalue = f_far;
 }
 
 bool nearIsosurface(in uint x_index, in uint y_index, in uint z_index)
@@ -576,15 +578,7 @@ void main()
 
             if(useInterpolation)
             {
-                if(isVoxelInIsosurface(cellIndex))
-                {
-                    refinedIntersection = currentPosition;// x_near;
-                    isovalue = GetVoxelIsovalue(cellIndex);
-                }
-                else
-                {
-                    intersectionRefinement(x_near, x_far, refinedIntersection, isovalue);
-                }
+                intersectionRefinement(x_near, x_far, refinedIntersection, isovalue);
             }
             else
             {
@@ -616,7 +610,6 @@ void main()
     }
     else
     {
-//        outColor += vec4(0, 1, 0, 1);
         gl_FragDepth = 1;
     }
 }

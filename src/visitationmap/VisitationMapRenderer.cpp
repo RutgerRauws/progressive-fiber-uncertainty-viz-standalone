@@ -142,7 +142,7 @@ void VisitationMapRenderer::initialize()
     cameraPos_loc = gl.glGetUniformLocation(programId, "cameraPosition");
 
     frequency_isovalue_loc = gl.glGetUniformLocation(programId, "frequencyIsovalueThreshold");
-    gl.glProgramUniform1ui(programId, frequency_isovalue_loc, config.ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
+    gl.glProgramUniform1f(programId, frequency_isovalue_loc, config.ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
 
     distance_score_isovalue_loc = gl.glGetUniformLocation(programId, "maxDistanceScoreIsovalueThreshold");
     gl.glProgramUniform1d(programId, distance_score_isovalue_loc, config.ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE);
@@ -165,9 +165,9 @@ void VisitationMapRenderer::initialize()
     gl.glProgramUniform3f(programId, k_specular_loc,config.HULL_COLOR_SPECULAR.red() / 255.0f, config.HULL_COLOR_SPECULAR.green() / 255.0f, config.HULL_COLOR_SPECULAR.blue() / 255.0f);
 }
 
-unsigned int VisitationMapRenderer::computeFrequencyIsovalue() const
+float VisitationMapRenderer::computeFrequencyIsovalue() const
 {
-    return std::ceil((float)numberOfFibers * Configuration::getInstance().ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
+    return numberOfFibers * Configuration::getInstance().ISOVALUE_MIN_FREQUENCY_PERCENTAGE + 0.0001f;
 }
 
 double VisitationMapRenderer::computeDistanceScoreIsovalue() const
@@ -192,7 +192,7 @@ void VisitationMapRenderer::Render()
 
     gl.glProgramUniform1i(programId, use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
     gl.glProgramUniform1i(programId, use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
-    gl.glProgramUniform1ui(programId, frequency_isovalue_loc, computeFrequencyIsovalue());
+    gl.glProgramUniform1f(programId, frequency_isovalue_loc, computeFrequencyIsovalue());
     gl.glProgramUniform1d(programId, distance_score_isovalue_loc, computeDistanceScoreIsovalue());
 
     gl.glProgramUniform1f(programId, opacity_loc, config.HULL_OPACITY);
