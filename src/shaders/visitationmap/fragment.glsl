@@ -473,6 +473,8 @@ vec3 computeNormalPoint(in vec3 position)
 
     normal = vec3(g_x, g_y, g_z);
 
+    if(!useFrequencyIsovalue) { normal *= -1; } //normals point in the opposite direction
+
     return normalize(normal);
 }
 
