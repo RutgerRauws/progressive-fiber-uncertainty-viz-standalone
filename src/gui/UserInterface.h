@@ -16,8 +16,10 @@ private:
 
     void loadConfiguration();
 
+    //Setup
     void startButtonClicked();
 
+    //General
     void showAxialPlaneClicked(bool checked);
     void showCoronalPlaneClicked(bool checked);
     void showSagittalPlaneClicked(bool checked);
@@ -25,15 +27,24 @@ private:
     void showFiberSamplesClicked(bool checked);
     void showRepresentativeFibersClicked(bool checked);
 
+    //Basic visitation map rendering settings
     void useTrilinearInterpolationClicked(bool checked);
     void useFiberFrequenciesClicked(bool checked);
     void useDistanceScoresClicked(bool checked);
-    void fiberFrequencySliderValueChanged(int value);
-    void distanceScoreSliderValueChanged(int value);
+
+    //Hull related
+    void hullFiberFrequencySliderValueChanged(int value);
+    void hullDistanceScoreSliderValueChanged(int value);
     void hullOpacitySliderValueChanged(int value);
-    void diffuseColorSelectButtonClicked(bool checked);
-    void ambientColorSelectButtonClicked(bool checked);
-    void specularColorSelectButtonClicked(bool checked);
+    void hullDiffuseColorPickerClicked(bool checked);
+    void hullAmbientColorPickerClicked(bool checked);
+    void hullSpecularColorPickerClicked(bool checked);
+
+    //Silhouette related
+    void silhouetteFiberFrequencySliderValueChanged(int value);
+    void silhouetteDistanceScoreSliderValueChanged(int value);
+    void silhouetteOpacitySliderValueChanged(int value);
+    void silhouetteColorPickerClicked(bool checked);
 
 public:
     UserInterface();

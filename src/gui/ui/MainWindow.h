@@ -16,6 +16,7 @@
 #include <QtWidgets/QCheckBox>
 #include <QtWidgets/QDockWidget>
 #include <QtWidgets/QDoubleSpinBox>
+#include <QtWidgets/QFrame>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
@@ -82,38 +83,64 @@ public:
     QHBoxLayout *preferredMetricLayout;
     QRadioButton *fiberFrequenciesRadioButton;
     QRadioButton *distanceScoresRadioButton;
-    QWidget *fiberFrequencyWidget;
-    QVBoxLayout *fiberFrequencyLayout;
-    QLabel *label_5;
-    QHBoxLayout *fiberFrequencySliderLayout;
-    QSlider *fiberFrequencySlider;
-    QLabel *label_8;
-    QLabel *fiberFrequencyLabel;
-    QLabel *label_7;
-    QWidget *distanceScoreWidget;
-    QVBoxLayout *distanceScoreLayout;
-    QLabel *label_6;
-    QHBoxLayout *distanceScoreSliderLayout;
-    QSlider *distanceScoreSlider;
-    QLabel *label_11;
-    QLabel *distanceScoreLabel;
-    QLabel *label_9;
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout_4;
+    QWidget *hullFiberFrequencyWidget;
+    QVBoxLayout *fiberFrequencyLayout;
+    QLabel *label_5;
+    QHBoxLayout *hullFiberFrequencySliderLayout;
+    QSlider *hullFiberFrequencySlider;
+    QLabel *label_8;
+    QLabel *hullFiberFrequencyLabel;
+    QLabel *label_7;
+    QWidget *hullDistanceScoreWidget;
+    QVBoxLayout *distanceScoreLayout;
+    QLabel *label_6;
+    QHBoxLayout *hullDistanceScoreSliderLayout;
+    QSlider *hullDistanceScoreSlider;
+    QLabel *label_11;
+    QLabel *hullDistanceScoreLabel;
+    QLabel *label_9;
+    QFrame *line;
     QLabel *label_10;
     QSlider *hullOpacitySlider;
-    QHBoxLayout *horizontalLayout;
-    QLabel *label_13;
-    QSpacerItem *horizontalSpacer_3;
-    SelectColorButton *ambientColorSelectButton;
     QHBoxLayout *horizontalLayout_3;
     QLabel *label_14;
     QSpacerItem *horizontalSpacer_4;
-    SelectColorButton *diffuseColorSelectButton;
+    SelectColorButton *hullDiffuseColorPicker;
+    QHBoxLayout *horizontalLayout;
+    QLabel *label_13;
+    QSpacerItem *horizontalSpacer_3;
+    SelectColorButton *hullAmbientColorPicker;
     QHBoxLayout *horizontalLayout_4;
     QLabel *label_15;
     QSpacerItem *horizontalSpacer_5;
-    SelectColorButton *specularColorSelectButton;
+    SelectColorButton *hullSpecularColorPicker;
+    QGroupBox *groupBox_2;
+    QVBoxLayout *verticalLayout_8;
+    QWidget *silhouetteFiberFrequencyWidget;
+    QVBoxLayout *verticalLayout_9;
+    QLabel *label_12;
+    QHBoxLayout *horizontalLayout_6;
+    QSlider *silhouetteFiberFrequencySlider;
+    QLabel *label_16;
+    QLabel *silhouetteFiberFrequencyLabel;
+    QLabel *label_18;
+    QWidget *silhouetteDistanceScoreWidget;
+    QVBoxLayout *verticalLayout_11;
+    QLabel *label_19;
+    QHBoxLayout *horizontalLayout_7;
+    QSlider *silhouetteDistanceScoreSlider;
+    QLabel *label_20;
+    QLabel *silhouetteDistanceScoreLabel;
+    QLabel *label_22;
+    QFrame *line_2;
+    QLabel *label_23;
+    QSlider *silhouetteOpacitySlider;
+    QHBoxLayout *horizontalLayout_8;
+    QLabel *label_24;
+    QSpacerItem *horizontalSpacer_6;
+    SelectColorButton *silhouetteColorPicker;
     QSpacerItem *verticalSpacer;
     QButtonGroup *buttonGroup;
 
@@ -121,7 +148,7 @@ public:
     {
         if (MainWindow->objectName().isEmpty())
             MainWindow->setObjectName(QString::fromUtf8("MainWindow"));
-        MainWindow->resize(1172, 817);
+        MainWindow->resize(1172, 1044);
         QPalette palette;
         QBrush brush(QColor(252, 252, 252, 255));
         brush.setStyle(Qt::SolidPattern);
@@ -319,35 +346,39 @@ public:
 
         verticalLayout_3->addLayout(preferredMetricLayout);
 
-        fiberFrequencyWidget = new QWidget(visitationMapGroupBox);
-        fiberFrequencyWidget->setObjectName(QString::fromUtf8("fiberFrequencyWidget"));
-        fiberFrequencyLayout = new QVBoxLayout(fiberFrequencyWidget);
+        groupBox = new QGroupBox(visitationMapGroupBox);
+        groupBox->setObjectName(QString::fromUtf8("groupBox"));
+        verticalLayout_4 = new QVBoxLayout(groupBox);
+        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        hullFiberFrequencyWidget = new QWidget(groupBox);
+        hullFiberFrequencyWidget->setObjectName(QString::fromUtf8("hullFiberFrequencyWidget"));
+        fiberFrequencyLayout = new QVBoxLayout(hullFiberFrequencyWidget);
         fiberFrequencyLayout->setObjectName(QString::fromUtf8("fiberFrequencyLayout"));
-        label_5 = new QLabel(fiberFrequencyWidget);
+        label_5 = new QLabel(hullFiberFrequencyWidget);
         label_5->setObjectName(QString::fromUtf8("label_5"));
 
         fiberFrequencyLayout->addWidget(label_5);
 
-        fiberFrequencySliderLayout = new QHBoxLayout();
-        fiberFrequencySliderLayout->setObjectName(QString::fromUtf8("fiberFrequencySliderLayout"));
-        fiberFrequencySlider = new QSlider(fiberFrequencyWidget);
-        fiberFrequencySlider->setObjectName(QString::fromUtf8("fiberFrequencySlider"));
+        hullFiberFrequencySliderLayout = new QHBoxLayout();
+        hullFiberFrequencySliderLayout->setObjectName(QString::fromUtf8("hullFiberFrequencySliderLayout"));
+        hullFiberFrequencySlider = new QSlider(hullFiberFrequencyWidget);
+        hullFiberFrequencySlider->setObjectName(QString::fromUtf8("hullFiberFrequencySlider"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(fiberFrequencySlider->sizePolicy().hasHeightForWidth());
-        fiberFrequencySlider->setSizePolicy(sizePolicy);
-        fiberFrequencySlider->setMaximumSize(QSize(16777215, 16777215));
-        fiberFrequencySlider->setMinimum(0);
-        fiberFrequencySlider->setMaximum(100);
-        fiberFrequencySlider->setValue(0);
-        fiberFrequencySlider->setOrientation(Qt::Horizontal);
-        fiberFrequencySlider->setInvertedAppearance(true);
-        fiberFrequencySlider->setInvertedControls(false);
+        sizePolicy.setHeightForWidth(hullFiberFrequencySlider->sizePolicy().hasHeightForWidth());
+        hullFiberFrequencySlider->setSizePolicy(sizePolicy);
+        hullFiberFrequencySlider->setMaximumSize(QSize(16777215, 16777215));
+        hullFiberFrequencySlider->setMinimum(0);
+        hullFiberFrequencySlider->setMaximum(100);
+        hullFiberFrequencySlider->setValue(0);
+        hullFiberFrequencySlider->setOrientation(Qt::Horizontal);
+        hullFiberFrequencySlider->setInvertedAppearance(true);
+        hullFiberFrequencySlider->setInvertedControls(false);
 
-        fiberFrequencySliderLayout->addWidget(fiberFrequencySlider);
+        hullFiberFrequencySliderLayout->addWidget(hullFiberFrequencySlider);
 
-        label_8 = new QLabel(fiberFrequencyWidget);
+        label_8 = new QLabel(hullFiberFrequencyWidget);
         label_8->setObjectName(QString::fromUtf8("label_8"));
         QSizePolicy sizePolicy1(QSizePolicy::Maximum, QSizePolicy::Maximum);
         sizePolicy1.setHorizontalStretch(0);
@@ -355,77 +386,80 @@ public:
         sizePolicy1.setHeightForWidth(label_8->sizePolicy().hasHeightForWidth());
         label_8->setSizePolicy(sizePolicy1);
 
-        fiberFrequencySliderLayout->addWidget(label_8);
+        hullFiberFrequencySliderLayout->addWidget(label_8);
 
-        fiberFrequencyLabel = new QLabel(fiberFrequencyWidget);
-        fiberFrequencyLabel->setObjectName(QString::fromUtf8("fiberFrequencyLabel"));
-        sizePolicy1.setHeightForWidth(fiberFrequencyLabel->sizePolicy().hasHeightForWidth());
-        fiberFrequencyLabel->setSizePolicy(sizePolicy1);
+        hullFiberFrequencyLabel = new QLabel(hullFiberFrequencyWidget);
+        hullFiberFrequencyLabel->setObjectName(QString::fromUtf8("hullFiberFrequencyLabel"));
+        sizePolicy1.setHeightForWidth(hullFiberFrequencyLabel->sizePolicy().hasHeightForWidth());
+        hullFiberFrequencyLabel->setSizePolicy(sizePolicy1);
 
-        fiberFrequencySliderLayout->addWidget(fiberFrequencyLabel);
+        hullFiberFrequencySliderLayout->addWidget(hullFiberFrequencyLabel);
 
-        label_7 = new QLabel(fiberFrequencyWidget);
+        label_7 = new QLabel(hullFiberFrequencyWidget);
         label_7->setObjectName(QString::fromUtf8("label_7"));
         sizePolicy1.setHeightForWidth(label_7->sizePolicy().hasHeightForWidth());
         label_7->setSizePolicy(sizePolicy1);
 
-        fiberFrequencySliderLayout->addWidget(label_7);
+        hullFiberFrequencySliderLayout->addWidget(label_7);
 
 
-        fiberFrequencyLayout->addLayout(fiberFrequencySliderLayout);
+        fiberFrequencyLayout->addLayout(hullFiberFrequencySliderLayout);
 
 
-        verticalLayout_3->addWidget(fiberFrequencyWidget);
+        verticalLayout_4->addWidget(hullFiberFrequencyWidget);
 
-        distanceScoreWidget = new QWidget(visitationMapGroupBox);
-        distanceScoreWidget->setObjectName(QString::fromUtf8("distanceScoreWidget"));
-        distanceScoreLayout = new QVBoxLayout(distanceScoreWidget);
+        hullDistanceScoreWidget = new QWidget(groupBox);
+        hullDistanceScoreWidget->setObjectName(QString::fromUtf8("hullDistanceScoreWidget"));
+        distanceScoreLayout = new QVBoxLayout(hullDistanceScoreWidget);
         distanceScoreLayout->setObjectName(QString::fromUtf8("distanceScoreLayout"));
-        label_6 = new QLabel(distanceScoreWidget);
+        label_6 = new QLabel(hullDistanceScoreWidget);
         label_6->setObjectName(QString::fromUtf8("label_6"));
 
         distanceScoreLayout->addWidget(label_6);
 
-        distanceScoreSliderLayout = new QHBoxLayout();
-        distanceScoreSliderLayout->setObjectName(QString::fromUtf8("distanceScoreSliderLayout"));
-        distanceScoreSlider = new QSlider(distanceScoreWidget);
-        distanceScoreSlider->setObjectName(QString::fromUtf8("distanceScoreSlider"));
-        distanceScoreSlider->setMaximum(100);
-        distanceScoreSlider->setOrientation(Qt::Horizontal);
+        hullDistanceScoreSliderLayout = new QHBoxLayout();
+        hullDistanceScoreSliderLayout->setObjectName(QString::fromUtf8("hullDistanceScoreSliderLayout"));
+        hullDistanceScoreSlider = new QSlider(hullDistanceScoreWidget);
+        hullDistanceScoreSlider->setObjectName(QString::fromUtf8("hullDistanceScoreSlider"));
+        hullDistanceScoreSlider->setMaximum(100);
+        hullDistanceScoreSlider->setOrientation(Qt::Horizontal);
 
-        distanceScoreSliderLayout->addWidget(distanceScoreSlider);
+        hullDistanceScoreSliderLayout->addWidget(hullDistanceScoreSlider);
 
-        label_11 = new QLabel(distanceScoreWidget);
+        label_11 = new QLabel(hullDistanceScoreWidget);
         label_11->setObjectName(QString::fromUtf8("label_11"));
         sizePolicy1.setHeightForWidth(label_11->sizePolicy().hasHeightForWidth());
         label_11->setSizePolicy(sizePolicy1);
 
-        distanceScoreSliderLayout->addWidget(label_11);
+        hullDistanceScoreSliderLayout->addWidget(label_11);
 
-        distanceScoreLabel = new QLabel(distanceScoreWidget);
-        distanceScoreLabel->setObjectName(QString::fromUtf8("distanceScoreLabel"));
-        sizePolicy1.setHeightForWidth(distanceScoreLabel->sizePolicy().hasHeightForWidth());
-        distanceScoreLabel->setSizePolicy(sizePolicy1);
+        hullDistanceScoreLabel = new QLabel(hullDistanceScoreWidget);
+        hullDistanceScoreLabel->setObjectName(QString::fromUtf8("hullDistanceScoreLabel"));
+        sizePolicy1.setHeightForWidth(hullDistanceScoreLabel->sizePolicy().hasHeightForWidth());
+        hullDistanceScoreLabel->setSizePolicy(sizePolicy1);
 
-        distanceScoreSliderLayout->addWidget(distanceScoreLabel);
+        hullDistanceScoreSliderLayout->addWidget(hullDistanceScoreLabel);
 
-        label_9 = new QLabel(distanceScoreWidget);
+        label_9 = new QLabel(hullDistanceScoreWidget);
         label_9->setObjectName(QString::fromUtf8("label_9"));
         sizePolicy1.setHeightForWidth(label_9->sizePolicy().hasHeightForWidth());
         label_9->setSizePolicy(sizePolicy1);
 
-        distanceScoreSliderLayout->addWidget(label_9);
+        hullDistanceScoreSliderLayout->addWidget(label_9);
 
 
-        distanceScoreLayout->addLayout(distanceScoreSliderLayout);
+        distanceScoreLayout->addLayout(hullDistanceScoreSliderLayout);
 
 
-        verticalLayout_3->addWidget(distanceScoreWidget);
+        verticalLayout_4->addWidget(hullDistanceScoreWidget);
 
-        groupBox = new QGroupBox(visitationMapGroupBox);
-        groupBox->setObjectName(QString::fromUtf8("groupBox"));
-        verticalLayout_4 = new QVBoxLayout(groupBox);
-        verticalLayout_4->setObjectName(QString::fromUtf8("verticalLayout_4"));
+        line = new QFrame(groupBox);
+        line->setObjectName(QString::fromUtf8("line"));
+        line->setFrameShape(QFrame::HLine);
+        line->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_4->addWidget(line);
+
         label_10 = new QLabel(groupBox);
         label_10->setObjectName(QString::fromUtf8("label_10"));
 
@@ -438,29 +472,6 @@ public:
 
         verticalLayout_4->addWidget(hullOpacitySlider);
 
-        horizontalLayout = new QHBoxLayout();
-        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
-        label_13 = new QLabel(groupBox);
-        label_13->setObjectName(QString::fromUtf8("label_13"));
-
-        horizontalLayout->addWidget(label_13);
-
-        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
-
-        horizontalLayout->addItem(horizontalSpacer_3);
-
-        ambientColorSelectButton = new SelectColorButton(groupBox);
-        ambientColorSelectButton->setObjectName(QString::fromUtf8("ambientColorSelectButton"));
-        ambientColorSelectButton->setFocusPolicy(Qt::NoFocus);
-        ambientColorSelectButton->setCheckable(false);
-        ambientColorSelectButton->setChecked(false);
-        ambientColorSelectButton->setFlat(false);
-
-        horizontalLayout->addWidget(ambientColorSelectButton);
-
-
-        verticalLayout_4->addLayout(horizontalLayout);
-
         horizontalLayout_3 = new QHBoxLayout();
         horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
         label_14 = new QLabel(groupBox);
@@ -472,14 +483,37 @@ public:
 
         horizontalLayout_3->addItem(horizontalSpacer_4);
 
-        diffuseColorSelectButton = new SelectColorButton(groupBox);
-        diffuseColorSelectButton->setObjectName(QString::fromUtf8("diffuseColorSelectButton"));
-        diffuseColorSelectButton->setFocusPolicy(Qt::NoFocus);
+        hullDiffuseColorPicker = new SelectColorButton(groupBox);
+        hullDiffuseColorPicker->setObjectName(QString::fromUtf8("hullDiffuseColorPicker"));
+        hullDiffuseColorPicker->setFocusPolicy(Qt::NoFocus);
 
-        horizontalLayout_3->addWidget(diffuseColorSelectButton);
+        horizontalLayout_3->addWidget(hullDiffuseColorPicker);
 
 
         verticalLayout_4->addLayout(horizontalLayout_3);
+
+        horizontalLayout = new QHBoxLayout();
+        horizontalLayout->setObjectName(QString::fromUtf8("horizontalLayout"));
+        label_13 = new QLabel(groupBox);
+        label_13->setObjectName(QString::fromUtf8("label_13"));
+
+        horizontalLayout->addWidget(label_13);
+
+        horizontalSpacer_3 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout->addItem(horizontalSpacer_3);
+
+        hullAmbientColorPicker = new SelectColorButton(groupBox);
+        hullAmbientColorPicker->setObjectName(QString::fromUtf8("hullAmbientColorPicker"));
+        hullAmbientColorPicker->setFocusPolicy(Qt::NoFocus);
+        hullAmbientColorPicker->setCheckable(false);
+        hullAmbientColorPicker->setChecked(false);
+        hullAmbientColorPicker->setFlat(false);
+
+        horizontalLayout->addWidget(hullAmbientColorPicker);
+
+
+        verticalLayout_4->addLayout(horizontalLayout);
 
         horizontalLayout_4 = new QHBoxLayout();
         horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
@@ -492,17 +526,142 @@ public:
 
         horizontalLayout_4->addItem(horizontalSpacer_5);
 
-        specularColorSelectButton = new SelectColorButton(groupBox);
-        specularColorSelectButton->setObjectName(QString::fromUtf8("specularColorSelectButton"));
-        specularColorSelectButton->setFocusPolicy(Qt::NoFocus);
+        hullSpecularColorPicker = new SelectColorButton(groupBox);
+        hullSpecularColorPicker->setObjectName(QString::fromUtf8("hullSpecularColorPicker"));
+        hullSpecularColorPicker->setFocusPolicy(Qt::NoFocus);
 
-        horizontalLayout_4->addWidget(specularColorSelectButton);
+        horizontalLayout_4->addWidget(hullSpecularColorPicker);
 
 
         verticalLayout_4->addLayout(horizontalLayout_4);
 
 
         verticalLayout_3->addWidget(groupBox);
+
+        groupBox_2 = new QGroupBox(visitationMapGroupBox);
+        groupBox_2->setObjectName(QString::fromUtf8("groupBox_2"));
+        verticalLayout_8 = new QVBoxLayout(groupBox_2);
+        verticalLayout_8->setObjectName(QString::fromUtf8("verticalLayout_8"));
+        silhouetteFiberFrequencyWidget = new QWidget(groupBox_2);
+        silhouetteFiberFrequencyWidget->setObjectName(QString::fromUtf8("silhouetteFiberFrequencyWidget"));
+        verticalLayout_9 = new QVBoxLayout(silhouetteFiberFrequencyWidget);
+        verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
+        label_12 = new QLabel(silhouetteFiberFrequencyWidget);
+        label_12->setObjectName(QString::fromUtf8("label_12"));
+
+        verticalLayout_9->addWidget(label_12);
+
+        horizontalLayout_6 = new QHBoxLayout();
+        horizontalLayout_6->setObjectName(QString::fromUtf8("horizontalLayout_6"));
+        silhouetteFiberFrequencySlider = new QSlider(silhouetteFiberFrequencyWidget);
+        silhouetteFiberFrequencySlider->setObjectName(QString::fromUtf8("silhouetteFiberFrequencySlider"));
+        silhouetteFiberFrequencySlider->setMaximum(100);
+        silhouetteFiberFrequencySlider->setOrientation(Qt::Horizontal);
+        silhouetteFiberFrequencySlider->setInvertedAppearance(true);
+        silhouetteFiberFrequencySlider->setInvertedControls(false);
+
+        horizontalLayout_6->addWidget(silhouetteFiberFrequencySlider);
+
+        label_16 = new QLabel(silhouetteFiberFrequencyWidget);
+        label_16->setObjectName(QString::fromUtf8("label_16"));
+
+        horizontalLayout_6->addWidget(label_16);
+
+        silhouetteFiberFrequencyLabel = new QLabel(silhouetteFiberFrequencyWidget);
+        silhouetteFiberFrequencyLabel->setObjectName(QString::fromUtf8("silhouetteFiberFrequencyLabel"));
+
+        horizontalLayout_6->addWidget(silhouetteFiberFrequencyLabel);
+
+        label_18 = new QLabel(silhouetteFiberFrequencyWidget);
+        label_18->setObjectName(QString::fromUtf8("label_18"));
+
+        horizontalLayout_6->addWidget(label_18);
+
+
+        verticalLayout_9->addLayout(horizontalLayout_6);
+
+
+        verticalLayout_8->addWidget(silhouetteFiberFrequencyWidget);
+
+        silhouetteDistanceScoreWidget = new QWidget(groupBox_2);
+        silhouetteDistanceScoreWidget->setObjectName(QString::fromUtf8("silhouetteDistanceScoreWidget"));
+        verticalLayout_11 = new QVBoxLayout(silhouetteDistanceScoreWidget);
+        verticalLayout_11->setObjectName(QString::fromUtf8("verticalLayout_11"));
+        label_19 = new QLabel(silhouetteDistanceScoreWidget);
+        label_19->setObjectName(QString::fromUtf8("label_19"));
+
+        verticalLayout_11->addWidget(label_19);
+
+        horizontalLayout_7 = new QHBoxLayout();
+        horizontalLayout_7->setObjectName(QString::fromUtf8("horizontalLayout_7"));
+        silhouetteDistanceScoreSlider = new QSlider(silhouetteDistanceScoreWidget);
+        silhouetteDistanceScoreSlider->setObjectName(QString::fromUtf8("silhouetteDistanceScoreSlider"));
+        silhouetteDistanceScoreSlider->setMaximum(100);
+        silhouetteDistanceScoreSlider->setOrientation(Qt::Horizontal);
+
+        horizontalLayout_7->addWidget(silhouetteDistanceScoreSlider);
+
+        label_20 = new QLabel(silhouetteDistanceScoreWidget);
+        label_20->setObjectName(QString::fromUtf8("label_20"));
+
+        horizontalLayout_7->addWidget(label_20);
+
+        silhouetteDistanceScoreLabel = new QLabel(silhouetteDistanceScoreWidget);
+        silhouetteDistanceScoreLabel->setObjectName(QString::fromUtf8("silhouetteDistanceScoreLabel"));
+
+        horizontalLayout_7->addWidget(silhouetteDistanceScoreLabel);
+
+        label_22 = new QLabel(silhouetteDistanceScoreWidget);
+        label_22->setObjectName(QString::fromUtf8("label_22"));
+
+        horizontalLayout_7->addWidget(label_22);
+
+
+        verticalLayout_11->addLayout(horizontalLayout_7);
+
+
+        verticalLayout_8->addWidget(silhouetteDistanceScoreWidget);
+
+        line_2 = new QFrame(groupBox_2);
+        line_2->setObjectName(QString::fromUtf8("line_2"));
+        line_2->setFrameShape(QFrame::HLine);
+        line_2->setFrameShadow(QFrame::Sunken);
+
+        verticalLayout_8->addWidget(line_2);
+
+        label_23 = new QLabel(groupBox_2);
+        label_23->setObjectName(QString::fromUtf8("label_23"));
+
+        verticalLayout_8->addWidget(label_23);
+
+        silhouetteOpacitySlider = new QSlider(groupBox_2);
+        silhouetteOpacitySlider->setObjectName(QString::fromUtf8("silhouetteOpacitySlider"));
+        silhouetteOpacitySlider->setOrientation(Qt::Horizontal);
+
+        verticalLayout_8->addWidget(silhouetteOpacitySlider);
+
+        horizontalLayout_8 = new QHBoxLayout();
+        horizontalLayout_8->setObjectName(QString::fromUtf8("horizontalLayout_8"));
+        label_24 = new QLabel(groupBox_2);
+        label_24->setObjectName(QString::fromUtf8("label_24"));
+
+        horizontalLayout_8->addWidget(label_24);
+
+        horizontalSpacer_6 = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+
+        horizontalLayout_8->addItem(horizontalSpacer_6);
+
+        silhouetteColorPicker = new SelectColorButton(groupBox_2);
+        silhouetteColorPicker->setObjectName(QString::fromUtf8("silhouetteColorPicker"));
+        silhouetteColorPicker->setFocusPolicy(Qt::NoFocus);
+
+        horizontalLayout_8->addWidget(silhouetteColorPicker);
+
+
+        verticalLayout_8->addLayout(horizontalLayout_8);
+
+
+        verticalLayout_3->addWidget(groupBox_2);
 
 
         verticalLayout->addWidget(visitationMapGroupBox);
@@ -525,7 +684,7 @@ public:
         retranslateUi(MainWindow);
 
         tabWidget->setCurrentIndex(1);
-        ambientColorSelectButton->setDefault(true);
+        hullAmbientColorPicker->setDefault(true);
 
 
         QMetaObject::connectSlotsByName(MainWindow);
@@ -556,26 +715,34 @@ public:
         label_4->setText(QCoreApplication::translate("MainWindow", "Preferred metric:", nullptr));
         fiberFrequenciesRadioButton->setText(QCoreApplication::translate("MainWindow", "Use fiber frequencies", nullptr));
         distanceScoresRadioButton->setText(QCoreApplication::translate("MainWindow", "Use distance scores", nullptr));
+        groupBox->setTitle(QCoreApplication::translate("MainWindow", "Hull", nullptr));
         label_5->setText(QCoreApplication::translate("MainWindow", "Fiber frequency threshold:", nullptr));
-        label_8->setText(QCoreApplication::translate("MainWindow", "<!DOCTYPE HTML PUBLIC \"-//W3C//DTD HTML 4.0//EN\" \"http://www.w3.org/TR/REC-html40/strict.dtd\">\n"
-"<html><head><meta name=\"qrichtext\" content=\"1\" /><style type=\"text/css\">\n"
-"p, li { white-space: pre-wrap; }\n"
-"</style></head><body style=\" font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;\">\n"
-"<p style=\" margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">&ge;</p></body></html>", nullptr));
-        fiberFrequencyLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        label_8->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>&ge;</p></body></html>", nullptr));
+        hullFiberFrequencyLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
         label_7->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
         label_6->setText(QCoreApplication::translate("MainWindow", "Distance score threshold:", nullptr));
         label_11->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>&le;</p></body></html>", nullptr));
-        distanceScoreLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        hullDistanceScoreLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
         label_9->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
-        groupBox->setTitle(QCoreApplication::translate("MainWindow", "Appearance", nullptr));
         label_10->setText(QCoreApplication::translate("MainWindow", "Opacity:", nullptr));
-        label_13->setText(QCoreApplication::translate("MainWindow", "Ambient color:", nullptr));
-        ambientColorSelectButton->setText(QString());
         label_14->setText(QCoreApplication::translate("MainWindow", "Diffuse color:", nullptr));
-        diffuseColorSelectButton->setText(QString());
+        hullDiffuseColorPicker->setText(QString());
+        label_13->setText(QCoreApplication::translate("MainWindow", "Ambient color:", nullptr));
+        hullAmbientColorPicker->setText(QString());
         label_15->setText(QCoreApplication::translate("MainWindow", "Specular color:", nullptr));
-        specularColorSelectButton->setText(QString());
+        hullSpecularColorPicker->setText(QString());
+        groupBox_2->setTitle(QCoreApplication::translate("MainWindow", "Silhouette", nullptr));
+        label_12->setText(QCoreApplication::translate("MainWindow", "Fiber frequency threshold:", nullptr));
+        label_16->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>&ge;</p></body></html>", nullptr));
+        silhouetteFiberFrequencyLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        label_18->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
+        label_19->setText(QCoreApplication::translate("MainWindow", "Distance score threshold:", nullptr));
+        label_20->setText(QCoreApplication::translate("MainWindow", "<html><head/><body><p>&le;</p></body></html>", nullptr));
+        silhouetteDistanceScoreLabel->setText(QCoreApplication::translate("MainWindow", "0", nullptr));
+        label_22->setText(QCoreApplication::translate("MainWindow", "%", nullptr));
+        label_23->setText(QCoreApplication::translate("MainWindow", "Opacity:", nullptr));
+        label_24->setText(QCoreApplication::translate("MainWindow", "Color:", nullptr));
+        silhouetteColorPicker->setText(QString());
         tabWidget->setTabText(tabWidget->indexOf(renderingTab), QCoreApplication::translate("MainWindow", "Rendering", nullptr));
     } // retranslateUi
 
