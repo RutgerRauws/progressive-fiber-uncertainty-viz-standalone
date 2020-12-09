@@ -26,22 +26,28 @@ class VisitationMapRenderer : public RenderElement, public FiberObserver
         const DistanceTableCollection& distanceTables;
 
         GLint cameraPos_loc = -1;
-        GLint frequency_isovalue_loc = -1;
-        GLint distance_score_isovalue_loc = -1;
         GLint use_frequency_isovalue_loc = -1;
         GLint use_interpolcation_loc = -1;
-        GLint opacity_loc = -1;
-        GLint k_diffuse_loc = -1;
-        GLint k_ambient_loc = -1;
-        GLint k_specular_loc = -1;
+
+        //Hull related
+        GLint hull_isovalue_loc = -1;
+        GLint hull_opacity_loc = -1;
+        GLint hull_k_diffuse_loc = -1;
+        GLint hull_k_ambient_loc = -1;
+        GLint hull_k_specular_loc = -1;
+
+        //Silhouette related
+        GLint silhouette_isovalue_loc = -1;
+        GLint silhouette_opacity_loc = -1;
+        GLint silhouette_color_loc = -1;
 
         unsigned int numberOfFibers;
 
         void createVertices();
         void initialize() override;
 
-        float computeFrequencyIsovalue() const;
-        double computeDistanceScoreIsovalue() const;
+        float computeFrequencyIsovalue(bool isForHull) const;
+        float computeDistanceScoreIsovalue(bool isForHull) const;
 
 
 public:

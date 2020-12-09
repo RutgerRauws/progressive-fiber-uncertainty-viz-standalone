@@ -183,6 +183,12 @@ void UserInterface::useDistanceScoresClicked(bool checked)
  */
 void UserInterface::hullFiberFrequencySliderValueChanged(int value)
 {
+    if(value > mainWindow.silhouetteFiberFrequencySlider->value())
+    {
+        mainWindow.silhouetteFiberFrequencySlider->setValue(mainWindow.hullFiberFrequencySlider->value());
+        silhouetteFiberFrequencySliderValueChanged(mainWindow.hullFiberFrequencySlider->value());
+    }
+
     int percentage = 100 - value;
 
     mainWindow.hullFiberFrequencyLabel->setText(QString::number(percentage));
@@ -191,6 +197,12 @@ void UserInterface::hullFiberFrequencySliderValueChanged(int value)
 
 void UserInterface::hullDistanceScoreSliderValueChanged(int value)
 {
+    if(value > mainWindow.silhouetteDistanceScoreSlider->value())
+    {
+        mainWindow.silhouetteDistanceScoreSlider->setValue(mainWindow.hullDistanceScoreSlider->value());
+        silhouetteDistanceScoreSliderValueChanged(mainWindow.hullDistanceScoreSlider->value());
+    }
+
     mainWindow.hullDistanceScoreLabel->setText(QString::number(value));
     Configuration::getInstance().HULL_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = (float)value / 100.0f;
 }
@@ -220,6 +232,12 @@ void UserInterface::hullSpecularColorPickerClicked(bool checked)
  */
 void UserInterface::silhouetteFiberFrequencySliderValueChanged(int value)
 {
+    if(value < mainWindow.hullFiberFrequencySlider->value())
+    {
+        mainWindow.silhouetteFiberFrequencySlider->setValue(mainWindow.hullFiberFrequencySlider->value());
+        return;
+    }
+
     int percentage = 100 - value;
 
     mainWindow.silhouetteFiberFrequencyLabel->setText(QString::number(percentage));
@@ -228,13 +246,19 @@ void UserInterface::silhouetteFiberFrequencySliderValueChanged(int value)
 
 void UserInterface::silhouetteDistanceScoreSliderValueChanged(int value)
 {
+    if(value < mainWindow.hullDistanceScoreSlider->value())
+    {
+        mainWindow.silhouetteDistanceScoreSlider->setValue(mainWindow.hullDistanceScoreSlider->value());
+        return;
+    }
+
     mainWindow.silhouetteDistanceScoreLabel->setText(QString::number(value));
     Configuration::getInstance().SILHOUETTE_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE = (float)value / 100.0f;
 }
 
 void UserInterface::silhouetteOpacitySliderValueChanged(int value)
 {
-    Configuration::getInstance().HULL_OPACITY = (float)value / 100.0f;
+    Configuration::getInstance().SILHOUETTE_OPACITY = (float)value / 100.0f;
 }
 
 void UserInterface::silhouetteColorPickerClicked(bool checked)

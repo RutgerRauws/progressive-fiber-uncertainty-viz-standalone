@@ -141,38 +141,69 @@ void VisitationMapRenderer::initialize()
 
     cameraPos_loc = gl.glGetUniformLocation(programId, "cameraPosition");
 
-    frequency_isovalue_loc = gl.glGetUniformLocation(programId, "frequencyIsovalueThreshold");
-    gl.glProgramUniform1f(programId, frequency_isovalue_loc, config.HULL_ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
-
-    distance_score_isovalue_loc = gl.glGetUniformLocation(programId, "maxDistanceScoreIsovalueThreshold");
-    gl.glProgramUniform1d(programId, distance_score_isovalue_loc, config.HULL_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE);
-
     use_frequency_isovalue_loc = gl.glGetUniformLocation(programId, "useFrequencyIsovalue");
     gl.glProgramUniform1i(programId, use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
 
     use_interpolcation_loc = gl.glGetUniformLocation(programId, "useInterpolation");
     gl.glProgramUniform1i(programId, use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
 
-    opacity_loc = gl.glGetUniformLocation(programId, "opacity");
-    gl.glProgramUniform1f(programId, opacity_loc, config.HULL_OPACITY);
+    //Hull related
+    hull_isovalue_loc = gl.glGetUniformLocation(programId, "hullIsovalueThreshold");
+    gl.glProgramUniform1f(programId, hull_isovalue_loc, config.HULL_ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
 
-    k_ambient_loc  = gl.glGetUniformLocation(programId, "k_ambient");
-    k_diffuse_loc  = gl.glGetUniformLocation(programId, "k_diffuse");
-    k_specular_loc = gl.glGetUniformLocation(programId, "k_specular");
+    hull_opacity_loc = gl.glGetUniformLocation(programId, "hullOpacity");
+    gl.glProgramUniform1f(programId, hull_opacity_loc, config.HULL_OPACITY);
 
-    gl.glProgramUniform3f(programId, k_ambient_loc, config.HULL_COLOR_AMBIENT.red() / 255.0f, config.HULL_COLOR_AMBIENT.green() / 255.0f, config.HULL_COLOR_AMBIENT.blue() / 255.0f);
-    gl.glProgramUniform3f(programId, k_diffuse_loc, config.HULL_COLOR_DIFFUSE.red() / 255.0f, config.HULL_COLOR_DIFFUSE.green() / 255.0f, config.HULL_COLOR_DIFFUSE.blue() / 255.0f);
-    gl.glProgramUniform3f(programId, k_specular_loc,config.HULL_COLOR_SPECULAR.red() / 255.0f, config.HULL_COLOR_SPECULAR.green() / 255.0f, config.HULL_COLOR_SPECULAR.blue() / 255.0f);
+    hull_k_ambient_loc  = gl.glGetUniformLocation(programId, "hullKAmbient");
+    hull_k_diffuse_loc  = gl.glGetUniformLocation(programId, "hullKDiffuse");
+    hull_k_specular_loc = gl.glGetUniformLocation(programId, "hullKSpecular");
+
+    gl.glProgramUniform3f(programId, hull_k_ambient_loc, config.HULL_COLOR_AMBIENT.red() / 255.0f, config.HULL_COLOR_AMBIENT.green() / 255.0f, config.HULL_COLOR_AMBIENT.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, hull_k_diffuse_loc, config.HULL_COLOR_DIFFUSE.red() / 255.0f, config.HULL_COLOR_DIFFUSE.green() / 255.0f, config.HULL_COLOR_DIFFUSE.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, hull_k_specular_loc, config.HULL_COLOR_SPECULAR.red() / 255.0f, config.HULL_COLOR_SPECULAR.green() / 255.0f, config.HULL_COLOR_SPECULAR.blue() / 255.0f);
+
+    //Silhouette related
+    silhouette_isovalue_loc = gl.glGetUniformLocation(programId, "silhouetteIsovalueThreshold");
+    gl.glProgramUniform1f(programId, silhouette_isovalue_loc, config.SILHOUETTE_ISOVALUE_MIN_FREQUENCY_PERCENTAGE);
+
+    silhouette_opacity_loc = gl.glGetUniformLocation(programId, "silhouetteOpacity");
+    gl.glProgramUniform1f(programId, silhouette_opacity_loc, config.SILHOUETTE_OPACITY);
+
+    silhouette_color_loc = gl.glGetUniformLocation(programId, "silhouetteColor");
+    gl.glProgramUniform3f(programId, silhouette_color_loc, config.SILHOUETTE_COLOR.red() / 255.0f, config.SILHOUETTE_COLOR.green() / 255.0f, config.SILHOUETTE_COLOR.blue() / 255.0f);
 }
 
-float VisitationMapRenderer::computeFrequencyIsovalue() const
+float VisitationMapRenderer::computeFrequencyIsovalue(bool isForHull) const
 {
-    return numberOfFibers * Configuration::getInstance().HULL_ISOVALUE_MIN_FREQUENCY_PERCENTAGE + 0.0001f;
+    float percentage;
+    if(isForHull)
+    {
+        percentage = Configuration::getInstance().HULL_ISOVALUE_MIN_FREQUENCY_PERCENTAGE;
+    }
+    else
+    {
+        percentage = Configuration::getInstance().SILHOUETTE_ISOVALUE_MIN_FREQUENCY_PERCENTAGE;
+    }
+
+    return numberOfFibers * percentage + 0.0001f;
 }
 
-double VisitationMapRenderer::computeDistanceScoreIsovalue() const
+float VisitationMapRenderer::computeDistanceScoreIsovalue(bool isForHull) const
 {
-    return distanceTables.GetLargestDistanceScore() * Configuration::getInstance().HULL_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
+    float percentage;
+
+    if(isForHull)
+    {
+        percentage = Configuration::getInstance().HULL_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
+    }
+    else
+    {
+        percentage = Configuration::getInstance().SILHOUETTE_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
+
+        std::cout << distanceTables.GetLargestDistanceScore() * percentage << std::endl;
+    }
+
+    return distanceTables.GetLargestDistanceScore() * percentage;
 }
 
 void VisitationMapRenderer::Render()
@@ -192,14 +223,29 @@ void VisitationMapRenderer::Render()
 
     gl.glProgramUniform1i(programId, use_frequency_isovalue_loc, config.USE_FIBER_FREQUENCIES);
     gl.glProgramUniform1i(programId, use_interpolcation_loc, config.USE_TRILINEAR_INTERPOLATION);
-    gl.glProgramUniform1f(programId, frequency_isovalue_loc, computeFrequencyIsovalue());
-    gl.glProgramUniform1d(programId, distance_score_isovalue_loc, computeDistanceScoreIsovalue());
 
-    gl.glProgramUniform1f(programId, opacity_loc, config.HULL_OPACITY);
+    //Isovalue related
+    if(config.USE_FIBER_FREQUENCIES)
+    {
+        gl.glProgramUniform1f(programId, hull_isovalue_loc, computeFrequencyIsovalue(true));
+        gl.glProgramUniform1f(programId, silhouette_isovalue_loc, computeFrequencyIsovalue(false));
+    }
+    else
+    {
+        gl.glProgramUniform1f(programId, hull_isovalue_loc, computeDistanceScoreIsovalue(true));
+        gl.glProgramUniform1f(programId, silhouette_isovalue_loc, computeDistanceScoreIsovalue(false));
+    }
 
-    gl.glProgramUniform3f(programId, k_ambient_loc, config.HULL_COLOR_AMBIENT.red() / 255.0f, config.HULL_COLOR_AMBIENT.green() / 255.0f, config.HULL_COLOR_AMBIENT.blue() / 255.0f);
-    gl.glProgramUniform3f(programId, k_diffuse_loc, config.HULL_COLOR_DIFFUSE.red() / 255.0f, config.HULL_COLOR_DIFFUSE.green() / 255.0f, config.HULL_COLOR_DIFFUSE.blue() / 255.0f);
-    gl.glProgramUniform3f(programId, k_specular_loc,config.HULL_COLOR_SPECULAR.red() / 255.0f, config.HULL_COLOR_SPECULAR.green() / 255.0f, config.HULL_COLOR_SPECULAR.blue() / 255.0f);
+    //Hull related
+    gl.glProgramUniform1f(programId, hull_opacity_loc, config.HULL_OPACITY);
+
+    gl.glProgramUniform3f(programId, hull_k_ambient_loc, config.HULL_COLOR_AMBIENT.red() / 255.0f, config.HULL_COLOR_AMBIENT.green() / 255.0f, config.HULL_COLOR_AMBIENT.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, hull_k_diffuse_loc, config.HULL_COLOR_DIFFUSE.red() / 255.0f, config.HULL_COLOR_DIFFUSE.green() / 255.0f, config.HULL_COLOR_DIFFUSE.blue() / 255.0f);
+    gl.glProgramUniform3f(programId, hull_k_specular_loc, config.HULL_COLOR_SPECULAR.red() / 255.0f, config.HULL_COLOR_SPECULAR.green() / 255.0f, config.HULL_COLOR_SPECULAR.blue() / 255.0f);
+
+    //Silhouette related
+    gl.glProgramUniform1f(programId, silhouette_opacity_loc, config.SILHOUETTE_OPACITY);
+    gl.glProgramUniform3f(programId, silhouette_color_loc, config.SILHOUETTE_COLOR.red() / 255.0f, config.SILHOUETTE_COLOR.green() / 255.0f, config.SILHOUETTE_COLOR.blue() / 255.0f);
 
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, visitationMap.GetSSBOId());
     gl.glBindBuffer(GL_SHADER_STORAGE_BUFFER, regionsOfInterest.GetSSBOId());

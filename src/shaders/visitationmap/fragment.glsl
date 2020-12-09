@@ -63,18 +63,23 @@ uniform mat4 viewMat;
 uniform mat4 projMat;
 
 uniform vec3 cameraPosition;
-
-uniform bool useFrequencyIsovalue;
-uniform float frequencyIsovalueThreshold;
-uniform double maxDistanceScoreIsovalueThreshold;
 uniform VisitationMapProperties vmp; //visitationMapProp
 
+uniform bool useFrequencyIsovalue;
 uniform bool useInterpolation;
-uniform float opacity;
 
-uniform vec3 k_ambient;
-uniform vec3 k_diffuse;
-uniform vec3 k_specular;
+//Hull related
+uniform float  hullIsovalueThreshold;
+uniform float  hullOpacity;
+
+uniform vec3 hullKAmbient;
+uniform vec3 hullKDiffuse;
+uniform vec3 hullKSpecular;
+
+//Silhouette related
+uniform float  silhouetteIsovalueThreshold;
+uniform float  silhouetteOpacity;
+uniform vec3   silhouetteColor;
 
 /*
  *
@@ -234,7 +239,7 @@ float GetVoxelIsovalue(in uint cellIndex)
         if(fiberId == 0) //No fiber present
         {
 //            return INF_POS;
-            return float(maxDistanceScoreIsovalueThreshold + 1);
+            return float(hullIsovalueThreshold + 1);
         }
         else
         {
@@ -286,19 +291,29 @@ float trilinearInterpolation(in vec3 position)
     return c;
 }
 
-bool withinIsosurface(in float isovalue)
+bool withinIsosurface(in bool forHull, in float value)
 {
-    if(useFrequencyIsovalue)
+    float threshold;
+    if(forHull)
     {
-        return isovalue >= frequencyIsovalueThreshold;//TODO: should this be geq? Should we do float cast here?
+        threshold = hullIsovalueThreshold;
     }
     else
     {
-        return isovalue <= maxDistanceScoreIsovalueThreshold;
+        threshold = silhouetteIsovalueThreshold;
+    }
+
+    if(useFrequencyIsovalue)
+    {
+        return value >= threshold;
+    }
+    else
+    {
+        return value <= threshold;
     }
 }
 
-bool isVoxelInIsosurface(in uint cellIndex)
+bool isVoxelInIsosurface(in bool forHull, in uint cellIndex)
 {
     //Out of bounds checking
     if(cellIndex > vmp.width * vmp.height * vmp.depth)
@@ -308,19 +323,19 @@ bool isVoxelInIsosurface(in uint cellIndex)
 
     float isovalue = GetVoxelIsovalue(cellIndex);
 
-    return withinIsosurface(isovalue);
+    return withinIsosurface(forHull, isovalue);
 }
 
-bool isVoxelInIsosurface(in vec3 position)
+bool isVoxelInIsosurface(in bool forHull, in vec3 position)
 {
     uint cellIndex = GetCellIndex(position);
-    return isVoxelInIsosurface(cellIndex);
+    return isVoxelInIsosurface(forHull, cellIndex);
 }
 
-bool isPointInIsosurface(in vec3 position)
+bool isPointInIsosurface(in bool forHull, in vec3 position)
 {
     float isovalue = trilinearInterpolation(position);
-    return withinIsosurface(isovalue);
+    return withinIsosurface(forHull, isovalue);
 }
 
 bool isVoxelVisible(in vec3 position)
@@ -330,24 +345,24 @@ bool isVoxelVisible(in vec3 position)
 
     vec3 voxelStep = 1/2 * vmp.cellSize * eyePosVec;
 
-    return !isVoxelInIsosurface(position + voxelStep);
+    return !isVoxelInIsosurface(true, position + voxelStep);
 }
 
 const float gradientDelta = 1.0f;
-bool isPointVisible(in vec3 position)
+bool isPointVisible(in bool forHull, in vec3 position)
 {
-    if(!isPointInIsosurface(position)) { return false; }
+    if(!isPointInIsosurface(forHull, position)) { return false; }
 
     vec3 eyePosVec = normalize(cameraPosition - fragmentPositionWC);
     vec3 step = gradientDelta * eyePosVec;
 
-    return !isPointInIsosurface(position + step);
+    return !isPointInIsosurface(forHull, position + step);
 }
 
 //Iterative  bisection procedure
 //Based on https://cgl.ethz.ch/people/archive/siggc/publications/eg05.pdf
 const uint numberOfRefinementIterationSteps = 4;
-void intersectionRefinement(in vec3 x_near, in vec3 x_far, out vec3 refinedIntersection, out float isovalue)
+void intersectionRefinement(in float isovalueThreshold, in vec3 x_near, in vec3 x_far, out vec3 refinedIntersection, out float isovalue)
 {
     vec3 x_new;
     float f_near, f_far, f_new;
@@ -357,19 +372,12 @@ void intersectionRefinement(in vec3 x_near, in vec3 x_far, out vec3 refinedInter
 
     for(uint i = 0; i < numberOfRefinementIterationSteps; i++)
     {
-        if(useFrequencyIsovalue)
-        {
-            x_new = (x_far - x_near) * ((frequencyIsovalueThreshold - f_near) / (f_far - f_near)) + x_near;
-        }
-        else
-        {
-            x_new = (x_far - x_near) * ((float(maxDistanceScoreIsovalueThreshold) - f_near) / (f_far - f_near)) + x_near;
-        }
+        x_new = (x_far - x_near) * ((isovalueThreshold - f_near) / (f_far - f_near)) + x_near;
 
         f_new = trilinearInterpolation(x_new);
 
-        if((useFrequencyIsovalue && f_new < frequencyIsovalueThreshold)
-        || (!useFrequencyIsovalue && f_new > maxDistanceScoreIsovalueThreshold))
+        if((useFrequencyIsovalue && f_new < isovalueThreshold)
+        || (!useFrequencyIsovalue && f_new > isovalueThreshold))
         {
             // new point lies in front of the isosurface
 
@@ -387,17 +395,17 @@ void intersectionRefinement(in vec3 x_near, in vec3 x_far, out vec3 refinedInter
     isovalue = f_far;
 }
 
-bool nearIsosurface(in uint x_index, in uint y_index, in uint z_index)
+bool nearIsosurface(in bool forHull, in uint x_index, in uint y_index, in uint z_index)
 {
     return (
-        isVoxelInIsosurface(GetCellIndex(x_index,     y_index,     z_index    ))
-    ||  isVoxelInIsosurface(GetCellIndex(x_index + 1, y_index,     z_index    ))
-    ||  isVoxelInIsosurface(GetCellIndex(x_index,     y_index + 1, z_index    ))
-    ||  isVoxelInIsosurface(GetCellIndex(x_index,     y_index,     z_index + 1))
-    ||  isVoxelInIsosurface(GetCellIndex(x_index + 1, y_index,     z_index + 1))
-    ||  isVoxelInIsosurface(GetCellIndex(x_index,     y_index + 1, z_index + 1))
-    ||  isVoxelInIsosurface(GetCellIndex(x_index + 1, y_index + 1, z_index    ))
-    ||  isVoxelInIsosurface(GetCellIndex(x_index + 1, y_index + 1, z_index + 1))
+        isVoxelInIsosurface(forHull, GetCellIndex(x_index,     y_index,     z_index    ))
+    ||  isVoxelInIsosurface(forHull, GetCellIndex(x_index + 1, y_index,     z_index    ))
+    ||  isVoxelInIsosurface(forHull, GetCellIndex(x_index,     y_index + 1, z_index    ))
+    ||  isVoxelInIsosurface(forHull, GetCellIndex(x_index,     y_index,     z_index + 1))
+    ||  isVoxelInIsosurface(forHull, GetCellIndex(x_index + 1, y_index,     z_index + 1))
+    ||  isVoxelInIsosurface(forHull, GetCellIndex(x_index,     y_index + 1, z_index + 1))
+    ||  isVoxelInIsosurface(forHull, GetCellIndex(x_index + 1, y_index + 1, z_index    ))
+    ||  isVoxelInIsosurface(forHull, GetCellIndex(x_index + 1, y_index + 1, z_index + 1))
     );
 }
 
@@ -500,11 +508,11 @@ vec3 computeShading(in vec3 position, in vec3 eyeVec)
 
     vec3 color = vec3(0);
 
-    color += k_ambient * i_a;                       //ambient contribution
-    color += k_diffuse * dot(eyeVec, normal) * i_d; //diffuse contribution
+    color += hullKAmbient * i_a;                       //ambient contribution
+    color += hullKDiffuse * dot(eyeVec, normal) * i_d; //diffuse contribution
 
 //    vec3 R_m = 2 * dot(eyeVec, normal) * normal - eyeVec; //perfect reflection direction
-//    color += k_s * pow(dot(R_m, eyeVec), alpha) * i_s; //specular contribution
+//    color += hullKSpecular * pow(dot(R_m, eyeVec), alpha) * i_s; //specular contribution
 
     return color;
 }
@@ -556,7 +564,8 @@ void main()
 
     float s = tNear;
 
-    bool inVolume = false;
+    bool inHull = false;
+    bool inSilhouette = false;
 
     //Start ray traversal
     while(fragmentColor.w < 1.0f)
@@ -567,7 +576,7 @@ void main()
         GetIndices(currentPosition, x_index, y_index, z_index);
         uint cellIndex = GetCellIndex(x_index, y_index, z_index);
 
-        if(!inVolume && nearIsosurface(x_index, y_index, z_index))// isVoxelInIsosurface(currentPosition))
+        if(!inHull)// && nearIsosurface(true, x_index, y_index, z_index))
         {
             vec3 cellMin, cellMax;
             getCellMinMax(x_index, y_index, z_index, cellMin, cellMax);
@@ -580,7 +589,7 @@ void main()
 
             if(useInterpolation)
             {
-                intersectionRefinement(x_near, x_far, refinedIntersection, isovalue);
+                intersectionRefinement(hullIsovalueThreshold, x_near, x_far, refinedIntersection, isovalue);
             }
             else
             {
@@ -588,13 +597,20 @@ void main()
                 isovalue = GetVoxelIsovalue(cellIndex);
             }
 
-            if(withinIsosurface(isovalue))
+            if(withinIsosurface(true, isovalue))
             {
-                inVolume = true;
+                inHull = true;
                 vec3 color = computeShading(refinedIntersection, -stepDir);
 
-                fragmentColor *= 1 - opacity;
-                fragmentColor += vec4(color, opacity) * opacity;
+                fragmentColor *= 1 - hullOpacity;
+                fragmentColor += vec4(color, hullOpacity) * hullOpacity;
+
+                vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
+                fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
+            }
+            else if(withinIsosurface(false, isovalue))
+            {
+                inSilhouette = true;
 
                 vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
                 fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
@@ -605,9 +621,15 @@ void main()
         s += stepSize;
     }
 
-    if(inVolume)
+    if(inHull)
     {
         outColor = fragmentColor;
+        gl_FragDepth = fragmentDepth;
+    }
+    else if(inSilhouette)
+    {
+        outColor.rgb = silhouetteColor;
+        outColor.a = silhouetteOpacity;
         gl_FragDepth = fragmentDepth;
     }
     else
