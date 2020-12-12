@@ -13,8 +13,8 @@
 /*
  * Temporary hardcoded test input files
  */
-const std::string FIBER_FOLDER = "./data/fibers/cst/cst-10/";
-const std::string DWI_PATH = "./data/mri/dwi/test-data-dwi-volume.nhdr";
+const std::string  FIBER_FOLDER = "./data/open-source/fibers/cst-10/";
+const std::string  DWI_PATH = "./data/open-source/dwi/test-data-dwi-volume.nhdr";
 const unsigned int DWI_X   = 112;
 const unsigned int DWI_Y   = 112;
 const unsigned int DWI_Z   = 70;
