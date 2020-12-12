@@ -13,12 +13,12 @@
 /*
  * Temporary hardcoded test input files
  */
-const std::string  FIBER_FOLDER = "./data/open-source/fibers/cst-10/";
-const std::string  DWI_PATH = "./data/open-source/dwi/test-data-dwi-volume.nhdr";
-const unsigned int DWI_X   = 112;
-const unsigned int DWI_Y   = 112;
-const unsigned int DWI_Z   = 70;
-const float        DWI_SIZE= 2; //mm
+const std::string  FIBER_FOLDER_PATH = "./data/open-source/fibers/cst-10/";
+const std::string  MRI_FILE_PATH     = "./data/open-source/dwi/test-data-dwi-volume.nhdr";
+const unsigned int MRI_DIMENSION_X   = 112;
+const unsigned int MRI_DIMENSION_Y   = 112;
+const unsigned int MRI_DIMENSION_Z   = 70;
+const float        MRI_VOXEL_SIZE    = 2; //mm
 
 
 #define DEBUG

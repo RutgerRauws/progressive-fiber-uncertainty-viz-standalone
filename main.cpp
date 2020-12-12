@@ -15,7 +15,7 @@ int main(int argc, char* argv[])
 {
     Configuration& config = Configuration::getInstance();
 
-    QApplication a(argc, argv);
+    QApplication application(argc, argv);
 
     UserInterface ui;
     ui.Show();
@@ -23,10 +23,20 @@ int main(int argc, char* argv[])
     QOpenGLContext& context = *dynamic_cast<QOpenGLWidget*>(ui.GetOpenGLWidget())->context();
     GL gl(context);
 
-    FiberPublisher fiberPublisher(FiberPublisher::GetVTKFilesInFolder(FIBER_FOLDER));
+    FiberPublisher fiberPublisher(FiberPublisher::GetVTKFilesInFolder(FIBER_FOLDER_PATH));
     DistanceTablesUpdater distanceTablesUpdater(gl, fiberPublisher.GetNumberOfSeedPoints());
 
-    VisitationMap visitationMap(VisitationMap::CreateVisitationMapFromDWIDimensions(gl, DWI_X, DWI_Y, DWI_Z, DWI_SIZE, config.SIDE_SIZE));
+    VisitationMap visitationMap(
+            VisitationMap::CreateVisitationMapFromDWIDimensions(
+                gl,
+                   MRI_DIMENSION_X,
+                   MRI_DIMENSION_Y,
+                   MRI_DIMENSION_Z,
+                   MRI_VOXEL_SIZE,
+                   config.SIDE_SIZE
+            )
+    );
+
     RegionsOfInterest regionsOfInterest(gl, fiberPublisher.GetNumberOfSeedPoints());
     VisitationMapUpdater visitationMapUpdater(gl, visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables());
 
@@ -37,7 +47,7 @@ int main(int argc, char* argv[])
     CenterlineRenderer centerlineRenderer(gl, distanceTablesUpdater.GetDistanceTables(), camera);
     FiberRenderer fiberRenderer(gl, camera);
 
-    MRIDataReader mriDataReader(DWI_PATH);
+    MRIDataReader mriDataReader(MRI_FILE_PATH);
     MRISlice coronalSlice = mriDataReader.GetCoronalPlane();
     MRIRenderer coronalDWIRenderer(gl, camera, coronalSlice, config.SHOW_CORONAL_PLANE);
 
@@ -54,7 +64,6 @@ int main(int argc, char* argv[])
     fiberPublisher.RegisterObserver(centerlineRenderer);
 
     OGLWidget* widget = ui.GetOpenGLWidget();
-//    widget->SetInput(&visitationMapUpdater, &visitationMapRenderer, &fiberRenderer, &centerlineRenderer, &camera, &movementHandler, &dwiRenderer);
     widget->SetInput(&visitationMapUpdater, &camera, &movementHandler);
     widget->AddRenderer(fiberRenderer);
     widget->AddRenderer(centerlineRenderer);
@@ -65,7 +74,7 @@ int main(int argc, char* argv[])
 
     fiberPublisher.Start();
 
-    a.exec();
+    application.exec();
 
     fiberPublisher.Stop();
 
