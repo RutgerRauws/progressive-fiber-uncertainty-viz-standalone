@@ -239,7 +239,7 @@ float GetVoxelIsovalue(in uint cellIndex)
         if(fiberId == 0) //No fiber present
         {
 //            return INF_POS;
-            return float(hullIsovalueThreshold + 1);
+            return silhouetteIsovalueThreshold + 1;
         }
         else
         {
