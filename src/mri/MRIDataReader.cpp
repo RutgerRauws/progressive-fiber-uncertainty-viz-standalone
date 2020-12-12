@@ -5,7 +5,8 @@
 #include "MRIDataReader.h"
 #include "MRISlice.h"
 
-MRIDataReader::MRIDataReader(const std::string& fileName)
+MRIDataReader::MRIDataReader(const std::string& fileName, float normalization_denominator)
+    : normalization_denominator(normalization_denominator)
 {
     FileReaderType::Pointer reader = FileReaderType::New();
     reader->SetFileName(fileName);
@@ -41,7 +42,7 @@ MRISlice MRIDataReader::GetCoronalPlane() const
 
             auto pixel = imageSource->GetPixel(pixelIndex);
 
-            float value = pixel / 20.0f;
+            float value = pixel / normalization_denominator;
 
             slice.SetPixel(x, z, value);
         }
@@ -66,7 +67,7 @@ MRISlice MRIDataReader::GetAxialPlane() const
 
             auto pixel = imageSource->GetPixel(pixelIndex);
 
-            float value = pixel / 20.0f;
+            float value = pixel / normalization_denominator;
 
             slice.SetPixel(x, y, value);
         }
@@ -91,7 +92,7 @@ MRISlice MRIDataReader::GetSagittalPlane() const
 
             auto pixel = imageSource->GetPixel(pixelIndex);
 
-            float value = pixel / 20.0f;
+            float value = pixel / normalization_denominator;
 
             slice.SetPixel(y, z, value);
         }

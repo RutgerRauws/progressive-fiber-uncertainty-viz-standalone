@@ -25,10 +25,11 @@ class MRIDataReader
         float size_x_wc, size_y_wc, size_z_wc;
 
         float spacing;
+        float normalization_denominator;
 
 
     public:
-        MRIDataReader(const std::string& fileName);
+        MRIDataReader(const std::string& fileName, float normalization_denominator);
 
         MRISlice GetCoronalPlane() const;//or frontal plane
         MRISlice GetAxialPlane() const; //or horizontal plane

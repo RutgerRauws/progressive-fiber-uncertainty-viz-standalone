@@ -47,7 +47,7 @@ int main(int argc, char* argv[])
     CenterlineRenderer centerlineRenderer(gl, distanceTablesUpdater.GetDistanceTables(), camera);
     FiberRenderer fiberRenderer(gl, camera);
 
-    MRIDataReader mriDataReader(MRI_FILE_PATH);
+    MRIDataReader mriDataReader(MRI_FILE_PATH, MRI_NORMALIZATION);
     MRISlice coronalSlice = mriDataReader.GetCoronalPlane();
     MRIRenderer coronalDWIRenderer(gl, camera, coronalSlice, config.SHOW_CORONAL_PLANE);
 
