@@ -71,28 +71,22 @@ void VisitationMap::getIndices(const glm::vec3& point, unsigned int& x_index, un
     z_index = uint((point.z - zmin * spacing) / spacing);
 }
 
-VisitationMap VisitationMap::CreateTest(GL& gl)
+VisitationMap VisitationMap::CreateVisitationMapFromDWIDimensions(GL& gl,
+                                                                  unsigned int nr_of_voxels_x,
+                                                                  unsigned int nr_of_voxels_y,
+                                                                  unsigned int nr_of_voxels_z,
+                                                                  float dwi_spacing, float vm_spacing)
 {
-    const float DTI_XMIN = -112;
-    const float DTI_XMAX =  112;
-    const float DTI_YMIN = -112;
-    const float DTI_YMAX =  112;
-    const float DTI_ZMIN = -70;
-    const float DTI_ZMAX =  70;
-//    const float DTI_SPACING = 0.25; //mm
-//    const float DTI_SPACING = 0.75;
-//    const float DTI_SPACING = 1;
+    auto x = (float)nr_of_voxels_x;
+    auto y = (float)nr_of_voxels_y;
+    auto z = (float)nr_of_voxels_z;
 
-    const float MAX_FIBER_LENGTH = 190; //mm? ~186.861mm
-    const glm::vec3 SEED_POINT(10.254, -6.92531, 0.630174); //estimate
-//    DTI/DWI volume dimensions from example data set
-//    const unsigned int width  = 112;
-//    const unsigned int height = 112;
-//    const unsigned int depth  = 70;
-//    const float spacing = 2;
-    VisitationMap visitationMap(gl, DTI_XMIN, DTI_XMAX, DTI_YMIN, DTI_YMAX, DTI_ZMIN, DTI_ZMAX, Configuration::getInstance().SIDE_SIZE);
-//    visitationMap.makeSphere();
-//    VisitationMap visitationMap = CreateVisitationMap(SEED_POINT, MAX_FIBER_LENGTH);
+    float xmin = -(x * dwi_spacing) / 2.0f;
+    float xmax =  (x * dwi_spacing) / 2.0f;
+    float ymin = -(y * dwi_spacing) / 2.0f;
+    float ymax =  (y * dwi_spacing) / 2.0f;
+    float zmin = -(z * dwi_spacing) / 2.0f;
+    float zmax =  (z * dwi_spacing) / 2.0f;
 
-    return visitationMap;
+    return VisitationMap(gl, xmin, xmax, ymin, ymax, zmin, zmax, vm_spacing);
 }

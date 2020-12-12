@@ -22,7 +22,7 @@ private:
 
     GL& gl;
 
-    GLint xmin, xmax, ymin, ymax, zmin, zmax;
+    GLint xmin, xmax, ymin, ymax, zmin, zmax; //coordinates in image space
     GLfloat spacing;
     GLuint width, height, depth;
 
@@ -39,7 +39,9 @@ public:
     VisitationMap(GL& gl, GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing);
     ~VisitationMap();
 
-    static VisitationMap CreateTest(GL& gl);
+    static VisitationMap CreateVisitationMapFromDWIDimensions(GL& gl,
+                                                              unsigned int x, unsigned int y, unsigned int z,
+                                                              float dwi_spacing, float vm_spacing);
 
     GLint GetXmin() const { return xmin; }
     GLint GetYmin() const { return ymin; }

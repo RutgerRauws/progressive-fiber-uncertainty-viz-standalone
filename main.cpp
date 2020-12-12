@@ -26,7 +26,7 @@ int main(int argc, char* argv[])
     FiberPublisher fiberPublisher(FIBER_FILE_NAMES);
     DistanceTablesUpdater distanceTablesUpdater(gl, fiberPublisher.GetNumberOfSeedPoints());
 
-    VisitationMap visitationMap(VisitationMap::CreateTest(gl));
+    VisitationMap visitationMap(VisitationMap::CreateVisitationMapFromDWIDimensions(gl, DWI_X, DWI_Y, DWI_Z, DWI_SIZE, config.SIDE_SIZE));
     RegionsOfInterest regionsOfInterest(gl, fiberPublisher.GetNumberOfSeedPoints());
     VisitationMapUpdater visitationMapUpdater(gl, visitationMap, regionsOfInterest, distanceTablesUpdater.GetDistanceTables());
 
