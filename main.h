@@ -30,6 +30,7 @@ const float        MRI_NORMALIZATION = 20;
 //const float        MRI_NORMALIZATION = 10;
 
 //Not properly rotated?
+//TODO: I think the data is stored in a different order. Another plane first or something.
 //const std::string  FIBER_FOLDER_PATH = "./data/closed-source/fibers/cst-68-tumor/";
 //const std::string  MRI_FILE_PATH     = "./data/closed-source/t1/t1_tumor.nii";
 //const unsigned int MRI_DIMENSION_X   = 112;

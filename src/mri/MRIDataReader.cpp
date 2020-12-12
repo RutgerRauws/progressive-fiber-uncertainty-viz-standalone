@@ -69,7 +69,7 @@ MRISlice MRIDataReader::GetAxialPlane() const
 
             float value = pixel / normalization_denominator;
 
-            slice.SetPixel(x, y, value);
+            slice.SetPixel(x, size_z - y - 1, value);
         }
     }
 
@@ -94,7 +94,7 @@ MRISlice MRIDataReader::GetSagittalPlane() const
 
             float value = pixel / normalization_denominator;
 
-            slice.SetPixel(y, z, value);
+            slice.SetPixel(size_z - y - 1, z, value);
         }
     }
 
