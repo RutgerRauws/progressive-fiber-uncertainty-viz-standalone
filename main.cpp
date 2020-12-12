@@ -23,7 +23,7 @@ int main(int argc, char* argv[])
     QOpenGLContext& context = *dynamic_cast<QOpenGLWidget*>(ui.GetOpenGLWidget())->context();
     GL gl(context);
 
-    FiberPublisher fiberPublisher(FIBER_FILE_NAMES);
+    FiberPublisher fiberPublisher(FiberPublisher::GetVTKFilesInFolder(FIBER_FOLDER));
     DistanceTablesUpdater distanceTablesUpdater(gl, fiberPublisher.GetNumberOfSeedPoints());
 
     VisitationMap visitationMap(VisitationMap::CreateVisitationMapFromDWIDimensions(gl, DWI_X, DWI_Y, DWI_Z, DWI_SIZE, config.SIDE_SIZE));

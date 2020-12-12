@@ -8,6 +8,7 @@
 #include <vtkGenericDataObjectReader.h>
 #include <vtkTransform.h>
 #include <vtkTransformPolyDataFilter.h>
+#include <glob.h>
 #include "FiberPublisher.h"
 
 FiberPublisher::FiberPublisher(vtkSmartPointer<vtkPolyData> fiberPolyData)
@@ -170,4 +171,22 @@ std::vector<vtkSmartPointer<vtkPolyData>> FiberPublisher::loadFromFiles(const st
     }
 
     return _fiberPolyDatas;
+}
+
+std::vector<std::string> FiberPublisher::GetVTKFilesInFolder(const std::string& path)
+{
+    std::vector<std::string> filePaths;
+
+    std::string pathCopy = path;
+    std::string globString = pathCopy.append("/*.vtk");
+
+    glob_t glob_result;
+    glob(globString.c_str(), GLOB_TILDE, NULL, &glob_result);
+
+    for(unsigned int i=0; i<glob_result.gl_pathc; ++i)
+    {
+        filePaths.emplace_back(glob_result.gl_pathv[i]);
+    }
+
+    return filePaths;
 }

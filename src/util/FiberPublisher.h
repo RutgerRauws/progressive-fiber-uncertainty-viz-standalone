@@ -25,11 +25,11 @@ private:
     std::vector<Fiber*> fibers;
 
     std::vector<std::thread> publishThreads;
-    
+
     void publishFibers_t(vtkSmartPointer<vtkPolyData> fiberPolyData, unsigned int seedPointId);
     static vtkSmartPointer<vtkPolyData> loadFromFile(const std::string& path);
     std::vector<vtkSmartPointer<vtkPolyData>> loadFromFiles(const std::vector<std::string>& paths);
-    
+
 public:
     explicit FiberPublisher(vtkSmartPointer<vtkPolyData> fiberPolyData);
     explicit FiberPublisher(std::vector<vtkSmartPointer<vtkPolyData>> fiberPolyDatas);
@@ -42,6 +42,8 @@ public:
     void RegisterObserver(FiberObserver& o);
 
     unsigned int GetNumberOfSeedPoints() { return fiberPolyDatas.size(); }
+
+    static std::vector<std::string> GetVTKFilesInFolder(const std::string& path);
 };
 
 
