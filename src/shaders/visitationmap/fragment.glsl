@@ -608,7 +608,7 @@ void main()
                 vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
                 fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
             }
-            else if(withinIsosurface(false, isovalue))
+            else if(!inSilhouette && withinIsosurface(false, isovalue))
             {
                 inSilhouette = true;
 
