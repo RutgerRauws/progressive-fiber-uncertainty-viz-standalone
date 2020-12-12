@@ -185,7 +185,17 @@ float VisitationMapRenderer::computeFrequencyIsovalue(bool isForHull) const
         percentage = Configuration::getInstance().SILHOUETTE_ISOVALUE_MIN_FREQUENCY_PERCENTAGE;
     }
 
-    return numberOfFibers * percentage + 0.0001f;
+    float frequencyIsovalue;
+    if(percentage == 0)
+    {
+        frequencyIsovalue = 0.01f; //we set the threshold to 0.01f in order for empty voxels not to light up.
+    }
+    else
+    {
+        frequencyIsovalue = (float)numberOfFibers * percentage;
+    }
+
+    return frequencyIsovalue;
 }
 
 float VisitationMapRenderer::computeDistanceScoreIsovalue(bool isForHull) const
@@ -199,8 +209,6 @@ float VisitationMapRenderer::computeDistanceScoreIsovalue(bool isForHull) const
     else
     {
         percentage = Configuration::getInstance().SILHOUETTE_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
-
-        std::cout << distanceTables.GetLargestDistanceScore() * percentage << std::endl;
     }
 
     return distanceTables.GetLargestDistanceScore() * percentage;

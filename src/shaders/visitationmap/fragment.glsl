@@ -372,15 +372,15 @@ void intersectionRefinement(in float isovalueThreshold, in vec3 x_near, in vec3 
 
     for(uint i = 0; i < numberOfRefinementIterationSteps; i++)
     {
-        x_new = (x_far - x_near) * ((isovalueThreshold - f_near) / (f_far - f_near)) + x_near;
+//        x_new = (x_far - x_near) * ((isovalueThreshold - f_near) / (f_far - f_near)) + x_near;
+        x_new = (x_far + x_near) / 2.0f;
 
         f_new = trilinearInterpolation(x_new);
 
         if((useFrequencyIsovalue && f_new < isovalueThreshold)
         || (!useFrequencyIsovalue && f_new > isovalueThreshold))
         {
-            // new point lies in front of the isosurface
-
+            // new point lies before of the isosurface
             x_near = x_new;
             f_near = f_new;
         }
