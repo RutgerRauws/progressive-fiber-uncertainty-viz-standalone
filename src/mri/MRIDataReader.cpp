@@ -2,10 +2,10 @@
 // Created by rutger on 11/9/20.
 //
 
-#include "DWIDataReader.h"
-#include "DWISlice.h"
+#include "MRIDataReader.h"
+#include "MRISlice.h"
 
-DWIDataReader::DWIDataReader(const std::string& fileName)
+MRIDataReader::MRIDataReader(const std::string& fileName)
 {
     FileReaderType::Pointer reader = FileReaderType::New();
     reader->SetFileName(fileName);
@@ -14,26 +14,26 @@ DWIDataReader::DWIDataReader(const std::string& fileName)
     imageSource = reader->GetOutput();
     auto dimensions = imageSource->GetLargestPossibleRegion().GetSize();
 
-    width = dimensions[0];
-    height = dimensions[2];
-    depth = dimensions[1];
+    size_x = dimensions[0];
+    size_y = dimensions[2];
+    size_z = dimensions[1];
 
     spacing = imageSource->GetSpacing()[0];
 
-    widthWC  = spacing * (float)width;
-    heightWC = spacing * (float)height;
-    depthWC  = spacing * (float)depth;
+    size_x_wc  = spacing * (float)size_x;
+    size_y_wc = spacing * (float)size_y;
+    size_z_wc  = spacing * (float)size_z;
 }
 
-DWISlice DWIDataReader::GetCoronalPlane() const
+MRISlice MRIDataReader::GetCoronalPlane() const
 {
-    DWISlice slice(width, height, widthWC, heightWC, 0);
+    MRISlice slice(size_x, size_y, size_x_wc, size_y_wc, 0);
 
-    int y = depth / 2.0;
+    int y = size_z / 2.0;
 
-    for (int x = 0; x < width; x++)
+    for (int x = 0; x < size_x; x++)
     {
-        for (int z = 0; z < height; z++)
+        for (int z = 0; z < size_y; z++)
         {
             const DiffusionImageType::IndexType pixelIndex = {
                     {x, y, z}
@@ -50,15 +50,15 @@ DWISlice DWIDataReader::GetCoronalPlane() const
     return slice;
 }
 
-DWISlice DWIDataReader::GetAxialPlane() const
+MRISlice MRIDataReader::GetAxialPlane() const
 {
-    DWISlice slice(width, depth, widthWC, 0, depthWC);
+    MRISlice slice(size_x, size_z, size_x_wc, 0, size_z_wc);
 
-    int z = height / 2.0f;
+    int z = size_y / 2.0f;
 
-    for (int x = 0; x < width; x++)
+    for (int x = 0; x < size_x; x++)
     {
-        for (int y = 0; y < depth; y++)
+        for (int y = 0; y < size_z; y++)
         {
             const DiffusionImageType::IndexType pixelIndex = {
                     {x, y, z}
@@ -75,15 +75,15 @@ DWISlice DWIDataReader::GetAxialPlane() const
     return slice;
 }
 
-DWISlice DWIDataReader::GetSagittalPlane() const
+MRISlice MRIDataReader::GetSagittalPlane() const
 {
-    DWISlice slice(depth, height, 0, heightWC, depthWC);
+    MRISlice slice(size_z, size_y, 0, size_y_wc, size_z_wc);
 
-    int x = width / 2.0;
+    int x = size_x / 2.0;
 
-    for (int y = 0; y < depth; y++)
+    for (int y = 0; y < size_z; y++)
     {
-        for (int z = 0; z < height; z++)
+        for (int z = 0; z < size_y; z++)
         {
             const DiffusionImageType::IndexType pixelIndex = {
                     {x, y, z}

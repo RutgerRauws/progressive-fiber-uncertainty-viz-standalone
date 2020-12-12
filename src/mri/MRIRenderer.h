@@ -8,16 +8,16 @@
 #include "glm/vec3.hpp"
 #include "src/util/GL.h"
 #include "../util/RenderElement.h"
-#include "DWISlice.h"
+#include "MRISlice.h"
 
-class DWIRenderer : public RenderElement
+class MRIRenderer : public RenderElement
 {
     private:
-        static constexpr auto   VERTEX_SHADER_PATH         = "./shaders/dwi/vertex.glsl";
-        static constexpr auto   FRAGMENT_SHADER_PATH       = "./shaders/dwi/fragment.glsl";
+        static constexpr auto   VERTEX_SHADER_PATH         = "./shaders/mri/vertex.glsl";
+        static constexpr auto   FRAGMENT_SHADER_PATH       = "./shaders/mri/fragment.glsl";
 
         GL& gl;
-        const DWISlice& slice;
+        const MRISlice& slice;
 
         GLuint texture_loc = 0;
         GLuint opacity_loc;
@@ -27,8 +27,8 @@ class DWIRenderer : public RenderElement
         void initialize() override;
 
 public:
-        DWIRenderer(GL& gl, const Camera& camera, const DWISlice& slice, bool& showSlice);
-        ~DWIRenderer();
+        MRIRenderer(GL& gl, const Camera& camera, const MRISlice& slice, bool& showSlice);
+        ~MRIRenderer();
 
         void Render() override;
 

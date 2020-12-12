@@ -9,9 +9,9 @@
 #include <string>
 #include <itkImage.h>
 #include <itkImageFileReader.h>
-#include "DWISlice.h"
+#include "MRISlice.h"
 
-class DWIDataReader
+class MRIDataReader
 {
     private:
         typedef short                                    VectorType;
@@ -21,18 +21,18 @@ class DWIDataReader
 
         DiffusionImagePointer imageSource;
 
-        int width, height, depth;
-        float widthWC, heightWC, depthWC;
+        int size_x, size_y, size_z;
+        float size_x_wc, size_y_wc, size_z_wc;
 
         float spacing;
 
 
     public:
-        DWIDataReader(const std::string& fileName);
+        MRIDataReader(const std::string& fileName);
 
-        DWISlice GetCoronalPlane() const;//or frontal plane
-        DWISlice GetAxialPlane() const; //or horizontal plane
-        DWISlice GetSagittalPlane() const;
+        MRISlice GetCoronalPlane() const;//or frontal plane
+        MRISlice GetAxialPlane() const; //or horizontal plane
+        MRISlice GetSagittalPlane() const;
 
         void CreatePNGs() const;
 };

@@ -7,7 +7,7 @@
 
 #include <GL/gl.h>
 
-class DWISlice
+class MRISlice
 {
 private:
     GLubyte* data;
@@ -16,14 +16,14 @@ private:
     float widthWC, heightWC, depthWC;
 
 public:
-    DWISlice(unsigned int width, unsigned int height, float widthWC, float heightWC, float depthWC)
+    MRISlice(unsigned int width, unsigned int height, float widthWC, float heightWC, float depthWC)
             : width(width), height(height),
               widthWC(widthWC), heightWC(heightWC), depthWC(depthWC)
     {
         data = new GLubyte[width * height * 4]; //RGBA
     };
 
-    ~DWISlice()
+    ~MRISlice()
     {
         delete[] data;
     };

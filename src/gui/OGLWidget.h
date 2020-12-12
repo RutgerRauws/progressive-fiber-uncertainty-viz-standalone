@@ -16,7 +16,7 @@
 #include "src/util/FiberRenderer.h"
 #include "src/util/FiberPublisher.h"
 #include "src/util/TriangleRenderer.h"
-#include "src/dwi/DWIRenderer.h"
+#include "src/mri/MRIRenderer.h"
 
 class OGLWidget : public QOpenGLWidget, public QOpenGLFunctions_4_3_Core
 {

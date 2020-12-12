@@ -2,8 +2,8 @@
 
 #include <QtOpenGL/qgl.h>
 
-#include "src/dwi/DWIRenderer.h"
-#include "src/dwi/DWIDataReader.h"
+#include "src/mri/MRIRenderer.h"
+#include "src/mri/MRIDataReader.h"
 #include "src/gui/UserInterface.h"
 #include "src/util/Camera.h"
 #include "src/interaction/TrackBallMovementHandler.h"
@@ -37,15 +37,15 @@ int main(int argc, char* argv[])
     CenterlineRenderer centerlineRenderer(gl, distanceTablesUpdater.GetDistanceTables(), camera);
     FiberRenderer fiberRenderer(gl, camera);
 
-    DWIDataReader dwiDataReader(DWI_PATH);
-    DWISlice coronalSlice = dwiDataReader.GetCoronalPlane();
-    DWIRenderer coronalDWIRenderer(gl, camera, coronalSlice, config.SHOW_CORONAL_PLANE);
+    MRIDataReader mriDataReader(DWI_PATH);
+    MRISlice coronalSlice = mriDataReader.GetCoronalPlane();
+    MRIRenderer coronalDWIRenderer(gl, camera, coronalSlice, config.SHOW_CORONAL_PLANE);
 
-    DWISlice axialSlice = dwiDataReader.GetAxialPlane();
-    DWIRenderer axialDWIRenderer(gl, camera, axialSlice, config.SHOW_AXIAL_PLANE);
+    MRISlice axialSlice = mriDataReader.GetAxialPlane();
+    MRIRenderer axialDWIRenderer(gl, camera, axialSlice, config.SHOW_AXIAL_PLANE);
 
-    DWISlice sagittalSlice = dwiDataReader.GetSagittalPlane();
-    DWIRenderer sagittalDWIRenderer(gl, camera, sagittalSlice, config.SHOW_SAGITTAL_PLANE);
+    MRISlice sagittalSlice = mriDataReader.GetSagittalPlane();
+    MRIRenderer sagittalDWIRenderer(gl, camera, sagittalSlice, config.SHOW_SAGITTAL_PLANE);
 
     fiberPublisher.RegisterObserver(distanceTablesUpdater);
     fiberPublisher.RegisterObserver(visitationMapUpdater);

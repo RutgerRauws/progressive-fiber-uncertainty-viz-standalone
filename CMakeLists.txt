@@ -43,9 +43,9 @@ add_executable(${EXECUTABLE_NAME}
     src/util/Camera.cpp src/util/Camera.h
     Configuration.h
     src/util/GL.h
-    src/dwi/DWIDataReader.cpp src/dwi/DWIDataReader.h
-    src/dwi/DWIRenderer.cpp src/dwi/DWIRenderer.h
-    src/dwi/DWISlice.h
+    src/mri/MRIDataReader.cpp src/mri/MRIDataReader.h
+    src/mri/MRIRenderer.cpp src/mri/MRIRenderer.h
+    src/mri/MRISlice.h
     src/gui/SelectColorButton.cpp src/gui/SelectColorButton.h
 )
 

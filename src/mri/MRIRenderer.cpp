@@ -3,21 +3,21 @@
 //
 #include <algorithm>
 #include <libs/glm/ext.hpp>
-#include "DWIRenderer.h"
+#include "MRIRenderer.h"
 
-DWIRenderer::DWIRenderer(GL& gl, const Camera& camera, const DWISlice& slice, bool& showSlice)
+MRIRenderer::MRIRenderer(GL& gl, const Camera& camera, const MRISlice& slice, bool& showSlice)
     : RenderElement(VERTEX_SHADER_PATH, FRAGMENT_SHADER_PATH, camera),
       gl(gl), slice(slice), showSlice(showSlice)
 {
     initialize();
 }
 
-DWIRenderer::~DWIRenderer()
+MRIRenderer::~MRIRenderer()
 {
     delete[] vertices;
 }
 
-void DWIRenderer::initialize()
+void MRIRenderer::initialize()
 {
     vertices = slice.GetVertices();
 
@@ -58,7 +58,7 @@ void DWIRenderer::initialize()
     gl.glUniform1i(opacity_loc, showSlice);
 }
 
-void DWIRenderer::Render()
+void MRIRenderer::Render()
 {
     shaderProgram->bind();
 
@@ -75,12 +75,12 @@ void DWIRenderer::Render()
     gl.glDrawArrays(GL_TRIANGLES, 0, 6);
 }
 
-unsigned int DWIRenderer::GetNumberOfVertices()
+unsigned int MRIRenderer::GetNumberOfVertices()
 {
     return 36; //6 faces which each contain 6 vertices
 }
 
-unsigned int DWIRenderer::GetNumberOfBytes()
+unsigned int MRIRenderer::GetNumberOfBytes()
 {
     return GetNumberOfVertices() * 5 * sizeof(float);
 }

@@ -35,10 +35,10 @@ const std::vector<std::string> FIBER_FILE_NAMES = {
         "./data/fibers/cst/cst-10/10.vtk",
 };
 
-const std::string DWI_PATH = "./data/mri/test-data-dwi-volume.nhdr";
-const unsigned int DWI_X   = 70;
+const std::string DWI_PATH = "./data/mri/dwi/test-data-dwi-volume.nhdr";
+const unsigned int DWI_X   = 112;
 const unsigned int DWI_Y   = 112;
-const unsigned int DWI_Z   = 112;
+const unsigned int DWI_Z   = 70;
 const float        DWI_SIZE= 2; //mm
 
 
