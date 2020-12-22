@@ -47,7 +47,7 @@ out vec4 outColor;
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
 const float stepSizeNearest = .5;
-const float stepSizeInterpolation = 1;
+const float stepSizeInterpolation = 0.5;
 const float gradCalcRadius = 3; //0.75;
 
 const float INF_POS =  1. / 0.; //works from OpenGL 4.1 and on
@@ -418,61 +418,21 @@ vec3 computeNormalVoxel(in vec3 position)
 {
     vec3 normal = vec3(0);
 
-    for(float x = position.x - gradCalcRadius; x < position.x + gradCalcRadius; x += vmp.cellSize)
-    {
-        for(float y = position.y - gradCalcRadius; y < position.y + gradCalcRadius; y += vmp.cellSize)
-        {
-            for(float z = position.z - gradCalcRadius; z < position.z + gradCalcRadius; z += vmp.cellSize)
-            {
-                vec3 nextVoxel = vec3(x, y, z);
-
-                if(isVoxelVisible(nextVoxel))        // isVoxelVisible() just checks if the voxel in question is exposed on the surface (not covered up)
-                {
-                    normal += normalize(nextVoxel - position);
-                }
-            }
-        }
-    }
-
-    return normalize(normal);
-}
-
-vec3 computeNormalPoint(in vec3 position)
-{
-    vec3 normal = vec3(0);
-
-//    float offset = 4*gradientDelta;
-//    for(float x = position.x - offset; x < position.x + offset; x += gradientDelta)
-//    {
-//        for(float y = position.y - offset; y < position.y + offset; y += gradientDelta)
-//        {
-//            for(float z = position.z - offset; z < position.z + offset; z += gradientDelta)
-//            {
-//                vec3 nextPoint = vec3(x, y, z);
-//
-//                if(isPointVisible(nextPoint))        // isPointVisible() just checks if the voxel in question is exposed on the surface (not covered up)
-//                {
-//                    normal += normalize(nextPoint - position);
-//                }
-//            }
-//        }
-//    }
-
     float g_x = 0;
     float g_y = 0;
     float g_z = 0;
 
-    vec3 d_x = vec3(gradientDelta, 0, 0);
-    vec3 d_y = vec3(0, gradientDelta, 0);
-    vec3 d_z = vec3(0, 0, gradientDelta);
+    vec3 d_x = vec3(vmp.cellSize, 0, 0);
+    vec3 d_y = vec3(0, vmp.cellSize, 0);
+    vec3 d_z = vec3(0, 0, vmp.cellSize);
 
-    const uint nr = 5;
+    const uint nr = 2;
 
     for(uint i = 0; i < nr; i++)
     {
-        g_x = trilinearInterpolation(position - i * d_x) - trilinearInterpolation(position + i * d_x);
-        g_y = trilinearInterpolation(position - i * d_y) - trilinearInterpolation(position + i * d_y);
-        g_z = trilinearInterpolation(position - i * d_z) - trilinearInterpolation(position + i * d_z);
+        g_x += GetVoxelIsovalue(GetCellIndex(position - i * d_x)) - GetVoxelIsovalue(GetCellIndex(position + i * d_x));
+        g_y += GetVoxelIsovalue(GetCellIndex(position - i * d_y)) - GetVoxelIsovalue(GetCellIndex(position + i * d_y));
+        g_z += GetVoxelIsovalue(GetCellIndex(position - i * d_z)) - GetVoxelIsovalue(GetCellIndex(position + i * d_z));
     }
 
     g_x = g_x / float(nr);
@@ -486,18 +446,40 @@ vec3 computeNormalPoint(in vec3 position)
     return normalize(normal);
 }
 
-vec3 computeShading(in vec3 position, in vec3 eyeVec)
+vec3 computeNormalPoint(in vec3 position)
 {
-    vec3 normal;
-    if(useInterpolation)
+    vec3 normal = vec3(0);
+
+    float g_x = 0;
+    float g_y = 0;
+    float g_z = 0;
+
+    vec3 d_x = vec3(gradientDelta, 0, 0);
+    vec3 d_y = vec3(0, gradientDelta, 0);
+    vec3 d_z = vec3(0, 0, gradientDelta);
+
+    const uint nr = 5;
+
+    for(uint i = 0; i < nr; i++)
     {
-        normal = computeNormalPoint(position);
-    }
-    else
-    {
-        normal = computeNormalVoxel(position);
+        g_x += trilinearInterpolation(position - i * d_x) - trilinearInterpolation(position + i * d_x);
+        g_y += trilinearInterpolation(position - i * d_y) - trilinearInterpolation(position + i * d_y);
+        g_z += trilinearInterpolation(position - i * d_z) - trilinearInterpolation(position + i * d_z);
     }
 
+    g_x = g_x / float(nr);
+    g_y = g_y / float(nr);
+    g_z = g_z / float(nr);
+
+    normal = vec3(g_x, g_y, g_z);
+
+    if(!useFrequencyIsovalue) { normal *= -1; } //normals point in the opposite direction
+
+    return normalize(normal);
+}
+
+vec3 computeShading(in vec3 position, in vec3 normal, in vec3 eyeVec)
+{
     //Surface material properties
     float alpha = 5; //shininess
 
@@ -517,6 +499,17 @@ vec3 computeShading(in vec3 position, in vec3 eyeVec)
     return color;
 }
 
+vec3 GetNormal(in vec3 position)
+{
+    if(useInterpolation)
+    {
+        return computeNormalPoint(position);
+    }
+    else
+    {
+        return computeNormalVoxel(position);
+    }
+}
 
 /*
  *
@@ -562,10 +555,13 @@ void main()
         currentPosition = cameraPosition + tNear * stepDir;
     }
 
+    currentPosition = cameraPosition + tNear * stepDir;
+
     float s = tNear;
 
     bool inHull = false;
     bool inSilhouette = false;
+    bool hasBeenInHull = false;
 
     //Start ray traversal
     while(fragmentColor.w < 1.0f)
@@ -576,7 +572,8 @@ void main()
         GetIndices(currentPosition, x_index, y_index, z_index);
         uint cellIndex = GetCellIndex(x_index, y_index, z_index);
 
-        if(!inHull)// && nearIsosurface(true, x_index, y_index, z_index))
+//        if(!inHull)// && nearIsosurface(true, x_index, y_index, z_index))
+//        if(nearIsosurface(true, x_index, y_index, z_index))
         {
             vec3 cellMin, cellMax;
             getCellMinMax(x_index, y_index, z_index, cellMin, cellMax);
@@ -597,16 +594,30 @@ void main()
                 isovalue = GetVoxelIsovalue(cellIndex);
             }
 
-            if(withinIsosurface(true, isovalue))
+            if(!inHull && withinIsosurface(true, isovalue))
             {
+                vec3 color = computeShading(refinedIntersection, GetNormal(refinedIntersection), -stepDir);
+
+                fragmentColor.rgb += color * hullOpacity * (1 - fragmentColor.a);
+                fragmentColor.a   += hullOpacity * (1 - fragmentColor.a);
+
+                if(!hasBeenInHull)
+                {
+                    vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
+                    fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
+                }
+
                 inHull = true;
-                vec3 color = computeShading(refinedIntersection, -stepDir);
+                hasBeenInHull = true;
+            }
+            else if(inHull && !withinIsosurface(true, isovalue))
+            {
+                vec3 color = computeShading(refinedIntersection, -GetNormal(refinedIntersection), stepDir);
 
-                fragmentColor *= 1 - hullOpacity;
-                fragmentColor += vec4(color, hullOpacity) * hullOpacity;
+                fragmentColor.rgb += color * hullOpacity * (1 - fragmentColor.a);
+                fragmentColor.a   += hullOpacity * (1 - fragmentColor.a);
 
-                vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
-                fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
+                inHull = false;
             }
             else if(!inSilhouette && withinIsosurface(false, isovalue))
             {
@@ -621,7 +632,7 @@ void main()
         s += stepSize;
     }
 
-    if(inHull)
+    if(hasBeenInHull)
     {
         outColor = fragmentColor;
         gl_FragDepth = fragmentDepth;
