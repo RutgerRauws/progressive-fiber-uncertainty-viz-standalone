@@ -22,6 +22,9 @@ private:
         SHOW_FIBER_SAMPLES = true;
         SHOW_REPRESENTATIVE_FIBERS = true;
 
+        REPRESENTATIVE_FIBER_DIAMETER = 0.5f;
+        REPRESENTATIVE_FIBER_COLOR = QColor(200, 0, 0);
+
         USE_TRILINEAR_INTERPOLATION = false;
         USE_FIBER_FREQUENCIES = true;
 
@@ -52,6 +55,9 @@ public:
 
     bool SHOW_FIBER_SAMPLES;
     bool SHOW_REPRESENTATIVE_FIBERS;
+
+    float  REPRESENTATIVE_FIBER_DIAMETER;
+    QColor REPRESENTATIVE_FIBER_COLOR;
 
     bool USE_TRILINEAR_INTERPOLATION;
     bool USE_FIBER_FREQUENCIES; //when false it will use distance scores

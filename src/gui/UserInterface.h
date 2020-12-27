@@ -25,7 +25,11 @@ private:
     void showSagittalPlaneClicked(bool checked);
 
     void showFiberSamplesClicked(bool checked);
+
+    //Representative fiber related
     void showRepresentativeFibersClicked(bool checked);
+    void representativeFiberColorPickerClicked(bool checked);
+    void representativeFiberDiameterChanged(double value);
 
     //Basic visitation map rendering settings
     void useTrilinearInterpolationClicked(bool checked);

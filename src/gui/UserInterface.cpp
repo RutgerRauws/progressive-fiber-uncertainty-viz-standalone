@@ -22,7 +22,11 @@ UserInterface::UserInterface()
     OGLWidget::connect(mainWindow.showSagittalPlaneCheckBox, &QCheckBox::clicked, this, &UserInterface::showSagittalPlaneClicked);
 
     OGLWidget::connect(mainWindow.showFiberSamplesCheckBox, &QCheckBox::clicked, this, &UserInterface::showFiberSamplesClicked);
+
+    //Representative fiber related
     OGLWidget::connect(mainWindow.showRepresentativeFibersCheckBox, &QCheckBox::clicked, this, &UserInterface::showRepresentativeFibersClicked);
+    OGLWidget::connect(mainWindow.representativeFiberColorPicker, &QPushButton::clicked, this, &UserInterface::representativeFiberColorPickerClicked);
+    OGLWidget::connect(mainWindow.representativeFiberDiameterSpinBox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, &UserInterface::representativeFiberDiameterChanged);
 
     //Basic visitation map rendering settings
     OGLWidget::connect(mainWindow.useTrilinearInterpolationCheckBox, &QCheckBox::clicked, this, &UserInterface::useTrilinearInterpolationClicked);
@@ -69,7 +73,11 @@ void UserInterface::loadConfiguration()
     mainWindow.showSagittalPlaneCheckBox->setChecked(config.SHOW_SAGITTAL_PLANE);
 
     mainWindow.showFiberSamplesCheckBox->setChecked(config.SHOW_FIBER_SAMPLES);
+
+    //Representative fiber related
     mainWindow.showRepresentativeFibersCheckBox->setChecked(config.SHOW_REPRESENTATIVE_FIBERS);
+    mainWindow.representativeFiberColorPicker->SetColor(config.REPRESENTATIVE_FIBER_COLOR);
+    mainWindow.representativeFiberDiameterSpinBox->setValue(config.REPRESENTATIVE_FIBER_DIAMETER);
 
     //Basic visitation map rendering settings
     mainWindow.useTrilinearInterpolationCheckBox->setChecked(config.USE_TRILINEAR_INTERPOLATION);
@@ -143,9 +151,23 @@ void UserInterface::showFiberSamplesClicked(bool checked)
     Configuration::getInstance().SHOW_FIBER_SAMPLES = checked;
 }
 
+
+/*
+ * Representative fiber related
+ */
 void UserInterface::showRepresentativeFibersClicked(bool checked)
 {
     Configuration::getInstance().SHOW_REPRESENTATIVE_FIBERS = checked;
+}
+
+void UserInterface::representativeFiberColorPickerClicked(bool checked)
+{
+    Configuration::getInstance().REPRESENTATIVE_FIBER_COLOR = mainWindow.representativeFiberColorPicker->GetColor();
+}
+
+void UserInterface::representativeFiberDiameterChanged(double value)
+{
+    Configuration::getInstance().REPRESENTATIVE_FIBER_DIAMETER = value;
 }
 
 /*

@@ -13,7 +13,10 @@ CenterlineRenderer::CenterlineRenderer(GL& gl,
       gl(gl),
       distanceTables(distanceTables),
       numberOfSeedPoints(distanceTables.GetNumberOfSeedPoints()),
+      radiusLoc(-1),
       showCenterlineLoc(-1),
+      colorLoc(-1),
+      cameraPosLoc(-1),
       numberOfFibers(0)
 {
     initialize();
@@ -41,6 +44,8 @@ void CenterlineRenderer::initialize()
     cameraPosLoc = gl.glGetUniformLocation(shaderProgram->programId(), "cameraPosition");
 
     showCenterlineLoc = gl.glGetUniformLocation(shaderProgram->programId(), "showFibers");
+    colorLoc = gl.glGetUniformLocation(shaderProgram->programId(), "color");
+    radiusLoc = gl.glGetUniformLocation(shaderProgram->programId(), "radius");
 }
 
 void CenterlineRenderer::updateData()
@@ -104,6 +109,7 @@ void CenterlineRenderer::NewFiber(Fiber* fiber)
 
 void CenterlineRenderer::Render()
 {
+    Configuration& config = Configuration::getInstance();
     shaderProgram->bind();
 
     mtx.lock();
@@ -115,7 +121,9 @@ void CenterlineRenderer::Render()
     gl.glUniformMatrix4fv(viewMatLoc, 1, GL_FALSE, glm::value_ptr(camera.viewMatrix));
     gl.glUniformMatrix4fv(projMatLoc, 1, GL_FALSE, glm::value_ptr(camera.projectionMatrix));
 
-    gl.glUniform1i(showCenterlineLoc, Configuration::getInstance().SHOW_REPRESENTATIVE_FIBERS);
+    gl.glUniform1i(showCenterlineLoc, config.SHOW_REPRESENTATIVE_FIBERS);
+    gl.glUniform1f(radiusLoc, config.REPRESENTATIVE_FIBER_DIAMETER / 2.0f);
+    gl.glUniform3f(colorLoc, config.REPRESENTATIVE_FIBER_COLOR.red() / 255.0f, config.REPRESENTATIVE_FIBER_COLOR.green() / 255.0f, config.REPRESENTATIVE_FIBER_COLOR.blue() / 255.0f);
 
     gl.glUniform3f(cameraPosLoc, camera.cameraPos.x, camera.cameraPos.y, camera.cameraPos.z);
 

@@ -4,8 +4,9 @@ uniform mat4 modelMat;
 uniform mat4 viewMat;
 uniform mat4 projMat;
 
+uniform float radius;
+
 const uint nrOfSides = 8;
-const float radius = 0.5f;
 const float PI = 3.1415926538;
 const float tDiff = PI / nrOfSides;
 

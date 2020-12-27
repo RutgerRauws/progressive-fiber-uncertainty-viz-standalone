@@ -26,7 +26,9 @@ class CenterlineRenderer : public FiberObserver, public RenderElement
 
         unsigned int numberOfSeedPoints;
 
+        GLint radiusLoc;
         GLint showCenterlineLoc;
+        GLint colorLoc;
         GLint cameraPosLoc;
 
         std::vector<const Fiber*> centerFibers;
