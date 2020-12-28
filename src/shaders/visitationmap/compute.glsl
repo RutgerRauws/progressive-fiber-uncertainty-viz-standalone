@@ -102,10 +102,11 @@ void GetCellIndices(in uint index, in uint x_index, in uint y_index, in uint z_i
 
 vec3 GetPosition(in uint x_index, in uint y_index, in uint z_index)
 {
+    float halfSize = vmp.cellSize / 2.0f;
     return vec3(
-        (vmp.dataset_aabb.xmin + int(x_index)) * vmp.cellSize,
-        (vmp.dataset_aabb.ymin + int(y_index)) * vmp.cellSize,
-        (vmp.dataset_aabb.zmin + int(z_index)) * vmp.cellSize
+        (vmp.dataset_aabb.xmin + int(x_index)) * vmp.cellSize + halfSize,
+        (vmp.dataset_aabb.ymin + int(y_index)) * vmp.cellSize + halfSize,
+        (vmp.dataset_aabb.zmin + int(z_index)) * vmp.cellSize + halfSize
     );
 }
 
