@@ -46,7 +46,7 @@ out vec4 outColor;
  */
 //Choose stepsize of less than or equal to 1.0 voxel units (or we may get aliasing in the ray direction)
 //https://www3.cs.stonybrook.edu/~qin/courses/visualization/visualization-surface-rendering-with-polygons.pdf
-const float stepSizeNearest = .5;
+const float stepSizeNearest = 0.25;
 const float stepSizeInterpolation = 0.5;
 const float gradCalcRadius = 3; //0.75;
 
@@ -414,36 +414,28 @@ bool nearIsosurface(in bool forHull, in uint x_index, in uint y_index, in uint z
  * SHADING RELATED FUNCTIONS
  *
  */
-vec3 computeNormalVoxel(in vec3 position)
+vec3 computeNormalVoxel(in vec3 intersection, in vec3 currentPosition)
 {
-    vec3 normal = vec3(0);
+    uint x_index, y_index, z_index;
+    GetIndices(currentPosition, x_index, y_index, z_index);
+    vec3 cellCenter = GetPosition(x_index, y_index, z_index);
 
-    float g_x = 0;
-    float g_y = 0;
-    float g_z = 0;
+    vec3 estimatedNormal = intersection - cellCenter;
 
-    vec3 d_x = vec3(vmp.cellSize, 0, 0);
-    vec3 d_y = vec3(0, vmp.cellSize, 0);
-    vec3 d_z = vec3(0, 0, vmp.cellSize);
-
-    const uint nr = 2;
-
-    for(uint i = 0; i < nr; i++)
+    if(abs(estimatedNormal.x) > abs(estimatedNormal.y) && abs(estimatedNormal.x) > abs(estimatedNormal.z))
     {
-        g_x += GetVoxelIsovalue(GetCellIndex(position - i * d_x)) - GetVoxelIsovalue(GetCellIndex(position + i * d_x));
-        g_y += GetVoxelIsovalue(GetCellIndex(position - i * d_y)) - GetVoxelIsovalue(GetCellIndex(position + i * d_y));
-        g_z += GetVoxelIsovalue(GetCellIndex(position - i * d_z)) - GetVoxelIsovalue(GetCellIndex(position + i * d_z));
+        return sign(estimatedNormal.x) * vec3(1, 0, 0);
+    }
+    else if(abs(estimatedNormal.y) > abs(estimatedNormal.x) && abs(estimatedNormal.y) > abs(estimatedNormal.z))
+    {
+        return sign(estimatedNormal.y) * vec3(0, 1, 0);
+    }
+    else if(abs(estimatedNormal.z) > abs(estimatedNormal.x) && abs(estimatedNormal.z) > abs(estimatedNormal.y))
+    {
+        return sign(estimatedNormal.z) * vec3(0, 0, 1);
     }
 
-    g_x = g_x / float(nr);
-    g_y = g_y / float(nr);
-    g_z = g_z / float(nr);
-
-    normal = vec3(g_x, g_y, g_z);
-
-    if(!useFrequencyIsovalue) { normal *= -1; } //normals point in the opposite direction
-
-    return normalize(normal);
+    return normalize(estimatedNormal);
 }
 
 vec3 computeNormalPoint(in vec3 position)
@@ -495,21 +487,10 @@ vec3 computeShading(in vec3 position, in vec3 normal, in vec3 eyeVec)
 
 //    vec3 R_m = 2 * dot(eyeVec, normal) * normal - eyeVec; //perfect reflection direction
 //    color += hullKSpecular * pow(dot(R_m, eyeVec), alpha) * i_s; //specular contribution
-
+    
     return color;
 }
 
-vec3 GetNormal(in vec3 position)
-{
-    if(useInterpolation)
-    {
-        return computeNormalPoint(position);
-    }
-    else
-    {
-        return computeNormalVoxel(position);
-    }
-}
 
 /*
  *
@@ -531,13 +512,13 @@ void main()
     float fragmentDepth = 1;;
 
     //Find start point
-    BoxIntersection intersection = intersectAABBs(
+    BoxIntersection intersectionPoints = intersectAABBs(
         cameraPosition,
         stepDir
     );
 
-    float tNear = intersection.Near;
-    float tFar = intersection.Far;
+    float tNear = intersectionPoints.Near;
+    float tFar = intersectionPoints.Far;
 
     //If tNear > tFar, then there is no intersection
     //If tNear and tFar are negative, the ROI is behind the camera
@@ -577,33 +558,42 @@ void main()
         {
             vec3 cellMin, cellMax;
             getCellMinMax(x_index, y_index, z_index, cellMin, cellMax);
-            BoxIntersection intersection = intersectAABB(cameraPosition, stepDir, cellMin, cellMax);
+            BoxIntersection intersectionPoints = intersectAABB(cameraPosition, stepDir, cellMin, cellMax);
 
-            vec3 x_near = cameraPosition + intersection.Near * stepDir;
-            vec3 x_far  = cameraPosition + intersection.Far * stepDir;
+            vec3 x_near = cameraPosition + intersectionPoints.Near * stepDir;
+            vec3 x_far  = cameraPosition + intersectionPoints.Far * stepDir;
 
-            vec3 refinedIntersection; float isovalue;
+            vec3 intersection; vec3 normal; float isovalue;
 
             if(useInterpolation)
             {
-                intersectionRefinement(hullIsovalueThreshold, x_near, x_far, refinedIntersection, isovalue);
+                intersectionRefinement(hullIsovalueThreshold, x_near, x_far, intersection, isovalue);
             }
             else
             {
-                refinedIntersection = currentPosition;// x_near;
+                intersection = x_near; //currentPosition;// x_near;
                 isovalue = GetVoxelIsovalue(cellIndex);
             }
 
             if(!inHull && withinIsosurface(true, isovalue))
             {
-                vec3 color = computeShading(refinedIntersection, GetNormal(refinedIntersection), -stepDir);
+                if(useInterpolation)
+                {
+                    normal = computeNormalPoint(intersection);
+                }
+                else
+                {
+                    normal = computeNormalVoxel(intersection, currentPosition);
+                }
+
+                vec3 color = computeShading(intersection, normal, -stepDir);
 
                 fragmentColor.rgb += color * hullOpacity * (1 - fragmentColor.a);
                 fragmentColor.a   += hullOpacity * (1 - fragmentColor.a);
 
                 if(!hasBeenInHull)
                 {
-                    vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
+                    vec4 depth_vec = projMat * viewMat * modelMat * vec4(intersection, 1.0);
                     fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
                 }
 
@@ -612,7 +602,16 @@ void main()
             }
             else if(inHull && !withinIsosurface(true, isovalue))
             {
-                vec3 color = computeShading(refinedIntersection, -GetNormal(refinedIntersection), stepDir);
+                if(useInterpolation)
+                {
+                    normal = computeNormalPoint(intersection);
+                }
+                else
+                {
+                    normal = computeNormalVoxel(intersection, currentPosition);
+                }
+
+                vec3 color = computeShading(intersection, -normal, stepDir);
 
                 fragmentColor.rgb += color * hullOpacity * (1 - fragmentColor.a);
                 fragmentColor.a   += hullOpacity * (1 - fragmentColor.a);
@@ -623,7 +622,7 @@ void main()
             {
                 inSilhouette = true;
 
-                vec4 depth_vec = projMat * viewMat * modelMat * vec4(refinedIntersection, 1.0);
+                vec4 depth_vec = projMat * viewMat * modelMat * vec4(intersection, 1.0);
                 fragmentDepth = ((depth_vec.z / depth_vec.w) + 1.0) * 0.5;
             }
         }
