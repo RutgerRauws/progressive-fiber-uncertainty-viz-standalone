@@ -75,7 +75,7 @@
    </palette>
   </property>
   <property name="windowTitle">
-   <string>Progressive fiber uncertainty visualization</string>
+   <string>Progressive Fiber Uncertainty Plots</string>
   </property>
   <property name="autoFillBackground">
    <bool>false</bool>
@@ -470,7 +470,7 @@
             <item>
              <widget class="QLabel" name="label_4">
               <property name="text">
-               <string>Preferred metric:</string>
+               <string>Preferred measure:</string>
               </property>
              </widget>
             </item>

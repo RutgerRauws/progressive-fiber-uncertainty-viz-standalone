@@ -771,7 +771,7 @@ public:
 
     void retranslateUi(QMainWindow *MainWindow)
     {
-        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Progressive fiber uncertainty visualization", nullptr));
+        MainWindow->setWindowTitle(QCoreApplication::translate("MainWindow", "Progressive Fiber Uncertainty Plots", nullptr));
         actionLoad_sample_data->setText(QCoreApplication::translate("MainWindow", "Load sample data..", nullptr));
         menuFile->setTitle(QCoreApplication::translate("MainWindow", "File", nullptr));
         menuHelp->setTitle(QCoreApplication::translate("MainWindow", "Help", nullptr));
@@ -796,7 +796,7 @@ public:
         label_17->setText(QCoreApplication::translate("MainWindow", "Tube diameter (mm):", nullptr));
         visitationMapGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Visitation Map", nullptr));
         useTrilinearInterpolationCheckBox->setText(QCoreApplication::translate("MainWindow", "Use trilinear interpolation", nullptr));
-        label_4->setText(QCoreApplication::translate("MainWindow", "Preferred metric:", nullptr));
+        label_4->setText(QCoreApplication::translate("MainWindow", "Preferred measure:", nullptr));
         fiberFrequenciesRadioButton->setText(QCoreApplication::translate("MainWindow", "Use fiber frequencies", nullptr));
         distanceScoresRadioButton->setText(QCoreApplication::translate("MainWindow", "Use distance scores", nullptr));
         groupBox->setTitle(QCoreApplication::translate("MainWindow", "Hull", nullptr));
