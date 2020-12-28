@@ -23,8 +23,8 @@ private:
     GL& gl;
 
     GLint xmin, xmax, ymin, ymax, zmin, zmax; //coordinates in image space
-    GLfloat spacing;
-    GLuint width, height, depth;
+    GLfloat spacing; //side length of a cell
+    GLuint width, height, depth; //number of cells in each direction
 
     Cell* cell_data;
     GLuint cells_ssbo;
@@ -36,6 +36,17 @@ private:
     void makeSphere();
 
 public:
+    /***
+     * Set up the visitation map's memory layout on the GPU.
+     * @param gl        Reference to the OpenGL functions
+     * @param xmin      Minimum x-coordinate of the visitation map in world coordinates.
+     * @param xmax      Maximum x-coordinate of the visitation map in world coordinates.
+     * @param ymin      Minimum y-coordinate of the visitation map in world coordinates.
+     * @param ymax      Maximum y-coordinate of the visitation map in world coordinates.
+     * @param zmin      Minimum z-coordinate of the visitation map in world coordinates.
+     * @param zmax      Maximum z-coordinate of the visitation map in world coordinates.
+     * @param spacing   The side length of a single cell.
+     */
     VisitationMap(GL& gl, GLfloat xmin, GLfloat xmax, GLfloat ymin, GLfloat ymax, GLfloat zmin, GLfloat zmax, GLfloat spacing);
     ~VisitationMap();
 
