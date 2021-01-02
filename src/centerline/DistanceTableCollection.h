@@ -19,6 +19,8 @@ private:
     std::vector<DistanceTable> distanceTables;
     std::vector<double*> distanceScores;
 
+    std::vector<double*> sortedDistanceScores;
+
     GLuint distance_scores_ssbo_id;
 
     double smallestDistanceScore;
@@ -38,6 +40,7 @@ public:
 
     double GetSmallestDistanceScore() const { return smallestDistanceScore; };
     double GetLargestDistanceScore() const { return largestDistanceScore; };
+    double GetDistanceScoreForPercentage(float percentage) const;
 };
 
 

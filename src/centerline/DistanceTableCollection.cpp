@@ -18,6 +18,11 @@ DistanceTableCollection::DistanceTableCollection(GL& gl, unsigned int numberOfSe
     gl.glGenBuffers(1, &distance_scores_ssbo_id);
 }
 
+bool comparisonDistanceScorePtrs(double* score_ptr, double* score2_ptr)
+{
+    return *score_ptr < *score2_ptr;
+}
+
 void DistanceTableCollection::InsertFiber(unsigned int seedPointId, Fiber* fiber)
 {
     DistanceTable& distanceTable = distanceTables.at(seedPointId);
@@ -25,8 +30,11 @@ void DistanceTableCollection::InsertFiber(unsigned int seedPointId, Fiber* fiber
     mtx.lock();
     DistanceEntry* newDistanceEntry = distanceTable.InsertNewFiber(*fiber);
 
-    distanceScores.resize(fiber->GetId() + 1, nullptr);
+    distanceScores.resize( fiber->GetId() + 1, nullptr);
     distanceScores.at(fiber->GetId()) = &(newDistanceEntry->distance);
+
+    sortedDistanceScores.push_back(&(newDistanceEntry->distance));
+    std::sort(sortedDistanceScores.begin(), sortedDistanceScores.end(), comparisonDistanceScorePtrs);
 
     if(newDistanceEntry->distance < smallestDistanceScore)
     {
@@ -73,4 +81,23 @@ std::vector<double> DistanceTableCollection::GetDistanceScoreCopy() const
     }
 
     return distanceScoresCopy;
+}
+
+double DistanceTableCollection::GetDistanceScoreForPercentage(float percentage) const
+{
+    unsigned int numberOfFibers = sortedDistanceScores.size();
+
+    if(numberOfFibers == 0)
+    {
+        return 0;
+    }
+
+    int index = percentage * numberOfFibers - 1;
+
+    if(index < 0)
+    {
+        return 0;
+    }
+
+    return *sortedDistanceScores[index];
 }

@@ -211,7 +211,7 @@ float VisitationMapRenderer::computeDistanceScoreIsovalue(bool isForHull) const
         percentage = Configuration::getInstance().SILHOUETTE_ISOVALUE_MAX_DISTANCE_SCORE_PERCENTAGE;
     }
 
-    return distanceTables.GetLargestDistanceScore() * percentage;
+    return distanceTables.GetDistanceScoreForPercentage(percentage);
 }
 
 void VisitationMapRenderer::Render()
