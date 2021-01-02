@@ -149,9 +149,9 @@ void VisitationMapUpdater::Update()
     //minimum supported is 65535
 
     gl.glDispatchCompute(
-            nextPowerOfTwo(visitationMap.GetWidth() / 8),
-            nextPowerOfTwo(visitationMap.GetHeight() / 8),
-            nextPowerOfTwo(visitationMap.GetDepth() / 8)
+        std::ceil(visitationMap.GetWidth()  / 8.0f),
+        std::ceil(visitationMap.GetHeight() / 8.0f),
+        std::ceil(visitationMap.GetDepth()  / 8.0f)
     );
 
     gl.glMemoryBarrier(GL_SHADER_STORAGE_BARRIER_BIT);
